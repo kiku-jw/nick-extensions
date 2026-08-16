@@ -44,6 +44,13 @@
 .studynav-para-tools button:hover, .studynav-imgdl:hover, .studynav-media-bar button:hover {
   background: #5278b3;
 }
+.studynav-para-tools .studynav-verse-range-control {
+  background: #222e40;
+}
+.studynav-para-tools .studynav-verse-range-control:hover,
+.studynav-para-tools .studynav-verse-range-control[aria-pressed="true"] {
+  background: #36517f;
+}
 .studynav-para-tools button:active, .studynav-imgdl:active, .studynav-media-bar button:active {
   background: #36517f;
   transform: translateY(1px);

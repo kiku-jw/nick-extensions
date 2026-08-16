@@ -33,6 +33,7 @@ if (demo) {
   const notes = demo.querySelector('[data-demo-notes]');
   const highlight = demo.querySelector('[data-demo-highlight]');
   const reading = demo.querySelector('.demo-reading-main');
+  const audioLabel = demo.querySelector('[data-demo-audio-label]');
   const copyToggle = demo.querySelector('[data-demo-toggle="copy"]');
   const mediaToggle = demo.querySelector('[data-demo-toggle="media"]');
 
@@ -40,18 +41,22 @@ if (demo) {
     ? {
         off: 'Инструменты выключены',
         verse: 'Выбран стих 3',
-        range: 'Выбраны стихи 3–4 · одна ссылка',
+        range: 'Выбраны стихи 3–4 · текст, ссылка и аудио используют оба стиха',
         note: 'Заметка показана справа',
-        audio: 'Введите начало и конец фрагмента',
+        audio: 'Стихи 3–4 будут скачаны одним WAV-файлом',
+        audioSingle: 'Скачать аудио',
+        audioRange: 'Скачать аудио 3–4',
         copy: 'Будет скопирован только текст стиха',
         shading: 'Затемнение плеера убрано',
       }
     : {
         off: 'Tools are off',
         verse: 'Verse 3 is selected',
-        range: 'Verses 3–4 selected · one link',
+        range: 'Verses 3–4 selected · text, link, and audio use both verses',
         note: 'The note is visible on the right',
-        audio: 'Enter the segment start and end',
+        audio: 'Verses 3–4 will download as one WAV file',
+        audioSingle: 'Download audio',
+        audioRange: 'Download audio 3–4',
         copy: 'Only the verse words will be copied',
         shading: 'Player shading is removed',
       };
@@ -93,12 +98,16 @@ if (demo) {
     if (master instanceof HTMLInputElement && !master.checked) master.checked = true;
     refreshDemo();
     reading?.classList.toggle('range-selected');
-    setStatus(reading?.classList.contains('range-selected') ? words.range : words.verse);
+    const hasRange = reading?.classList.contains('range-selected');
+    if (audioLabel) audioLabel.textContent = hasRange ? words.audioRange : words.audioSingle;
+    setStatus(hasRange ? words.range : words.verse);
   });
 
   demo.querySelector('[data-demo-action="audio"]')?.addEventListener('click', () => {
     if (master instanceof HTMLInputElement && !master.checked) master.checked = true;
     refreshDemo();
+    reading?.classList.add('range-selected');
+    if (audioLabel) audioLabel.textContent = words.audioRange;
     setStatus(words.audio);
   });
 

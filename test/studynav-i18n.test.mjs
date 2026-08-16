@@ -47,7 +47,7 @@ describe('StudyNav localization contract', () => {
   test('uses English fallback and numbered substitutions without Chrome APIs', () => {
     delete globalThis.chrome;
     expect(t('status_bible_selected', ['3', '16'])).toBe(
-      'Verse 3:16 is selected. Shift-click another verse for a consecutive range.',
+      'Verse 3:16 is selected. Choose Select several to include the verses that follow.',
     );
     expect(uiLanguage()).toBe('en');
   });
@@ -70,7 +70,7 @@ describe('StudyNav localization contract', () => {
 
   test('localizes manifest identity and command metadata through Chrome i18n', async () => {
     const manifest = await json('packages/studynav/manifest.json');
-    expect(manifest.version).toBe('1.5.0');
+    expect(manifest.version).toBe('1.5.1');
     expect(manifest.default_locale).toBe('en');
     expect(manifest.name).toBe('__MSG_extension_name__');
     expect(manifest.short_name).toBe('__MSG_extension_short_name__');

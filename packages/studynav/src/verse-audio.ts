@@ -4,6 +4,7 @@ const MEDIA_API_HOST = 'b.jw-cdn.org';
 const MEDIA_API_PATH = '/apis/pub-media/getpubmedialinks';
 const MAX_CHAPTER_AUDIO_BYTES = 64 * 1024 * 1024;
 const MAX_VERSE_SECONDS = 120;
+const MAX_VERSES_PER_CLIP = 200;
 const MAX_WAV_BYTES = 24 * 1024 * 1024;
 export const MAX_MEDIA_CLIP_SECONDS = 120;
 export const MAX_MEDIA_VIDEO_CLIP_SECONDS = 60;
@@ -16,7 +17,7 @@ export type BibleVerse = {
 
 export type VerseAudioRequest = {
   type: 'DOWNLOAD_VERSE_AUDIO';
-  verseId: string;
+  verseIds: string[];
   apiUrl: string;
   label: string;
 };
@@ -46,8 +47,8 @@ export type ValidatedMediaVideoClipRequest = MediaVideoClipRequest & {
 };
 
 export type ValidatedVerseAudioRequest = {
-  verse: BibleVerse;
-  verseId: string;
+  verses: BibleVerse[];
+  verseIds: string[];
   apiUrl: string;
   label: string;
 };
@@ -179,29 +180,44 @@ export function validateVerseAudioRequest(
 ): ValidatedVerseAudioRequest | null {
   if (!isRecord(value) || value.type !== 'DOWNLOAD_VERSE_AUDIO') return null;
   if (
-    typeof value.verseId !== 'string' ||
+    !Array.isArray(value.verseIds) ||
     typeof value.apiUrl !== 'string' ||
     typeof value.label !== 'string'
   ) return null;
 
-  const verse = parseBibleVerseId(value.verseId);
-  if (!verse) return null;
+  if (
+    value.verseIds.length < 1 ||
+    value.verseIds.length > MAX_VERSES_PER_CLIP ||
+    value.verseIds.some((verseId) => typeof verseId !== 'string')
+  ) return null;
+  const parsed = value.verseIds.map((verseId) => parseBibleVerseId(verseId as string));
+  if (parsed.some((verse) => verse === null)) return null;
+  const verses = (parsed as BibleVerse[]).sort((left, right) => left.verse - right.verse);
+  const first = verses[0];
+  if (!first) return null;
+  if (verses.some((verse, index) =>
+    verse.book !== first.book ||
+    verse.chapter !== first.chapter ||
+    verse.verse !== first.verse + index
+  )) return null;
+  const verseIds = verses.map((verse) =>
+    `v${verse.book}${String(verse.chapter).padStart(3, '0')}${String(verse.verse).padStart(3, '0')}`);
 
   try {
     const page = new URL(senderUrl);
     const isJw = page.hostname === 'jw.org' || page.hostname.endsWith('.jw.org');
     const chapter = parseBibleChapterFromPath(page.pathname);
     if (!isJw || !/^https?:$/.test(page.protocol) || chapter === null) return null;
-    if (chapter !== verse.chapter) return null;
+    if (chapter !== first.chapter) return null;
   } catch {
     return null;
   }
 
-  const apiUrl = validateMediaApiUrl(value.apiUrl, verse);
+  const apiUrl = validateMediaApiUrl(value.apiUrl, first);
   if (!apiUrl) return null;
   return {
-    verse,
-    verseId: value.verseId,
+    verses,
+    verseIds,
     apiUrl,
     label: value.label.slice(0, 120),
   };
@@ -365,43 +381,78 @@ export function safeFilenamePart(value: string): string {
 
 export function selectVerseClipSource(
   payload: unknown,
-  verse: BibleVerse,
+  verses: readonly BibleVerse[],
   label: string,
 ): VerseClipSource | null {
-  if (!isRecord(payload) || !isRecord(payload.files)) return null;
+  if (!isRecord(payload) || !isRecord(payload.files) || !verses.length) return null;
+  const orderedVerses = [...verses].sort((left, right) => left.verse - right.verse);
+  const firstVerse = orderedVerses[0];
+  const lastVerse = orderedVerses.at(-1);
+  if (
+    !firstVerse ||
+    !lastVerse ||
+    orderedVerses.length > MAX_VERSES_PER_CLIP ||
+    orderedVerses.some((verse, index) =>
+      verse.book !== firstVerse.book ||
+      verse.chapter !== firstVerse.chapter ||
+      verse.verse !== firstVerse.verse + index
+    )
+  ) return null;
 
   for (const languageFiles of Object.values(payload.files)) {
     if (!isRecord(languageFiles) || !Array.isArray(languageFiles.MP3)) continue;
     for (const item of languageFiles.MP3) {
       if (!isRecord(item) || !isRecord(item.file) || !isRecord(item.markers)) continue;
       if (
-        Number(item.markers.bibleBookNumber) !== verse.book ||
-        Number(item.markers.bibleBookChapter) !== verse.chapter ||
+        Number(item.markers.bibleBookNumber) !== firstVerse.book ||
+        Number(item.markers.bibleBookChapter) !== firstVerse.chapter ||
         !Array.isArray(item.markers.markers)
       ) continue;
-      const marker = item.markers.markers.find((candidate) =>
-        isRecord(candidate) && Number(candidate.verseNumber) === verse.verse);
-      if (!isRecord(marker) || typeof item.file.url !== 'string' || !isJwCdnUrl(item.file.url)) continue;
+      if (typeof item.file.url !== 'string' || !isJwCdnUrl(item.file.url)) continue;
+      const markerList = item.markers.markers;
 
-      const startSeconds = parseMediaClock(marker.startTime);
-      const durationSeconds = parseMediaClock(marker.duration);
       const trackDuration = finiteNumber(item.duration);
       const expectedBytes = finiteNumber(item.filesize);
       if (
-        startSeconds === null ||
-        durationSeconds === null ||
-        startSeconds < 0 ||
-        durationSeconds <= 0 ||
-        durationSeconds > MAX_VERSE_SECONDS ||
-        (trackDuration !== null && startSeconds + durationSeconds > trackDuration + 1) ||
         (expectedBytes !== null && (expectedBytes <= 0 || expectedBytes > MAX_CHAPTER_AUDIO_BYTES))
       ) continue;
+
+      const selectedMarkers = orderedVerses.map((verse) => {
+        const matches = markerList.filter((candidate) =>
+          isRecord(candidate) && Number(candidate.verseNumber) === verse.verse);
+        if (matches.length !== 1 || !isRecord(matches[0])) return null;
+        const startSeconds = parseMediaClock(matches[0].startTime);
+        const durationSeconds = parseMediaClock(matches[0].duration);
+        if (
+          startSeconds === null ||
+          durationSeconds === null ||
+          startSeconds < 0 ||
+          durationSeconds <= 0 ||
+          durationSeconds > MAX_VERSE_SECONDS ||
+          (trackDuration !== null && startSeconds + durationSeconds > trackDuration + 1)
+        ) return null;
+        return { startSeconds, durationSeconds };
+      });
+      if (selectedMarkers.some((marker) => marker === null)) continue;
+      const markers = selectedMarkers as Array<{ startSeconds: number; durationSeconds: number }>;
+      if (markers.some((marker, index) => index > 0 && marker.startSeconds <= markers[index - 1].startSeconds)) {
+        continue;
+      }
+
+      const startSeconds = markers[0].startSeconds;
+      const endSeconds = markers.at(-1)!.startSeconds + markers.at(-1)!.durationSeconds;
+      const durationSeconds = markers.length === 1 ? markers[0].durationSeconds : endSeconds - startSeconds;
+      if (durationSeconds <= 0 || durationSeconds > MAX_MEDIA_CLIP_SECONDS) continue;
+
+      const verseSuffix = firstVerse.verse === lastVerse.verse
+        ? String(firstVerse.verse)
+        : `${firstVerse.verse}-${lastVerse.verse}`;
 
       return {
         audioUrl: item.file.url,
         startSeconds,
         durationSeconds,
-        filename: `${safeFilenamePart(label)}_${verse.chapter}_${verse.verse}.wav`,
+        filename: `${safeFilenamePart(label)}_${firstVerse.chapter}_${verseSuffix}.wav`,
         expectedBytes,
       };
     }

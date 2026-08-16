@@ -188,7 +188,7 @@ for (const name of pkgs) {
     const studyStorageSource = readFileSync(join(root, 'packages/studynav/src/study-storage.ts'), 'utf8');
     const featureIds = [...featureDefaultsSource.matchAll(/\{ id: '([^']+)'/g)].map((match) => match[1]);
     const hosts = manifest.host_permissions || [];
-    ok(manifest.version === '1.5.0', `${name}: expected 1.5.0 release version`);
+    ok(manifest.version === '1.5.1', `${name}: expected 1.5.1 release version`);
     ok(
       hosts.length === 3 &&
         hosts.includes('*://*.jw.org/*') &&
@@ -290,6 +290,13 @@ for (const name of pkgs) {
 }
 
 console.log('\n== public StudyNav guide ==');
+const guideCss = readFileSync(join(root, 'site', 'assets', 'site.css'), 'utf8');
+ok(
+  guideCss.includes('color-scheme: dark') &&
+    guideCss.includes('--paper: #0b1018') &&
+    guideCss.includes('--accent: #43669f'),
+  'StudyNav guide uses the dark default palette and product accent',
+);
 for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
   const htmlPath = join(root, relativeHtml);
   const html = readFileSync(htmlPath, 'utf8');
@@ -303,6 +310,12 @@ for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
   );
   ok(/not produced, endorsed|не выпускается, не поддерживается и не одобряется/i.test(html), `${relativeHtml}: clear non-affiliation statement`);
   ok(!/3-minute|3-минут/i.test(html), `${relativeHtml}: tutorial duration copy is current`);
+  ok(/1\.5\.1/.test(html), `${relativeHtml}: current release is visible`);
+  ok(/several consecutive verses|несколько стихов подряд/i.test(html), `${relativeHtml}: consecutive verse audio is explained`);
+  ok(
+    !/slower learning|red (?:ring|circle)|product choices|production note|animation direction|focus marker|render pipeline|более медленное(?: и понятное)? обучение|красное кольцо|продуктовые решения|внутренн(?:ий|его) беклог|указани[ея] для анимации|маркер показывает, куда смотреть|процесс монтажа/i.test(html),
+    `${relativeHtml}: internal production copy is absent`,
+  );
 
   const localRefs = [...html.matchAll(/(?:src|href)="([^"#]+)"/g)]
     .map((match) => match[1])

@@ -87,7 +87,7 @@ async function processVerseAudio(message: unknown, senderUrl: string) {
       type: 'PROCESS_VERSE_AUDIO',
       request: {
         type: 'DOWNLOAD_VERSE_AUDIO',
-        verseId: request.verseId,
+        verseIds: request.verseIds,
         apiUrl: request.apiUrl,
         label: request.label,
       },

@@ -74,11 +74,11 @@ async function processVerseAudio(message: OffscreenMessage) {
 
   const metadataResponse = await fetchWithTimeout(request.apiUrl, 15_000);
   if (!metadataResponse.ok) throw new Error(t('verse_timing_unavailable'));
-  if (!validateMediaApiUrl(metadataResponse.url, request.verse)) {
+  if (!validateMediaApiUrl(metadataResponse.url, request.verses[0])) {
     throw new Error(t('verse_timing_redirected'));
   }
   const metadata: unknown = await metadataResponse.json();
-  const source = selectVerseClipSource(metadata, request.verse, request.label);
+  const source = selectVerseClipSource(metadata, request.verses, request.label);
   if (!source) throw new Error(t('verse_timing_missing'));
 
   const audioResponse = await fetchWithTimeout(source.audioUrl, 45_000);

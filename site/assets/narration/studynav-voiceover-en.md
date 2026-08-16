@@ -1,4 +1,4 @@
-# StudyNav 1.5 — English voice-over
+# StudyNav 1.5.1 — English voice-over
 
 Delivery: conversational, clear, 132–138 words per minute. Leave about 0.5 seconds after each scene. Do not read the scene numbers or action cues.
 
@@ -12,13 +12,13 @@ Choose one of six colors, then add a private note and useful tags.
 
 Action cue: select a sentence, choose purple, type a short note, and show the right notes rail.
 
-## 02 — Saved places
+## 02 — Save a place to return to
 
 Save an exact page, paragraph, verse, or range and return to it later.
 
 Action cue: save the paragraph, open Study library, and focus the saved result.
 
-## 03 — Formatted citations
+## 03 — Copy a quote with its source
 
 Copy the quotation, its reference, and a precise link in one action.
 
@@ -30,17 +30,17 @@ Create a QR code locally and check its exact address before sharing.
 
 Action cue: open the QR panel, circle the visible target URL, then the Copy link button.
 
-## 05 — Stable publication link
+## 05 — Clean publication link
 
 Open a clean Finder address when the current page link is long or contains extra parameters.
 
-Action cue: press Open stable publication link, then show the Finder address ready to save or share.
+Action cue: press Open clean publication link, then show the Finder address ready to save or share.
 
-## 06 — One-verse audio
+## 06 — Audio for selected verses
 
-Select one verse and download only its narration as a local WAV file.
+Select one verse or several consecutive verses and save the narration as one local WAV file.
 
-Action cue: click a verse number, circle Download audio, and show the finished filename.
+Action cue: click the first verse, press Select several, click the last verse, circle Download audio 3–5, and show the finished filename.
 
 ## 07 — Clean text copy
 
@@ -50,11 +50,11 @@ Action cue: press Copy and compare the page line with the clean clipboard result
 
 ## 08 — Verse-range links
 
-Click the first verse, Shift-click the last, and copy one range link.
+Click the first verse, press Select several, click the last verse, and copy one range link.
 
 Action cue: select verses three through five and circle the single range URL.
 
-## 09 — Publication shortcuts
+## 09 — Search by publication code
 
 Use the keyboard palette for known publication codes and document IDs. This is not AI.
 

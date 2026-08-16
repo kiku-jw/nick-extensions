@@ -54,7 +54,7 @@ const VERSE_AUDIO_LIVE_CASES = [
     label: 'English',
     url: 'https://www.jw.org/en/library/bible/study-bible/books/genesis/1/',
     apiUrl: VERSE_AUDIO_API_URL,
-    filename: 'Genesis_1_3.wav',
+    filename: 'Genesis_1_3-5.wav',
   },
   {
     id: 'studynav-verse-audio-live-ru',
@@ -62,7 +62,7 @@ const VERSE_AUDIO_LIVE_CASES = [
     label: 'Russian',
     url: 'https://www.jw.org/ru/%D0%B1%D0%B8%D0%B1%D0%BB%D0%B8%D0%BE%D1%82%D0%B5%D0%BA%D0%B0/%D0%B1%D0%B8%D0%B1%D0%BB%D0%B8%D1%8F/%D1%83%D1%87%D0%B5%D0%B1%D0%BD%D0%B0%D1%8F-%D0%B1%D0%B8%D0%B1%D0%BB%D0%B8%D1%8F/%D0%BA%D0%BD%D0%B8%D0%B3%D0%B8/%D0%91%D1%8B%D1%82%D0%B8%D0%B5/1/',
     apiUrl: `https://${HOSTS.jwApi}/apis/pub-media/GETPUBMEDIALINKS?booknum=1&output=json&pub=nwt&fileformat=MP3&alllangs=0&track=1&langwritten=U&txtCMSLang=U`,
-    filename: 'Бытие_1_3.wav',
+    filename: 'Бытие_1_3-5.wav',
   },
   {
     id: 'studynav-verse-audio-live-uk',
@@ -70,7 +70,7 @@ const VERSE_AUDIO_LIVE_CASES = [
     label: 'Ukrainian',
     url: 'https://www.jw.org/uk/%D0%B1%D1%96%D0%B1%D0%BB%D1%96%D0%BE%D1%82%D0%B5%D0%BA%D0%B0/%D0%B1%D1%96%D0%B1%D0%BB%D1%96%D1%8F/%D0%BD%D0%B0%D0%B2%D1%87%D0%B0%D0%BB%D1%8C%D0%BD%D0%B5-%D0%B2%D0%B8%D0%B4%D0%B0%D0%BD%D0%BD%D1%8F-%D0%B1%D1%96%D0%B1%D0%BB%D1%96%D1%97/%D0%BA%D0%BD%D0%B8%D0%B3%D0%B8/%D0%91%D1%83%D1%82%D1%82%D1%8F/1/',
     apiUrl: `https://${HOSTS.jwApi}/apis/pub-media/GETPUBMEDIALINKS?booknum=1&output=json&pub=nwt&fileformat=MP3&alllangs=0&track=1&langwritten=K&txtCMSLang=K`,
-    filename: 'Буття_1_3.wav',
+    filename: 'Буття_1_3-5.wav',
   },
 ];
 const DEFAULT_CLEARSHIELD = {
@@ -2778,6 +2778,12 @@ async function runStudyNavScenario(executablePath, port) {
     await imageFallbackPage.waitForLoadState('domcontentloaded');
     const imageFallbackUrl = imageFallbackPage.url();
     await imageFallbackPage.close();
+    await jwPage.evaluate(() => {
+      const image = document.getElementById('article-image');
+      if (image instanceof HTMLImageElement) {
+        image.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
+      }
+    });
 
     await jwPage.locator('#v1001003 .jsHighlightOnly').click();
     await jwPage.waitForFunction(() => {
@@ -2793,7 +2799,8 @@ async function runStudyNavScenario(executablePath, port) {
     const selectedVerseState = await getStudyNavState(jwPage);
 
     await jwPage.locator('#v1001001 .jsHighlightOnly').click();
-    await jwPage.locator('#v1001003 .jsHighlightOnly').click({ modifiers: ['Shift'] });
+    await jwPage.locator('#v1001001 > .studynav-para-tools .studynav-verse-range-control').click();
+    await jwPage.locator('#v1001003 .jsHighlightOnly').click();
     await jwPage.waitForFunction(() =>
       document.querySelectorAll('.verse.studynav-verse-selected').length === 3 &&
       document.querySelector('#v1001003 > .studynav-para-tools')?.getAttribute('data-sn-verse-floating') === '1');
@@ -2802,6 +2809,8 @@ async function runStudyNavScenario(executablePath, port) {
     const rangeSingleVerseControlsHidden = await jwPage.locator('#v1001003 > .studynav-para-tools').evaluate((toolbar) =>
       Array.from(toolbar.querySelectorAll('[data-single-verse-only="1"]')).every((control) => control.hidden));
     const rangeToolbar = jwPage.locator('#v1001003 > .studynav-para-tools');
+    const rangeAudioLabel = await rangeToolbar.locator('.studynav-verse-audio').textContent();
+    const rangeClearLabel = await rangeToolbar.locator('.studynav-verse-range-control').textContent();
     await rangeToolbar.locator('button', { hasText: 'Copy' }).click();
     const copiedVerseRange = await waitForCopiedText(
       jwPage,
@@ -2819,6 +2828,18 @@ async function runStudyNavScenario(executablePath, port) {
       'StudyNav range link did not preserve the selected contiguous verse range',
     );
     const rangeStatus = await sendStudyNavPageAction(worker, jwPage.url(), 'GET_STUDYNAV_STATUS');
+    await rangeToolbar.locator('.studynav-verse-range-control').click();
+    await jwPage.waitForFunction(() =>
+      document.querySelectorAll('.verse.studynav-verse-selected').length === 0);
+    await jwPage.locator('#v1001001 .jsHighlightOnly').click();
+    await jwPage.locator('#v1001003 .jsHighlightOnly').click({ modifiers: ['Shift'] });
+    await jwPage.waitForFunction(() =>
+      document.querySelectorAll('.verse.studynav-verse-selected').length === 3);
+    const shiftRangeIds = await jwPage.locator('.verse.studynav-verse-selected').evaluateAll((verses) =>
+      verses.map((verse) => verse.id));
+    await jwPage.locator('#v1001003 .studynav-verse-range-control').click();
+    await jwPage.waitForFunction(() =>
+      document.querySelectorAll('.verse.studynav-verse-selected').length === 0);
     await jwPage.locator('#v1001003 .jsHighlightOnly').click();
     await jwPage.waitForFunction(() =>
       document.querySelectorAll('.verse.studynav-verse-selected').length === 1 &&
@@ -3003,9 +3024,11 @@ async function runStudyNavScenario(executablePath, port) {
         selectedVerseState,
       ),
       makeAssertion(
-        'StudyNav Shift-selects contiguous verse ranges, copies clean text, and creates one range link',
+        'StudyNav touch-friendly controls select and clear a contiguous range for audio, copy, and links',
         JSON.stringify(selectedRangeState.selectedVerses) === JSON.stringify(['v1001001', 'v1001002', 'v1001003']) &&
           rangeSingleVerseControlsHidden === true &&
+          rangeAudioLabel === 'Download audio 1–3' &&
+          rangeClearLabel === 'Clear selection' &&
           copiedVerseRange === [
             'A quiet path began near the hills.',
             'Travelers paused to study the map.',
@@ -3015,7 +3038,20 @@ async function runStudyNavScenario(executablePath, port) {
           rangeStatus?.selectedVerseRange?.chapter === 1 &&
           rangeStatus?.selectedVerseRange?.startVerse === 1 &&
           rangeStatus?.selectedVerseRange?.endVerse === 3,
-        { selectedRangeState, rangeSingleVerseControlsHidden, copiedVerseRange, copiedVerseRangeLink, rangeStatus },
+        {
+          selectedRangeState,
+          rangeSingleVerseControlsHidden,
+          rangeAudioLabel,
+          rangeClearLabel,
+          copiedVerseRange,
+          copiedVerseRangeLink,
+          rangeStatus,
+        },
+      ),
+      makeAssertion(
+        'StudyNav retains Shift-click as an optional contiguous range shortcut',
+        JSON.stringify(shiftRangeIds) === JSON.stringify(['v1001001', 'v1001002', 'v1001003']),
+        { shiftRangeIds },
       ),
       makeAssertion(
         'StudyNav popup identifies its site and purpose before its handle',
@@ -3027,7 +3063,7 @@ async function runStudyNavScenario(executablePath, port) {
           popupState.masterAccent === 'rgb(67, 102, 159)' &&
           popupState.statusAccent === 'rgb(67, 102, 159)' &&
           /Verse 1:3 is selected/.test(popupState.statusHint || '') &&
-          /select one verse number/i.test(popupState.guideText || ''),
+          /select one verse, or choose select several/i.test(popupState.guideText || ''),
         popupState,
       ),
       makeAssertion(
@@ -3764,7 +3800,10 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
     );
     await activateTabByUrl(worker, page.url());
     await popup.reload({ waitUntil: 'load' });
-    await popup.waitForFunction(() => document.querySelectorAll('.row').length === 23);
+    await popup.waitForFunction(() =>
+      document.querySelectorAll('.row').length === 23 &&
+      document.getElementById('status-title')?.textContent === 'Ready on this Bible chapter' &&
+      document.getElementById('save-place')?.textContent?.trim() === 'Remove saved place');
     const studyPopupState = await getPopupState(popup);
     await popup.setViewportSize({ width: 380, height: 760 });
     await captureScreenshot(popup, '06-popup.png', { fullPage: true });
@@ -4488,7 +4527,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
           studyPopupState.enabledCount === '19 on' && studyPopupState.actionButtons.length === 5 &&
           studyPopupState.actionButtons.every((button) => button.disabled === false) &&
           studyPopupState.actionButtons.map((button) => button.text).join('|') ===
-            'Study library|Remove saved place|Copy citation|Show QR|Open stable publication link' && popupPanelOpened,
+            'Study library|Remove saved place|Copy citation|Show QR|Open clean publication link' && popupPanelOpened,
         { studyPopupState, popupPanelOpened },
       ),
       makeAssertion(
@@ -4567,6 +4606,22 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
         audioTitle: document.querySelector('#v1001003 .studynav-verse-audio')?.getAttribute('title'),
       }));
       await captureScreenshot(page, 'ru-article-tools.png');
+
+      await page.locator('#v1001001 .jsHighlightOnly').click();
+      await page.locator('#v1001001 > .studynav-para-tools .studynav-verse-range-control').click();
+      await page.locator('#v1001003 .jsHighlightOnly').click();
+      await page.waitForFunction(() =>
+        document.querySelectorAll('.verse.studynav-verse-selected').length === 3 &&
+        document.querySelector('#v1001003 .studynav-verse-audio')?.textContent?.includes('1–3'));
+      const rangeLocaleState = await page.evaluate(() => ({
+        selected: document.querySelectorAll('.verse.studynav-verse-selected').length,
+        audioText: document.querySelector('#v1001003 .studynav-verse-audio')?.textContent?.trim(),
+        clearText: document.querySelector('#v1001003 .studynav-verse-range-control')?.textContent?.trim(),
+        toast: document.getElementById('studynav-toast')?.textContent?.trim(),
+      }));
+      await captureScreenshot(page, 'ru-verse-range.png');
+      await page.locator('#v1001003 .studynav-verse-range-control').click();
+      await page.locator('#v1001003 .jsHighlightOnly').click();
 
       await page.hover('#p1');
       await page.locator('#p1 > .studynav-para-tools button').first().click();
@@ -4666,6 +4721,10 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
             contentLocaleState.toolbarAria === 'Инструменты изучения' &&
             contentLocaleState.audioText === 'Скачать аудио' &&
             contentLocaleState.audioTitle === 'Скачать аудио только этого стиха' &&
+            rangeLocaleState.selected === 3 &&
+            rangeLocaleState.audioText === 'Скачать аудио 1–3' &&
+            rangeLocaleState.clearText === 'Снять выделение' &&
+            rangeLocaleState.toast === 'Стихи 1–3 выбраны.' &&
             editorLocaleState.title === 'Новое выделение' && editorLocaleState.save === 'Сохранить локально' &&
             editorLocaleState.closeAria === 'Закрыть редактор выделения' &&
             panelResponse?.message === 'Библиотека изучения открыта' &&
@@ -4677,7 +4736,7 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
             qrResponse?.message === 'QR-код открыт' && qrLocaleState.title === 'QR-код этой страницы' &&
             qrLocaleState.copy.includes('Копировать ссылку') && qrLocaleState.closeAria === 'Закрыть QR-код' &&
             localizedOffResponse?.message === 'Сохранённые места выключены',
-          { contentLocaleState, editorLocaleState, panelResponse, panelLocaleState, qrResponse, qrLocaleState, localizedOffResponse },
+          { contentLocaleState, rangeLocaleState, editorLocaleState, panelResponse, panelLocaleState, qrResponse, qrLocaleState, localizedOffResponse },
         ),
         makeAssertion(
           'StudyNav Russian popup is complete, readable, and retains the product accent layout',
@@ -4690,8 +4749,8 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
             popupLocaleState.statusTitle === 'Готово для этой главы Библии' &&
             /Выбран стих 1:3/.test(popupLocaleState.statusHint || '') &&
             popupLocaleState.actions.join('|') ===
-              'Библиотека изучения|Сохранить место|Копировать ссылку с цитатой|Показать QR-код|Открыть стабильную ссылку' &&
-            popupLocaleState.featureNames.includes('Сохранённые места') &&
+              'Библиотека изучения|Сохранить место|Копировать ссылку с цитатой|Показать QR-код|Открыть чистую ссылку' &&
+            popupLocaleState.featureNames.includes('Сохранить место, чтобы вернуться') &&
             popupLocaleState.enabledCount === 'Включено: 19' &&
             popupLocaleState.bodyOverflows === false,
           popupLocaleState,
@@ -4960,8 +5019,9 @@ function liveVerseMarker(payload, book, chapter, verse) {
       ) continue;
       const marker = (item.markers.markers || []).find((candidate) =>
         Number(candidate?.verseNumber) === verse);
+      const start = mediaClockSeconds(marker?.startTime);
       const duration = mediaClockSeconds(marker?.duration);
-      if (duration != null) return { duration, source: item.file?.url || null };
+      if (start != null && duration != null) return { start, duration, source: item.file?.url || null };
     }
   }
   return null;
@@ -5021,14 +5081,23 @@ async function runStudyNavVerseAudioLiveScenario(executablePath, liveCase) {
           scenario.notes.push(`SKIP: official verse markers unavailable (${String(error?.message || error)})`);
           return;
         }
-        const marker = liveVerseMarker(metadata, 1, 1, 3);
-        if (!marker) {
+        const verseMarkers = [3, 4, 5].map((verse) => liveVerseMarker(metadata, 1, 1, verse));
+        if (verseMarkers.some((marker) => !marker)) {
           scenario.assertions.push(makeAssertion(
-            'Live official media response contains the selected verse marker',
+            'Live official media response contains every selected verse marker',
             false,
             { apiUrl },
           ));
           return;
+        }
+        const markers = verseMarkers.filter(Boolean);
+        const marker = {
+          start: markers[0].start,
+          duration: markers.at(-1).start + markers.at(-1).duration - markers[0].start,
+          source: markers[0].source,
+        };
+        if (markers.some((item) => item.source !== marker.source)) {
+          throw new Error('Selected live verse markers use different chapter audio files');
         }
 
         const discoveryState = await page.evaluate((language) => {
@@ -5083,12 +5152,20 @@ async function runStudyNavVerseAudioLiveScenario(executablePath, liveCase) {
           });
           throw new Error(`Live native verse selection did not become visible: ${json(selectionState)}`);
         }
+        await page.locator('#v1001003 .studynav-verse-range-control').click();
+        const rangeEndSelector = liveCase.language === 'E'
+          ? '#v1001005 .jsHighlightOnly'
+          : '#v1001005 .verseNum a';
+        await page.locator(rangeEndSelector).click();
+        await page.waitForFunction(() =>
+          document.querySelectorAll('.verse.studynav-verse-selected').length === 3 &&
+          document.querySelector('#v1001005 .studynav-verse-audio')?.textContent?.includes('3–5'));
         await captureScreenshot(
           page,
           `10-verse-audio-${liveCase.language.toLowerCase()}.png`,
         );
 
-        const audioButton = page.locator('#v1001003 .studynav-verse-audio');
+        const audioButton = page.locator('#v1001005 .studynav-verse-audio');
         let download;
         try {
           [download] = await Promise.all([
@@ -5231,17 +5308,16 @@ async function runStudyNavVerseAudioLiveScenario(executablePath, liveCase) {
             discoveryState,
           ),
           makeAssertion(
-            `Live ${liveCase.label} Bible page exposes verse audio only after verse selection`,
-            await page.locator('#v1001003').evaluate((verse) =>
-              (
-                verse.classList.contains('jwac-textHighlight') ||
-                verse.classList.contains('studynav-verse-selected')
-              ) &&
-              getComputedStyle(verse.querySelector('.studynav-verse-audio')).display !== 'none'),
-            { verseId: 'v1001003' },
+            `Live ${liveCase.label} Bible page exposes one audio action for verses 3–5`,
+            await page.locator('#v1001005').evaluate((verse) =>
+              document.querySelectorAll('.verse.studynav-verse-selected').length === 3 &&
+              verse.classList.contains('studynav-verse-selected') &&
+              getComputedStyle(verse.querySelector('.studynav-verse-audio')).display !== 'none' &&
+              verse.querySelector('.studynav-verse-audio')?.textContent?.includes('3–5')),
+            { verseIds: ['v1001003', 'v1001004', 'v1001005'] },
           ),
           makeAssertion(
-            `Live ${liveCase.label} WAV matches its official selected-verse marker`,
+            `Live ${liveCase.label} WAV spans the first selected marker through the last marker end`,
             state?.filename === liveCase.filename &&
               state.riff === 'RIFF' &&
               state.wave === 'WAVE' &&

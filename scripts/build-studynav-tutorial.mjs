@@ -143,7 +143,8 @@ async function buildLanguage(manifest, language) {
     const screenshotPath = path.join(SCREENSHOT_DIR, screenshotName);
     await access(screenshotPath);
     const clipPath = path.join(clipDir, `${ordinal}-${feature.id}.mp4`);
-    const [focusX, focusY, radius] = feature.focus || [shotWidth / 2, shotHeight / 2, 120];
+    const languageFocus = language === 'ru' ? feature.ruFocus : null;
+    const [focusX, focusY, radius] = languageFocus || feature.focus || [shotWidth / 2, shotHeight / 2, 120];
     const scale = feature.fit === 'portrait'
       ? `scale=-2:${shotHeight},pad=${shotWidth}:${shotHeight}:(ow-iw)/2:(oh-ih)/2:color=white`
       : `scale=${shotWidth}:${shotHeight}:force_original_aspect_ratio=decrease,pad=${shotWidth}:${shotHeight}:(ow-iw)/2:(oh-ih)/2:color=white`;

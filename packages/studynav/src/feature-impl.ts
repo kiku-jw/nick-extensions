@@ -53,6 +53,7 @@ const QR_OVERLAY_ID = 'studynav-qr-overlay';
 const verseAudioJobs = new Set<string>();
 let verseSelectionListening = false;
 let selectedVerseIds: string[] = [];
+let verseRangePickAnchorId: string | null = null;
 let verseToolbarFrame: number | null = null;
 let qrReturnFocus: HTMLElement | null = null;
 
@@ -230,6 +231,7 @@ function teardownCopyAndLinks() {
     verseSelectionListening = false;
   }
   selectedVerseIds = [];
+  verseRangePickAnchorId = null;
   removeOwnedNodes('.studynav-para-tools');
   qsa<HTMLElement>('[data-sn-tools], .studynav-para').forEach((el) => {
     delete el.dataset.snTools;
@@ -788,6 +790,8 @@ function embeddedBibleAudioApiUrls(): string[] {
 function syncVerseSelectionPresentation() {
   const selected = new Set(selectedVerseIds);
   const anchor = selectedVerseIds.at(-1) || null;
+  const firstSelected = selectedVerseIds[0] ? parseBibleVerseId(selectedVerseIds[0]) : null;
+  const lastSelected = anchor ? parseBibleVerseId(anchor) : null;
   qsa<HTMLElement>('.verse[id^="v"]').forEach((element) => {
     const isSelected = selected.has(element.id);
     element.classList.toggle('studynav-verse-selected', isSelected);
@@ -800,6 +804,27 @@ function syncVerseSelectionPresentation() {
     toolbar?.querySelectorAll<HTMLElement>('[data-single-verse-only="1"]').forEach((control) => {
       control.hidden = selectedVerseIds.length > 1;
     });
+    const audioButton = toolbar?.querySelector<HTMLButtonElement>('.studynav-verse-audio');
+    if (audioButton) {
+      const isRangeAnchor = selectedVerseIds.length > 1 && element.id === anchor && firstSelected && lastSelected;
+      audioButton.textContent = isRangeAnchor
+        ? t('download_range_audio', [String(firstSelected.verse), String(lastSelected.verse)])
+        : t('download_audio');
+      audioButton.title = isRangeAnchor
+        ? t('download_range_audio_title', [String(firstSelected.verse), String(lastSelected.verse)])
+        : t('download_audio_title');
+    }
+    const rangeButton = toolbar?.querySelector<HTMLButtonElement>('.studynav-verse-range-control');
+    if (rangeButton) {
+      const isPicking = verseRangePickAnchorId === element.id;
+      rangeButton.textContent = selectedVerseIds.length > 1
+        ? t('clear_verse_selection')
+        : isPicking ? t('cancel_range_selection') : t('select_several_verses');
+      rangeButton.title = selectedVerseIds.length > 1
+        ? t('clear_verse_selection_title')
+        : isPicking ? t('cancel_range_selection_title') : t('select_several_verses_title');
+      rangeButton.setAttribute('aria-pressed', String(isPicking));
+    }
   });
   if (selectedVerseIds.length) scheduleVerseToolbarPosition();
   else stopVerseToolbarPositioning();
@@ -816,9 +841,10 @@ const verseSelectionHandler = (event: MouseEvent) => {
   event.preventDefault();
   event.stopImmediatePropagation();
 
-  const anchorElement = selectedVerseIds[0] ? document.getElementById(selectedVerseIds[0]) : null;
+  const rangeAnchorId = verseRangePickAnchorId || selectedVerseIds[0] || null;
+  const anchorElement = rangeAnchorId ? document.getElementById(rangeAnchorId) : null;
   const anchor = anchorElement ? parseBibleVerseId(anchorElement.id) : null;
-  if (event.shiftKey && anchor && anchor.book === clicked.book && anchor.chapter === clicked.chapter) {
+  if ((event.shiftKey || verseRangePickAnchorId) && anchor && anchor.book === clicked.book && anchor.chapter === clicked.chapter) {
     const low = Math.min(anchor.verse, clicked.verse);
     const high = Math.max(anchor.verse, clicked.verse);
     selectedVerseIds = verseElementsInDocumentOrder()
@@ -828,10 +854,14 @@ const verseSelectionHandler = (event: MouseEvent) => {
           current.verse >= low && current.verse <= high;
       })
       .map((candidate) => candidate.id);
+    verseRangePickAnchorId = null;
+    toast(t('verse_range_selected', [String(low), String(high)]));
   } else if (selectedVerseIds.length === 1 && selectedVerseIds[0] === verse.id) {
     selectedVerseIds = [];
+    verseRangePickAnchorId = null;
   } else {
     selectedVerseIds = [verse.id];
+    verseRangePickAnchorId = null;
   }
   syncVerseSelectionPresentation();
 };
@@ -848,6 +878,7 @@ function syncVerseSelectionListener(enabled: boolean) {
     window.removeEventListener('click', verseSelectionHandler, true);
     stopVerseToolbarPositioning();
     selectedVerseIds = [];
+    verseRangePickAnchorId = null;
     qsa<HTMLElement>('.studynav-verse-selected').forEach((el) => {
       el.classList.remove('studynav-verse-selected');
       el.classList.remove('studynav-verse-toolbar-anchor');
@@ -855,21 +886,28 @@ function syncVerseSelectionListener(enabled: boolean) {
   }
 }
 
-async function downloadVerseAudio(verseElement: HTMLElement, button: HTMLButtonElement) {
-  const verse = parseBibleVerseId(verseElement.id);
-  if (!verse || verseAudioJobs.has(verseElement.id)) return;
+async function downloadVerseAudio(verseElements: readonly HTMLElement[], button: HTMLButtonElement) {
+  const verses = verseElements
+    .map((element) => ({ element, verse: parseBibleVerseId(element.id) }))
+    .filter((item): item is { element: HTMLElement; verse: NonNullable<ReturnType<typeof parseBibleVerseId>> } => !!item.verse);
+  const first = verses[0];
+  const last = verses.at(-1);
+  if (!first || !last) return;
+  const verseIds = verses.map(({ element }) => element.id);
+  const jobId = verseIds.join(':');
+  if (verseAudioJobs.has(jobId)) return;
 
   const resources = [
     ...performance.getEntriesByType('resource').map((entry) => entry.name),
     ...embeddedBibleAudioApiUrls(),
   ];
-  const apiUrl = findBibleAudioApiUrl(resources, verseElement.id, chapterAudioUrl());
+  const apiUrl = findBibleAudioApiUrl(resources, first.element.id, chapterAudioUrl());
   if (!apiUrl) {
     toast(t('chapter_audio_not_ready'));
     return;
   }
 
-  verseAudioJobs.add(verseElement.id);
+  verseAudioJobs.add(jobId);
   button.disabled = true;
   button.dataset.state = 'preparing';
   button.dataset.preparingLabel = t('preparing');
@@ -877,7 +915,7 @@ async function downloadVerseAudio(verseElement: HTMLElement, button: HTMLButtonE
   try {
     const request: VerseAudioRequest = {
       type: 'DOWNLOAD_VERSE_AUDIO',
-      verseId: verseElement.id,
+      verseIds,
       apiUrl,
       label: bibleReferenceLabel(),
     };
@@ -908,11 +946,14 @@ async function downloadVerseAudio(verseElement: HTMLElement, button: HTMLButtonE
     anchor.download = response.filename;
     anchor.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    toast(t('verse_audio_downloaded', [String(verse.chapter), String(verse.verse)]));
+    const verseLabel = first.verse.verse === last.verse.verse
+      ? String(first.verse.verse)
+      : `${first.verse.verse}–${last.verse.verse}`;
+    toast(t('verse_audio_downloaded', [String(first.verse.chapter), verseLabel]));
   } catch (error) {
     toast(error instanceof Error ? error.message : t('verse_audio_download_failed'));
   } finally {
-    verseAudioJobs.delete(verseElement.id);
+    verseAudioJobs.delete(jobId);
     if (button.isConnected) {
       button.disabled = false;
       delete button.dataset.state;
@@ -942,11 +983,38 @@ function runCopyAndLinks(articleRoots: HTMLElement[], flags: FeatureFlags) {
       button.textContent = t('download_audio');
       button.title = t('download_audio_title');
       button.dataset.verseAudio = el.id;
-      button.dataset.singleVerseOnly = '1';
       button.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        void downloadVerseAudio(el, button);
+        const selected = currentSelectedVerseElements();
+        void downloadVerseAudio(selected.length > 1 && selected.includes(el) ? selected : [el], button);
+      });
+      bar.appendChild(button);
+    }
+
+    if ((flags.verseAudio || flags.copyText || flags.parLink) && parseBibleVerseId(el.id)) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'studynav-verse-range-control';
+      button.textContent = t('select_several_verses');
+      button.title = t('select_several_verses_title');
+      button.setAttribute('aria-pressed', 'false');
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (selectedVerseIds.length > 1) {
+          selectedVerseIds = [];
+          verseRangePickAnchorId = null;
+          toast(t('verse_selection_cleared'));
+        } else if (verseRangePickAnchorId === el.id) {
+          verseRangePickAnchorId = null;
+          toast(t('range_selection_cancelled'));
+        } else {
+          selectedVerseIds = [el.id];
+          verseRangePickAnchorId = el.id;
+          toast(t('select_range_last_verse'));
+        }
+        syncVerseSelectionPresentation();
       });
       bar.appendChild(button);
     }

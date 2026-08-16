@@ -51,7 +51,7 @@
     "message": "Show QR"
   },
   "open_official_link": {
-    "message": "Open stable publication link"
+    "message": "Open clean publication link"
   },
   "image_search": {
     "message": "Search JW images with Google"
@@ -75,7 +75,7 @@
     "message": "Bible:"
   },
   "guide_bible_text": {
-    "message": "select one verse number, then choose Download audio."
+    "message": "select one verse, or choose Select several and then the last verse. Download audio saves the selection as one WAV file."
   },
   "guide_study_label": {
     "message": "Study:"
@@ -141,13 +141,13 @@
     "message": "Ready on this Bible chapter"
   },
   "status_bible_selected": {
-    "message": "Verse $1:$2 is selected. Shift-click another verse for a consecutive range."
+    "message": "Verse $1:$2 is selected. Choose Select several to include the verses that follow."
   },
   "status_bible_range": {
-    "message": "Verses $1:$2–$3 are selected. Copy creates one range link."
+    "message": "Verses $1:$2–$3 are selected. Copy, Link, and Download audio use the whole range."
   },
   "status_bible_hint": {
-    "message": "Click one verse number for audio; Shift-click another verse for a range link."
+    "message": "Select a verse number for text, a direct link, or audio. Select several consecutive verses when needed."
   },
   "status_media_title": {
     "message": "Ready on this media page"
@@ -201,16 +201,16 @@
     "message": "Keep six-color highlights and searchable notes locally"
   },
   "feature_bookmarks_name": {
-    "message": "Saved places"
+    "message": "Save a place to return to"
   },
   "feature_bookmarks_blurb": {
-    "message": "Save exact pages, paragraphs, and verses locally"
+    "message": "Keep an exact page, paragraph, verse, or verse range in the Study library"
   },
   "feature_citations_name": {
-    "message": "Copy formatted citations"
+    "message": "Copy a quote with its source"
   },
   "feature_citations_blurb": {
-    "message": "Copy the selected text or page with an exact JW link"
+    "message": "Copy selected words with the publication title, reference, and direct JW link"
   },
   "feature_qrShare_name": {
     "message": "Show QR for this page"
@@ -219,16 +219,16 @@
     "message": "Create a local QR code for the precise official page link"
   },
   "feature_officialOpen_name": {
-    "message": "Stable publication link"
+    "message": "Clean publication link"
   },
   "feature_officialOpen_blurb": {
-    "message": "Open a clean Finder address for saving or sharing"
+    "message": "Open the same publication through JW.org without extra address parameters"
   },
   "feature_verseAudio_name": {
-    "message": "Download verse audio"
+    "message": "Download audio for selected verses"
   },
   "feature_verseAudio_blurb": {
-    "message": "Select one Bible verse to save only its narration"
+    "message": "Save one verse or several consecutive verses as one WAV file"
   },
   "feature_copyText_name": {
     "message": "Copy clean text"
@@ -243,10 +243,10 @@
     "message": "Copy a direct link to a paragraph, verse, or verse range"
   },
   "feature_advSearch_name": {
-    "message": "Publication shortcuts"
+    "message": "Search by publication code"
   },
   "feature_advSearch_blurb": {
-    "message": "Open a mnemonic or DOCID with the existing JW searches; this is not AI"
+    "message": "Open the existing JW search for a publication code or document number"
   },
   "feature_altText_name": {
     "message": "Image descriptions"
@@ -393,10 +393,10 @@
     "message": "Not available on this page"
   },
   "official_link_opened": {
-    "message": "Stable publication link opened"
+    "message": "Clean publication link opened"
   },
   "palette_title": {
-    "message": "Publication shortcuts"
+    "message": "Search by publication code"
   },
   "palette_placeholder": {
     "message": "Mnemonic / DOCID (for example w25.03, lff, wp24.01, mwb25.01)"
@@ -412,6 +412,42 @@
   },
   "download_audio_title": {
     "message": "Download only this verse as audio"
+  },
+  "download_range_audio": {
+    "message": "Download audio $1–$2"
+  },
+  "download_range_audio_title": {
+    "message": "Download verses $1–$2 as one audio file"
+  },
+  "select_several_verses": {
+    "message": "Select several"
+  },
+  "select_several_verses_title": {
+    "message": "Choose the last verse in a consecutive range"
+  },
+  "cancel_range_selection": {
+    "message": "Cancel range"
+  },
+  "cancel_range_selection_title": {
+    "message": "Stop choosing a verse range"
+  },
+  "clear_verse_selection": {
+    "message": "Clear selection"
+  },
+  "clear_verse_selection_title": {
+    "message": "Clear the selected verse range"
+  },
+  "select_range_last_verse": {
+    "message": "Now select the last verse."
+  },
+  "verse_range_selected": {
+    "message": "Verses $1–$2 selected."
+  },
+  "range_selection_cancelled": {
+    "message": "Range selection cancelled"
+  },
+  "verse_selection_cleared": {
+    "message": "Verse selection cleared"
   },
   "chapter_audio_not_ready": {
     "message": "Chapter audio is not ready. Open Play Audio once, then try again."

@@ -457,7 +457,7 @@ describe('StudyNav verse audio boundaries', () => {
   test('accepts only matching official media requests from Bible chapter pages', () => {
     const request = {
       type: 'DOWNLOAD_VERSE_AUDIO',
-      verseId: 'v01001003',
+      verseIds: ['v01001003'],
       apiUrl,
       label: 'Genesis',
     };
@@ -478,18 +478,18 @@ describe('StudyNav verse audio boundaries', () => {
     expect(parseBibleChapterFromPath('/ru/библиотека/библия/учебная-библия/Бытие/1/')).toBeNull();
     expect(parseBibleChapterFromPath('/uk/бібліотека/біблія/навчальне-видання-біблії/книги/Буття/1/лишнее/')).toBeNull();
     expect(validateVerseAudioRequest(
-      { ...request, verseId: 'v01001003' },
+      request,
       'https://www.jw.org/en/library/bible/study-bible/books/genesis/1/',
     )).toBeNull();
-    const validRequest = { ...request, verseId: 'v1001003' };
+    const validRequest = { ...request, verseIds: ['v1001003'] };
     expect(validateVerseAudioRequest(
       validRequest,
       'https://www.jw.org/en/library/bible/study-bible/books/genesis/1/',
-    )?.verse).toEqual({ book: 1, chapter: 1, verse: 3 });
+    )?.verses).toEqual([{ book: 1, chapter: 1, verse: 3 }]);
     expect(validateVerseAudioRequest(
       { ...validRequest, label: 'Бытие' },
       'https://www.jw.org/ru/biblioteka/bibliya/izuchenie-biblii/knigi/bytie/1/',
-    )?.verse).toEqual({ book: 1, chapter: 1, verse: 3 });
+    )?.verses).toEqual([{ book: 1, chapter: 1, verse: 3 }]);
     expect(validateVerseAudioRequest(
       { ...validRequest, apiUrl: apiUrl.replace('langwritten=E', 'langwritten=U').replace('txtCMSLang=E', 'txtCMSLang=U') },
       russianPage,
@@ -516,6 +516,37 @@ describe('StudyNav verse audio boundaries', () => {
     )).toBeNull();
     expect(validateVerseAudioRequest(
       { ...validRequest, apiUrl: apiUrl.replace('track=1', 'track=2') },
+      'https://www.jw.org/en/library/bible/study-bible/books/genesis/1/',
+    )).toBeNull();
+
+    const reversedRange = validateVerseAudioRequest(
+      { ...validRequest, verseIds: ['v1001005', 'v1001004', 'v1001003'] },
+      'https://www.jw.org/en/library/bible/study-bible/books/genesis/1/',
+    );
+    expect(reversedRange?.verseIds).toEqual(['v1001003', 'v1001004', 'v1001005']);
+    expect(reversedRange?.verses.map(({ verse }) => verse)).toEqual([3, 4, 5]);
+    expect(validateVerseAudioRequest(
+      { ...validRequest, verseIds: ['v1001003', 'v1001005'] },
+      'https://www.jw.org/en/library/bible/study-bible/books/genesis/1/',
+    )).toBeNull();
+    expect(validateVerseAudioRequest(
+      { ...validRequest, verseIds: ['v1001003', 'v1001003'] },
+      'https://www.jw.org/en/library/bible/study-bible/books/genesis/1/',
+    )).toBeNull();
+    expect(validateVerseAudioRequest(
+      { ...validRequest, verseIds: ['v1001003', 'v1002004'] },
+      'https://www.jw.org/en/library/bible/study-bible/books/genesis/1/',
+    )).toBeNull();
+    expect(validateVerseAudioRequest(
+      { ...validRequest, verseIds: ['v1001003', 'v2001004'] },
+      'https://www.jw.org/en/library/bible/study-bible/books/genesis/1/',
+    )).toBeNull();
+    expect(validateVerseAudioRequest(
+      { ...validRequest, verseIds: [] },
+      'https://www.jw.org/en/library/bible/study-bible/books/genesis/1/',
+    )).toBeNull();
+    expect(validateVerseAudioRequest(
+      { ...validRequest, verseIds: undefined, verseId: 'v1001003' },
       'https://www.jw.org/en/library/bible/study-bible/books/genesis/1/',
     )).toBeNull();
   });
@@ -559,7 +590,7 @@ describe('StudyNav verse audio boundaries', () => {
           }],
         },
       },
-    }, { book: 1, chapter: 1, verse: 3 }, 'Genesis: Study / Edition');
+    }, [{ book: 1, chapter: 1, verse: 3 }], 'Genesis: Study / Edition');
     expect(source).toEqual({
       audioUrl: 'https://cfp2.jw-cdn.org/a/test/chapter.mp3',
       startSeconds: 22.405,
@@ -587,8 +618,59 @@ describe('StudyNav verse audio boundaries', () => {
         },
       },
     };
-    expect(selectVerseClipSource(invalidMarkerPayload, { book: 1, chapter: 1, verse: 3 }, 'Genesis')).toBeNull();
-    expect(selectVerseClipSource({ files: { E: { MP3: [] } } }, { book: 1, chapter: 1, verse: 3 }, 'Genesis')).toBeNull();
+    expect(selectVerseClipSource(invalidMarkerPayload, [{ book: 1, chapter: 1, verse: 3 }], 'Genesis')).toBeNull();
+    expect(selectVerseClipSource({ files: { E: { MP3: [] } } }, [{ book: 1, chapter: 1, verse: 3 }], 'Genesis')).toBeNull();
+  });
+
+  test('clips a consecutive verse range from the first marker through the last marker end', () => {
+    const payload = {
+      files: {
+        E: {
+          MP3: [{
+            file: { url: 'https://cfp2.jw-cdn.org/a/test/chapter.mp3' },
+            filesize: 12_000,
+            duration: 180,
+            markers: {
+              bibleBookNumber: 1,
+              bibleBookChapter: 1,
+              markers: [
+                { verseNumber: 3, startTime: '00:00:22.405', duration: '00:00:06.394' },
+                { verseNumber: 4, startTime: '00:00:28.799', duration: '00:00:07.201' },
+                { verseNumber: 5, startTime: '00:00:36.000', duration: '00:00:08.500' },
+              ],
+            },
+          }],
+        },
+      },
+    };
+    const verses = [3, 4, 5].map((verse) => ({ book: 1, chapter: 1, verse }));
+    expect(selectVerseClipSource(payload, verses, 'Genesis')).toEqual({
+      audioUrl: 'https://cfp2.jw-cdn.org/a/test/chapter.mp3',
+      startSeconds: 22.405,
+      durationSeconds: 22.095,
+      filename: 'Genesis_1_3-5.wav',
+      expectedBytes: 12_000,
+    });
+
+    const missingMarker = structuredClone(payload);
+    missingMarker.files.E.MP3[0].markers.markers.splice(1, 1);
+    expect(selectVerseClipSource(missingMarker, verses, 'Genesis')).toBeNull();
+
+    const duplicateMarker = structuredClone(payload);
+    duplicateMarker.files.E.MP3[0].markers.markers.push(
+      { verseNumber: 4, startTime: '00:00:29.000', duration: '00:00:01.000' },
+    );
+    expect(selectVerseClipSource(duplicateMarker, verses, 'Genesis')).toBeNull();
+
+    const nonMonotonic = structuredClone(payload);
+    nonMonotonic.files.E.MP3[0].markers.markers[1].startTime = '00:00:20.000';
+    expect(selectVerseClipSource(nonMonotonic, verses, 'Genesis')).toBeNull();
+
+    const tooLong = structuredClone(payload);
+    tooLong.files.E.MP3[0].duration = 240;
+    tooLong.files.E.MP3[0].markers.markers[2].startTime = '00:02:30.000';
+    expect(selectVerseClipSource(tooLong, verses, 'Genesis')).toBeNull();
+    expect(selectVerseClipSource(payload, [verses[0], verses[2]], 'Genesis')).toBeNull();
   });
 
   test('encodes the requested sample interval as deterministic PCM16 WAV', () => {
