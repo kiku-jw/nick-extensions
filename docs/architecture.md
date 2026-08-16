@@ -10,7 +10,8 @@ Monorepo (`packages/*`) built with TypeScript + esbuild (WXT-class DX deferred; 
 
 - MV3 service worker manages `declarativeNetRequest` static rule_resources (`baseline`, `easylist`, `easyprivacy`) and dynamic allowlist rules.
 - Popup / options talk via `chrome.runtime.sendMessage`.
-- Content script injects a small cosmetic CSS list.
+- Content script injects a small, explicit-ad-marker cosmetic CSS list; generic
+  class/id substring guesses are excluded because they can hide application UI.
 - Filter conversion happens **at build time** (`scripts/fetch-and-convert.mjs`), never by fetching rules inside the extension at runtime.
 
 ## InkShade

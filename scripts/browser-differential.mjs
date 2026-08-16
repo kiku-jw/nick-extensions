@@ -410,6 +410,14 @@ function ordinaryFixtureHtml(port) {
       <div id="content-card">
         <p id="ordinary-copy">Core content should stay usable with blocking enabled.</p>
         <button id="core-action" type="button">Click me</button>
+        <section
+          id="chatgpt-turn"
+          data-testid="conversation-turn-1"
+          class="text-token-text-primary scroll-mb-[calc(var(--thread-response-height))]"
+        >Chat application content with an incidental ad- substring.</section>
+        <aside id="thread-adapter" class="thread-adapter">Thread adapter controls.</aside>
+        <div id="adaptive-panel" data-ad="adaptive-layout">Adaptive application panel.</div>
+        <div id="ad-hoc-panel" class="ad-hoc-layout">Ad hoc workspace content.</div>
       </div>
       <div class="ad-banner" id="ad-banner">Ad banner placeholder</div>
       <img
@@ -1100,14 +1108,25 @@ function isLiveTransportException(error) {
 }
 
 async function getOrdinaryState(page) {
-  return page.evaluate(() => ({
-    title: document.title,
-    fixture: { ...window.fixture },
-    adBannerDisplay: getComputedStyle(document.getElementById('ad-banner')).display,
-    adStyleCount: document.querySelectorAll('#clearshield-cosmetic').length,
-    contentVisible: !!document.getElementById('ordinary-copy')?.innerText,
-    clicked: document.getElementById('core-action')?.dataset.clicked || '0',
-  }));
+  return page.evaluate(() => {
+    const cosmeticSafetyIds = ['chatgpt-turn', 'thread-adapter', 'adaptive-panel', 'ad-hoc-panel'];
+    const cosmeticSafetyDisplays = Object.fromEntries(cosmeticSafetyIds.map((id) => {
+      const element = document.getElementById(id);
+      const style = element ? getComputedStyle(element) : null;
+      return [id, style ? { display: style.display, visibility: style.visibility } : null];
+    }));
+    return {
+      title: document.title,
+      fixture: { ...window.fixture },
+      adBannerDisplay: getComputedStyle(document.getElementById('ad-banner')).display,
+      adStyleCount: document.querySelectorAll('#clearshield-cosmetic').length,
+      contentVisible: !!document.getElementById('ordinary-copy')?.innerText,
+      cosmeticSafetyDisplays,
+      cosmeticSafetyVisible: Object.values(cosmeticSafetyDisplays).every((style) =>
+        style?.display !== 'none' && style?.visibility !== 'hidden'),
+      clicked: document.getElementById('core-action')?.dataset.clicked || '0',
+    };
+  });
 }
 
 async function getPublicPageState(page) {
@@ -1535,6 +1554,7 @@ async function runBaselineScenario(executablePath, port) {
       makeAssertion('baseline ad image loaded', state.fixture.adImageLoaded === true, state.fixture),
       makeAssertion('baseline ad frame loaded', state.fixture.adFrameLoaded === true, state.fixture),
       makeAssertion('baseline core action still works', state.clicked === '1', state),
+      makeAssertion('baseline cosmetic-safety content remains visible', state.cosmeticSafetyVisible === true, state.cosmeticSafetyDisplays),
       makeAssertion('baseline ad banner remains visible', state.adBannerDisplay !== 'none', state),
       makeAssertion('baseline has no request failures', scenario.requestFailures.length === 0, scenario.requestFailures),
     );
@@ -1570,6 +1590,11 @@ async function runClearShieldScenario(executablePath, port) {
       makeAssertion('ClearShield blocks ad image', blockedState.fixture.adImageLoaded === false, blockedState.fixture),
       makeAssertion('ClearShield blocks ad frame', blockedState.fixture.adFrameLoaded === false, blockedState.fixture),
       makeAssertion('ClearShield cosmetic banner hidden', blockedState.adBannerDisplay === 'none', blockedState),
+      makeAssertion(
+        'ClearShield cosmetics do not hide ChatGPT-like or incidental ad-marker content',
+        blockedState.cosmeticSafetyVisible === true,
+        blockedState.cosmeticSafetyDisplays,
+      ),
       makeAssertion('ClearShield core content remains usable', blockedState.clicked === '1' && blockedState.contentVisible, blockedState),
       makeAssertion(
         'ClearShield request failures show blocking',
@@ -1715,7 +1740,8 @@ async function runClearShieldScenario(executablePath, port) {
       ),
       makeAssertion(
         'ClearShield popup cosmetic toggle removes only cosmetic hiding',
-        cosmeticOffState.adStyleCount === 0 && cosmeticOffState.fixture.adScriptLoaded === false && cosmeticOffState.contentVisible,
+        cosmeticOffState.adStyleCount === 0 && cosmeticOffState.fixture.adScriptLoaded === false &&
+          cosmeticOffState.contentVisible && cosmeticOffState.cosmeticSafetyVisible,
         cosmeticOffState,
       ),
       makeAssertion(
@@ -1735,7 +1761,11 @@ async function runClearShieldScenario(executablePath, port) {
       makeAssertion('ClearShield allowlist restores ad image', allowlistedState.fixture.adImageLoaded === true, allowlistedState.fixture),
       makeAssertion('ClearShield allowlist restores ad frame', allowlistedState.fixture.adFrameLoaded === true, allowlistedState.fixture),
       makeAssertion('ClearShield allowlist removes cosmetic hiding', allowlistedState.adBannerDisplay !== 'none', allowlistedState),
-      makeAssertion('ClearShield allowlist keeps content usable', allowlistedState.contentVisible === true, allowlistedState),
+      makeAssertion(
+        'ClearShield allowlist keeps content usable',
+        allowlistedState.contentVisible === true && allowlistedState.cosmeticSafetyVisible === true,
+        allowlistedState,
+      ),
       makeAssertion('ClearShield allowlist removes block failures', scenario.requestFailures.length === 0, scenario.requestFailures),
     );
 

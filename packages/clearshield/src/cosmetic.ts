@@ -1,17 +1,22 @@
-/** Small local cosmetic hide list — not a full uBO engine. */
+/**
+ * Small local cosmetic hide list — not a full uBO engine.
+ *
+ * Keep this list tied to explicit advertising semantics. Generic class/id
+ * substring guesses are unsafe because utility CSS can embed arbitrary text
+ * (for example, ChatGPT's `--thread-response-height` contains `ad-`).
+ */
 export const COSMETIC_SELECTORS = [
   // Google / AdSense
-  '[id*="google_ads"]',
-  '[id*="GoogleAd"]',
-  '[class*="google-ad"]',
-  '[class*="GoogleAd"]',
+  '[id^="google_ads_"]',
+  '.google-ad',
+  '.GoogleAd',
   'ins.adsbygoogle',
   '[data-ad-slot]',
   '[data-ad-client]',
-  '[data-ad]',
-  '[data-ads]',
   '[data-adunit]',
   '[data-google-query-id]',
+  'div[id^="div-gpt-ad"]',
+  'div[id^="gpt_ad"]',
   // Generic ad containers
   '.ad-banner',
   '.ad-container',
@@ -36,36 +41,20 @@ export const COSMETIC_SELECTORS = [
   '.native-ad',
   '.taboola',
   '.trc_rbox',
-  '[id*="taboola"]',
-  '[class*="taboola"]',
-  '[id*="outbrain"]',
-  '[class*="outbrain"]',
-  '[class*="Outbrain"]',
-  // Structural guesses (kept conservative)
-  'aside[class*="ad-"]',
-  'aside[id*="ad-"]',
-  'div[class^="ad-"]',
-  'div[class*=" ad-"]',
-  'div[class$="-ad"]',
-  'div[class*="-ad-"]',
-  'div[id^="ad-"]',
-  'div[id*="AdContainer"]',
-  'div[id*="adcontainer"]',
-  'div[id*="ad-container"]',
-  'div[id^="div-gpt-ad"]',
-  'div[id^="gpt_ad"]',
-  'section[class*="ad-"]',
+  '[id^="taboola"]',
+  '.outbrain',
+  '.Outbrain',
+  '[id^="outbrain"]',
   // Iframes
   'iframe[src*="doubleclick.net"]',
   'iframe[src*="googlesyndication.com"]',
   'iframe[src*="googletagservices.com"]',
   'iframe[src*="amazon-adsystem.com"]',
   'iframe[id^="google_ads_iframe"]',
-  'iframe[title="Advertisement"]',
-  'iframe[title="Ads"]',
+  'iframe[title="Advertisement" i]',
+  'iframe[title="Ads" i]',
   // ARIA / labels
-  '[aria-label="Ads"]',
-  '[aria-label="Advertisement"]',
-  '[aria-label="Advertisements"]',
-  '[aria-label*="Advertisement"]',
+  '[aria-label="Ads" i]',
+  '[aria-label="Advertisement" i]',
+  '[aria-label="Advertisements" i]',
 ];

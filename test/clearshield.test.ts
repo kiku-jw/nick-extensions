@@ -9,6 +9,7 @@ import {
   siteHostFromUrl,
   SUBRESOURCE_DNR_RESOURCE_TYPES,
 } from '../packages/clearshield/src/hosts';
+import { COSMETIC_SELECTORS } from '../packages/clearshield/src/cosmetic';
 import { coerceSettings } from '../packages/clearshield/src/types';
 
 function deferred<T>() {
@@ -110,6 +111,19 @@ describe('coerceSettings', () => {
         easyprivacy: true,
       },
     });
+  });
+});
+
+describe('cosmetic selector safety', () => {
+  test('keeps explicit ad markers without generic structural substring guesses', () => {
+    expect(COSMETIC_SELECTORS).toContain('.ad-banner');
+    expect(COSMETIC_SELECTORS).toContain('[data-ad-slot]');
+    expect(COSMETIC_SELECTORS).toContain('iframe[src*="doubleclick.net"]');
+
+    expect(COSMETIC_SELECTORS).not.toContain('[data-ad]');
+    expect(COSMETIC_SELECTORS).not.toContain('[data-ads]');
+    expect(COSMETIC_SELECTORS.some((selector) => selector.includes('[class*='))).toBe(false);
+    expect(COSMETIC_SELECTORS.some((selector) => selector.includes('[id*='))).toBe(false);
   });
 });
 
