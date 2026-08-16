@@ -46,6 +46,7 @@ const VIDEO_MP4 = Buffer.from(
 const VERSE_AUDIO_URL = `https://${HOSTS.jwMedia}/audio/nwt_01_Ge_E_01.mp3`;
 const VERSE_AUDIO_API_URL =
   `https://${HOSTS.jwApi}/apis/pub-media/GETPUBMEDIALINKS?booknum=1&output=json&pub=nwt&fileformat=MP3&alllangs=0&track=1&langwritten=E&txtCMSLang=E`;
+const MEDIA_VIDEO_LIVE_URL = `https://${HOSTS.jwMedia}/a/5afcbf3/1/o/thv_U_05_r720P.mp4`;
 const VERSE_AUDIO_LIVE_CASES = [
   {
     id: 'studynav-verse-audio-live',
@@ -101,6 +102,7 @@ const DEFAULT_STUDYNAV_FLAGS = {
   imgGet: false,
   mediaCtrl: true,
   mediaTS: true,
+  mediaClip: true,
   sndDisp: true,
   transcCreate: true,
 };
@@ -128,6 +130,33 @@ function httpUrl(host, port, pathname) {
 
 function json(value) {
   return JSON.stringify(value, null, 2);
+}
+
+async function fulfillFixtureVideo(route) {
+  const range = /^bytes=(\d+)-(\d*)$/i.exec(String(route.request().headers().range || ''));
+  if (!range) {
+    await route.fulfill({
+      status: 200,
+      contentType: 'video/mp4',
+      headers: { 'accept-ranges': 'bytes', 'content-length': String(VIDEO_MP4.length) },
+      body: VIDEO_MP4,
+    });
+    return;
+  }
+  const start = Math.min(VIDEO_MP4.length - 1, Number(range[1]));
+  const requestedEnd = range[2] ? Number(range[2]) : VIDEO_MP4.length - 1;
+  const end = Math.min(VIDEO_MP4.length - 1, Math.max(start, requestedEnd));
+  const body = VIDEO_MP4.subarray(start, end + 1);
+  await route.fulfill({
+    status: 206,
+    contentType: 'video/mp4',
+    headers: {
+      'accept-ranges': 'bytes',
+      'content-length': String(body.length),
+      'content-range': `bytes ${start}-${end}/${VIDEO_MP4.length}`,
+    },
+    body,
+  });
 }
 
 async function captureScreenshot(page, filename, options = {}) {
@@ -611,21 +640,61 @@ function jwFixtureHtml() {
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>StudyNav synthetic fixture</title>
+    <title>StudyNav demo reading</title>
     <link rel="canonical" href="${STUDYNAV_FIXTURE_CANONICAL}" />
     <style>
-      body { font-family: system-ui, sans-serif; margin: 0; padding: 0; background: #fff; color: #111; }
-      #regionHeader { background: #f3f3f3; padding: 16px; border-bottom: 1px solid #ddd; }
-      #article { max-width: 760px; margin: 24px auto; padding: 0 16px 48px; }
-      #nonarticle-dialog { width: 280px; max-width: 280px; }
-      #footer { padding: 24px; background: #eee; }
-      figure { margin: 24px 0; }
-      img { width: 240px; height: 160px; background: #ddd; display: block; }
-      video { width: 320px; height: 180px; background: #ddd; display: block; margin-top: 16px; }
+      :root { color-scheme: light; background: #f3f6fa; }
+      * { box-sizing: border-box; }
+      body { font-family: system-ui, sans-serif; margin: 0; padding: 0; background: #f3f6fa; color: #172234; }
+      #regionHeader {
+        min-height: 68px; padding: 13px 32px; border-bottom: 1px solid #29466f;
+        background: #172234; color: #fff; display: grid; align-content: center; gap: 2px;
+      }
+      #regionHeader strong { font-size: 18px; letter-spacing: -.01em; }
+      #regionHeader span { color: #bdcbe0; font-size: 12px; }
+      #language-shell {
+        position: absolute; z-index: 2; top: 14px; right: 32px; display: flex; align-items: center; gap: 8px;
+        color: #e8eef8; font-size: 13px;
+      }
+      #language-shell select { min-height: 38px; padding: 6px 34px 6px 10px; border: 1px solid #6d83a3; border-radius: 8px; background: #fff; color: #172234; }
+      #language-shell input { position: absolute; left: -10000px; width: 1px; height: 1px; }
+      #article {
+        max-width: 760px; margin: 36px auto; padding: 42px 52px 56px; border: 1px solid #d9e1ec; border-radius: 18px;
+        background: #fff; box-shadow: 0 18px 48px rgba(31,49,80,.10);
+      }
+      #article h1 { margin: 0 0 30px; font-size: 36px; letter-spacing: -.035em; }
+      #article p { font-size: 17px; line-height: 1.62; }
+      #bibleText { display: grid; gap: 8px; margin: 24px 0; }
+      #bibleText .verse { display: block; padding: 10px 12px; border-radius: 9px; background: #f7f9fc; font-size: 17px; line-height: 1.55; }
+      #bibleText .verseNum { margin-right: 7px; }
+      #bibleText .verseNum a { color: #43669f; font-weight: 750; text-decoration: none; }
+      #nonarticle-dialog { position: absolute; left: -10000px; top: 0; width: 280px; max-width: 280px; }
+      #footer { padding: 22px 32px; border-top: 1px solid #d9e1ec; background: #e9eef5; color: #536176; }
+      figure { margin: 30px 0; }
+      img {
+        width: 100%; height: 220px; display: block; border-radius: 13px;
+        background:
+          radial-gradient(circle at 76% 24%, #f2c667 0 8%, transparent 8.5%),
+          linear-gradient(150deg, transparent 0 47%, #7ca174 47.5% 64%, #43669f 64.5% 100%),
+          #dce7f4;
+      }
+      figcaption { margin-top: 8px; color: #637087; font-size: 14px; }
+      #article-table { width: 100%; margin: 28px 0; border-collapse: separate; border-spacing: 0; }
+      #article-table th, #article-table td { padding: 8px 0; text-align: left; }
+      #jw-player { position: relative; }
+      video { width: 100%; height: 280px; background: #101827; display: block; margin-top: 22px; border-radius: 12px; }
+      #jw-controls { margin-top: -43px; padding: 10px 14px; border-radius: 0 0 12px 12px; color: #fff; background: linear-gradient(transparent, rgba(0,0,0,.78)); }
+      #fixture-caption {
+        position: absolute; z-index: 2; left: 50%; bottom: 54px; transform: translateX(-50%);
+        width: max-content; max-width: calc(100% - 48px); pointer-events: none; text-align: center;
+      }
+      #fixture-caption > div { padding: 5px 10px; border-radius: 5px; background: rgba(0,0,0,.72); color: #fff; font-size: 18px; }
+      #fixture-transcript { margin-top: 18px; padding: 14px 16px; border-left: 4px solid #43669f; border-radius: 8px; background: #eef3fa; color: #40516a; }
+      #fixture-transcript p { margin: 3px 0; font-size: 14px; }
     </style>
   </head>
   <body class="PublicationArticle docId-1001070103 ml-E">
-    <header id="regionHeader">StudyNav synthetic demo · no official text or artwork</header>
+    <header id="regionHeader"><strong>StudyNav demo</strong><span>Reading tools preview</span></header>
     <aside id="language-shell">
       <label for="otherAvailLangsChooser">Language</label>
       <select id="otherAvailLangsChooser">
@@ -639,8 +708,8 @@ function jwFixtureHtml() {
       <input type="text" id="otherAvailLangsChooser" class="jsAutoCompleteInput" aria-label="Language autocomplete" />
     </aside>
     <div id="nonarticle-dialog" class="jwac" role="dialog">
-      <p>Site dialog outside the publication article.</p>
-      <table id="dialog-table"><tr><td>Dialog cell</td></tr></table>
+      <p>Page menu outside the reading article.</p>
+      <table id="dialog-table"><tr><td>Menu cell</td></tr></table>
     </div>
     <div class="jsGlobalShareData" data-is-current-page="1">
       <div class="link" data-pub="nwtsty" data-bible="1001000" data-wtlocale="E"></div>
@@ -648,8 +717,8 @@ function jwFixtureHtml() {
     <main id="article" class="jwac docId-1001070103 ml-E pub-nwtsty"
       data-bible-pub="nwtsty" data-booknum="1" data-bookname="Sample Reading" data-chapter="1">
       <h1>Sample Reading 1:1–3</h1>
-      <p data-pid="p1" id="p1">Paragraph one with meaningful text.</p>
-      <p data-pid="p2" id="p2">Paragraph two with more meaningful text.</p>
+      <p data-pid="p1" id="p1">A useful thought is easier to revisit when it stays beside the text.</p>
+      <p data-pid="p2" id="p2">A precise link returns to the same place without searching again.</p>
       <div id="bibleText">
         <span class="verse jsHasMediaMarker" id="v1001001"><sup class="verseNum"><a href="#v1001001" class="jsHighlightOnly">1</a></sup> A quiet path began near the hills.</span>
         <span class="verse jsHasMediaMarker" id="v1001002"><sup class="verseNum"><a href="#v1001002" class="jsHighlightOnly">2</a></sup> Travelers paused to study the map.</span>
@@ -657,20 +726,21 @@ function jwFixtureHtml() {
       </div>
       <audio id="chapter-audio" preload="none" src="${VERSE_AUDIO_URL}"></audio>
       <figure>
-        <img id="article-image" alt="An explanatory image" src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=" />
-        <figcaption>Figure caption content</figcaption>
+        <img id="article-image" alt="A mountain trail at sunrise" src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=" />
+        <figcaption>A clear path through the hills.</figcaption>
       </figure>
-      <table id="article-table"><thead><tr><th>Heading</th></tr></thead><tbody><tr><td>One</td></tr><tr><td>Two</td></tr></tbody></table>
+      <table id="article-table"><thead><tr><th>Study step</th></tr></thead><tbody><tr><td>Read</td></tr><tr><td>Review</td></tr></tbody></table>
       <div class="video-js" id="jw-player">
-        <video id="jw-video" controls preload="metadata" src="/media/fixture.mp4"></video>
-        <div class="vjs-control-bar" id="jw-controls">Fixture controls</div>
+        <video id="jw-video" controls preload="metadata" src="https://${HOSTS.jwMedia}/media/fixture.mp4"></video>
+        <div class="vjs-text-track-display"><div id="fixture-caption" class="vjs-text-track-cue"><div>Sample caption remains readable.</div></div></div>
+        <div class="vjs-control-bar" id="jw-controls">Player controls</div>
       </div>
       <div id="fixture-transcript" class="transcript">
-        <p>First transcript line contains enough fixture text for StudyNav transcript extraction.</p>
+        <p>First transcript line is ready for search and download.</p>
         <p>Second searchable transcript line mentions lantern.</p>
       </div>
     </main>
-    <footer id="footer" class="jsLockedChrome">End of synthetic fixture</footer>
+    <footer id="footer" class="jsLockedChrome">End of demo page</footer>
   </body>
 </html>`;
 }
@@ -1029,6 +1099,7 @@ async function withContext(options, run) {
           userAgent: options.userAgent,
           extraHTTPHeaders: options.extraHTTPHeaders,
           locale: options.locale,
+          deviceScaleFactor: options.deviceScaleFactor || 1,
         });
         launchMeta = attempt;
         break;
@@ -1257,6 +1328,12 @@ async function getStudyNavState(page) {
     );
     const selectedAudioButton = selectedToolbar?.querySelector('.studynav-verse-audio');
     const selectedToolbarRect = selectedToolbar?.getBoundingClientRect();
+    const selectedToolbarOverlapsVerse = !!selectedToolbarRect &&
+      Array.from(document.querySelectorAll('.verse')).some((verse) => {
+        const rect = verse.getBoundingClientRect();
+        return selectedToolbarRect.left < rect.right && selectedToolbarRect.right > rect.left &&
+          selectedToolbarRect.top < rect.bottom && selectedToolbarRect.bottom > rect.top;
+      });
     const selectedButtonRect = selectedAudioButton?.getBoundingClientRect();
     const selectedButtonHit = selectedButtonRect
       ? document.elementFromPoint(
@@ -1279,11 +1356,13 @@ async function getStudyNavState(page) {
       qrOpen: !!document.getElementById('studynav-qr-overlay'),
       studyPanelOpen: !!document.getElementById('studynav-study-panel'),
       selectionTools: !!document.getElementById('studynav-selection-tools'),
-      highlightRangeCount: ['yellow', 'green', 'blue', 'pink'].reduce((total, color) =>
+      highlightRangeCount: ['yellow', 'green', 'blue', 'pink', 'purple', 'orange'].reduce((total, color) =>
         total + (CSS.highlights?.get(`studynav-${color}`)?.size || 0), 0),
       imageButtons: document.querySelectorAll('.studynav-imgdl').length,
       verseAudioButtons: document.querySelectorAll('.studynav-verse-audio').length,
       selectedVerse: document.querySelector('.verse.jwac-textHighlight, .verse.studynav-verse-selected')?.id || null,
+      selectedVerses: Array.from(document.querySelectorAll('.verse.jwac-textHighlight, .verse.studynav-verse-selected'))
+        .map((verse) => verse.id),
       selectedToolbarDisplay: style(
         '.verse.jwac-textHighlight > .studynav-para-tools, .verse.studynav-verse-selected > .studynav-para-tools',
       )?.display || null,
@@ -1291,6 +1370,7 @@ async function getStudyNavState(page) {
       selectedToolbarInViewport: !!selectedToolbarRect &&
         selectedToolbarRect.left >= 0 && selectedToolbarRect.right <= innerWidth &&
         selectedToolbarRect.top >= 0 && selectedToolbarRect.bottom <= innerHeight,
+      selectedToolbarOverlapsVerse,
       selectedAudioButtonClickable: !!selectedAudioButton &&
         (selectedButtonHit === selectedAudioButton || selectedAudioButton.contains(selectedButtonHit)),
       articleMarked: document.getElementById('article')?.getAttribute('data-studynav-article') || null,
@@ -1311,7 +1391,10 @@ async function getStudyNavState(page) {
       documentScrollWidth: document.documentElement.scrollWidth,
       dynamicCss: document.getElementById('studynav-dynamic-style')?.textContent || '',
       mediaControlOpacity: style('#jw-controls')?.opacity || null,
+      mediaControlBackground: style('#jw-controls')?.backgroundColor || null,
+      mediaControlBackgroundImage: style('#jw-controls')?.backgroundImage || null,
       transcriptPresent: !!document.getElementById('studynav-transcript'),
+      mediaClipPanelPresent: !!document.getElementById('studynav-clip-panel'),
       resumePresent: !!document.getElementById('studynav-resume-media'),
     };
   });
@@ -1505,10 +1588,12 @@ function studyNavFlagSurfaceEnabled(flag, state) {
     case 'langCount': return state.langBadge === '6 languages';
     case 'parLink': return state.paragraphButtons.includes('Link');
     case 'verseAudio': return state.verseAudioButtons === 3;
-    case 'mediaPlayerUI': return state.mediaControlOpacity === '0.35';
+    case 'mediaPlayerUI': return state.dynamicCss.includes('.video-js .vjs-control-bar') &&
+      state.dynamicCss.includes('background-image: none');
     case 'customSub': return state.dynamicCss.includes('::cue');
     case 'imgGet': return state.imageButtons === 1;
-    case 'mediaTS': return state.mediaButtons.includes('Copy time URL');
+    case 'mediaTS': return state.mediaButtons.includes('Copy page + time');
+    case 'mediaClip': return state.mediaButtons.includes('Media segment');
     case 'sndDisp': return state.mediaButtons.includes('Second display');
     case 'transcCreate': return state.mediaButtons.includes('Transcript');
     case 'annotations': return state.paragraphButtons.includes('Mark') && state.highlightRangeCount > 0;
@@ -1532,6 +1617,28 @@ function studyNavFlagSurfaceDisabled(flag, state) {
       return enabled == null ? null : !enabled;
     }
   }
+}
+
+async function waitForStudyNavFlagSurface(page, flag, enabled) {
+  if (enabled && flag === 'qrShare') {
+    await page.waitForTimeout(240);
+    return;
+  }
+  const firstState = await getStudyNavState(page);
+  const firstValue = enabled
+    ? studyNavFlagSurfaceEnabled(flag, firstState)
+    : studyNavFlagSurfaceDisabled(flag, firstState);
+  if (firstValue == null) {
+    await page.waitForTimeout(240);
+    return;
+  }
+  await waitFor(async () => {
+    const state = await getStudyNavState(page);
+    const value = enabled
+      ? studyNavFlagSurfaceEnabled(flag, state)
+      : studyNavFlagSurfaceDisabled(flag, state);
+    return value === true;
+  }, 5000, `StudyNav ${flag} did not reach its ${enabled ? 'enabled' : 'disabled'} surface`);
 }
 
 async function runBaselineScenario(executablePath, port) {
@@ -2348,13 +2455,14 @@ async function runInkShadeForkScenario(executablePath, port) {
 
 async function runStudyNavScenario(executablePath, port) {
   const scenario = createScenario('studynav-only', ['StudyNav']);
-  await withContext({ executablePath, extensions: ['StudyNav'] }, async (context, launchMeta) => {
+  await withContext({ executablePath, extensions: ['StudyNav'], deviceScaleFactor: 2 }, async (context, launchMeta) => {
     scenario.launchMode = launchMeta.launchMode;
     const workers = await waitForNamedWorkers(context, ['StudyNav']);
     scenario.serviceWorkers = workers;
     const worker = await getWorkerByName(context, 'StudyNav');
 
     await setStudyNavFlags(worker, DEFAULT_STUDYNAV_FLAGS);
+    await context.route(`https://${HOSTS.jwMedia}/media/fixture.mp4`, fulfillFixtureVideo);
 
     const ordinary = await openPage(
       context,
@@ -2420,7 +2528,7 @@ async function runStudyNavScenario(executablePath, port) {
     await copyButton.click();
     const copiedParagraph = await waitForCopiedText(
       jwPage,
-      (text) => text === 'Paragraph one with meaningful text.',
+      (text) => text === 'A useful thought is easier to revisit when it stays beside the text.',
       'StudyNav paragraph copy did not execute its browser clipboard fallback',
     );
     const linkButton = jwPage.locator('#p1 > .studynav-para-tools button', { hasText: 'Link' });
@@ -2434,10 +2542,10 @@ async function runStudyNavScenario(executablePath, port) {
     await jwPage.evaluate(() => {
       const collision = document.createElement('span');
       collision.id = 'studynav-pid-generated-pid';
-      collision.textContent = 'Anchor collision fixture';
+      collision.textContent = 'Link target example';
       const paragraph = document.createElement('p');
       paragraph.dataset.pid = 'Generated PID';
-      paragraph.textContent = 'Generated paragraph without an official id.';
+      paragraph.textContent = 'StudyNav can create a precise link for this paragraph.';
       document.getElementById('article')?.append(collision, paragraph);
     });
     await jwPage.waitForFunction(() => {
@@ -2502,6 +2610,7 @@ async function runStudyNavScenario(executablePath, port) {
     await paletteNavigationPage.waitForURL('https://www.jw.org/en/search/?q=123456');
     const paletteClickUrl = paletteNavigationPage.url();
     await paletteNavigationPage.close();
+    await context.unroute('https://www.jw.org/**');
 
     const commandApiProbe = await worker.evaluate(async (targetUrl) => {
       const target = (await chrome.tabs.query({})).find((tab) => tab.url === targetUrl);
@@ -2557,36 +2666,51 @@ async function runStudyNavScenario(executablePath, port) {
     await jwPage.click('#studynav-tr-x');
     await jwPage.waitForFunction(() => document.getElementById('studynav-transcript')?.classList.contains('hidden'));
     await jwPage.evaluate(() => document.getElementById('fixture-transcript')?.remove());
-    await jwPage.locator('#studynav-media-bar button', { hasText: 'Transcript' }).click();
-    await jwPage.waitForFunction(() =>
-      /No transcript text was detected/.test(document.getElementById('studynav-tr-body')?.textContent || ''));
-    const emptyTranscriptText = await jwPage.locator('#studynav-tr-body').textContent();
-    await jwPage.click('#studynav-tr-x');
+    await jwPage.waitForFunction(() => !document.getElementById('studynav-transcript-button'));
+    const transcriptSourceRemoved = await jwPage.evaluate(() => {
+      const panel = document.getElementById('studynav-transcript');
+      return !document.getElementById('studynav-transcript-button') &&
+        (!panel || panel.classList.contains('hidden'));
+    });
 
-    const mediaTime = await jwPage.locator('#jw-video').evaluate((video) => {
-      try { video.currentTime = 12; } catch { /* fixture media may not be ready */ }
-      return video.currentTime;
+    const mediaClock = await jwPage.locator('#jw-video').evaluate(async (video) => {
+      if (video.readyState < 1) {
+        await new Promise((resolve) => {
+          video.addEventListener('loadedmetadata', resolve, { once: true });
+          setTimeout(resolve, 1_000);
+        });
+      }
+      const target = Number.isFinite(video.duration) && video.duration > 0
+        ? Math.min(1, video.duration / 2)
+        : 0;
+      try { video.currentTime = target; } catch { /* fixture media may not be seekable */ }
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      return { currentTime: video.currentTime, duration: video.duration, target };
     });
-    await jwPage.locator('#studynav-media-bar button', { hasText: 'Copy time URL' }).click();
-    await jwPage.waitForFunction(() => document.getElementById('studynav-toast')?.textContent === 'Timestamp URL copied');
-    const timestampCopied = await jwPage.evaluate(() =>
-      document.getElementById('studynav-toast')?.textContent === 'Timestamp URL copied');
+    await jwPage.locator('#studynav-media-bar button', { hasText: 'Copy page + time' }).click();
+    await jwPage.waitForFunction(() => document.getElementById('studynav-toast')?.textContent === 'Page link and time copied');
+    const pageAndTimeCopied = await jwPage.evaluate(() =>
+      document.getElementById('studynav-toast')?.textContent === 'Page link and time copied');
     const timestampPageUrl = jwPage.url();
-    await jwPage.evaluate(() => {
-      const video = document.getElementById('jw-video');
-      const parent = video?.parentElement;
-      const next = video?.nextSibling || null;
-      const button = Array.from(document.querySelectorAll('#studynav-media-bar button'))
-        .find((candidate) => candidate.textContent?.trim() === 'Copy time URL');
-      video?.remove();
-      button?.click();
-      if (video && parent) parent.insertBefore(video, next);
-    });
-    const timestampWithoutVideo = await waitForCopiedText(
-      jwPage,
-      (text) => text === timestampPageUrl,
-      'StudyNav timestamp helper did not fall back to the unchanged page URL without video',
-    );
+
+    await jwPage.locator('#studynav-media-bar button', { hasText: 'Media segment' }).click();
+    await jwPage.waitForFunction(() => !!document.getElementById('studynav-clip-panel'));
+    const clipPanelState = await jwPage.evaluate(() => ({
+      title: document.querySelector('#studynav-clip-panel strong')?.textContent?.trim(),
+      labels: Array.from(document.querySelectorAll('#studynav-clip-panel label')).map((label) => label.childNodes[0]?.textContent?.trim()),
+      formats: Array.from(document.querySelectorAll('#studynav-clip-panel select option')).map((option) => option.textContent?.trim()),
+      values: Array.from(document.querySelectorAll('#studynav-clip-panel input')).map((input) => input.value),
+      maxLengthHint: /2 minutes/.test(document.getElementById('studynav-clip-panel')?.textContent || '') &&
+        /1 minute/.test(document.getElementById('studynav-clip-panel')?.textContent || ''),
+    }));
+    await captureScreenshot(jwPage, '17-audio-segment.png');
+    const clipInputs = jwPage.locator('#studynav-clip-panel input');
+    await clipInputs.nth(0).fill('0:20');
+    await clipInputs.nth(1).fill('0:10');
+    await jwPage.locator('#studynav-clip-panel button[type="submit"]').click();
+    await jwPage.waitForFunction(() => /end must be after the start/i.test(document.querySelector('.studynav-clip-error')?.textContent || ''));
+    const clipInvalidError = await jwPage.locator('.studynav-clip-error').textContent();
+    await jwPage.locator('#studynav-clip-panel button[type="button"]').click();
 
     const secondDisplayPromise = context.waitForEvent('page');
     await jwPage.locator('#studynav-media-bar button', { hasText: 'Second display' }).click();
@@ -2597,12 +2721,16 @@ async function runStudyNavScenario(executablePath, port) {
       name: window.name,
       innerWidth,
       innerHeight,
+      playerTag: document.querySelector('video, audio')?.tagName || null,
+      playerSource: document.querySelector('video, audio')?.src || null,
+      autoplay: document.querySelector('video, audio')?.autoplay ?? null,
     }));
     await secondDisplay.close();
 
     await setStudyNavFlags(worker, { ...DEFAULT_STUDYNAV_FLAGS, imgGet: true });
     await jwPage.waitForFunction(() => document.querySelectorAll('.studynav-imgdl').length === 1);
     const imageButton = jwPage.locator('.studynav-imgdl');
+    await imageButton.scrollIntoViewIfNeeded();
     await captureScreenshot(jwPage, '14-image-download.png');
     const imageButtonState = await imageButton.evaluate((button) => {
       const style = getComputedStyle(button);
@@ -2664,6 +2792,38 @@ async function runStudyNavScenario(executablePath, port) {
     });
     const selectedVerseState = await getStudyNavState(jwPage);
 
+    await jwPage.locator('#v1001001 .jsHighlightOnly').click();
+    await jwPage.locator('#v1001003 .jsHighlightOnly').click({ modifiers: ['Shift'] });
+    await jwPage.waitForFunction(() =>
+      document.querySelectorAll('.verse.studynav-verse-selected').length === 3 &&
+      document.querySelector('#v1001003 > .studynav-para-tools')?.getAttribute('data-sn-verse-floating') === '1');
+    const selectedRangeState = await getStudyNavState(jwPage);
+    await captureScreenshot(jwPage, '18-verse-range.png');
+    const rangeSingleVerseControlsHidden = await jwPage.locator('#v1001003 > .studynav-para-tools').evaluate((toolbar) =>
+      Array.from(toolbar.querySelectorAll('[data-single-verse-only="1"]')).every((control) => control.hidden));
+    const rangeToolbar = jwPage.locator('#v1001003 > .studynav-para-tools');
+    await rangeToolbar.locator('button', { hasText: 'Copy' }).click();
+    const copiedVerseRange = await waitForCopiedText(
+      jwPage,
+      (text) => text === [
+        'A quiet path began near the hills.',
+        'Travelers paused to study the map.',
+        'A small lamp marked the next step.',
+      ].join('\n'),
+      'StudyNav range copy retained verse numbers or did not copy every selected verse',
+    );
+    await rangeToolbar.locator('button', { hasText: 'Link' }).click();
+    const copiedVerseRangeLink = await waitForCopiedText(
+      jwPage,
+      (text) => text.endsWith('#v1001001-v1001003'),
+      'StudyNav range link did not preserve the selected contiguous verse range',
+    );
+    const rangeStatus = await sendStudyNavPageAction(worker, jwPage.url(), 'GET_STUDYNAV_STATUS');
+    await jwPage.locator('#v1001003 .jsHighlightOnly').click();
+    await jwPage.waitForFunction(() =>
+      document.querySelectorAll('.verse.studynav-verse-selected').length === 1 &&
+      document.getElementById('v1001003')?.classList.contains('studynav-verse-selected'));
+
     const popup = await openPage(
       context,
       scenario,
@@ -2677,7 +2837,7 @@ async function runStudyNavScenario(executablePath, port) {
       document.getElementById('status-title')?.textContent === 'Ready on this Bible chapter');
     const popupState = await getPopupState(popup);
     await popup.click('#settings > summary');
-    await popup.fill('#filter', 'transcript');
+    await popup.fill('#filter', 'captions');
     const filteredPopupState = await getPopupState(popup);
 
     await popup.evaluate(() => document.querySelector('[data-id="copyText"]').click());
@@ -2704,7 +2864,7 @@ async function runStudyNavScenario(executablePath, port) {
     );
     await jwPage.waitForFunction(() =>
       document.querySelectorAll('.studynav-verse-audio').length === 0 &&
-      document.querySelectorAll('.studynav-verse-selected').length === 0);
+      document.querySelectorAll('.studynav-verse-selected').length === 1);
     const verseAudioOffState = await getStudyNavState(jwPage);
     await popup.evaluate(() => document.querySelector('[data-id="verseAudio"]').click());
     await jwPage.waitForFunction(() => document.querySelectorAll('.studynav-verse-audio').length === 3);
@@ -2720,7 +2880,7 @@ async function runStudyNavScenario(executablePath, port) {
         'StudyNav image descriptions stay idempotent and ignore images without alt text or captions',
         altTextEdgeState.blocks === 1 && altTextEdgeState.blankHasMarker === false &&
           altTextEdgeState.blankHasDescription === false &&
-          altTextEdgeState.articleDescription === 'An explanatory image - Figure caption content',
+          altTextEdgeState.articleDescription === 'A mountain trail at sunrise - A clear path through the hills.',
         altTextEdgeState,
       ),
       makeAssertion('StudyNav counts the page-level live-style language chooser', jwState.langBadge === '6 languages', jwState),
@@ -2756,14 +2916,17 @@ async function runStudyNavScenario(executablePath, port) {
       ),
       makeAssertion(
         'StudyNav applies media, subtitle, and toolbar surfaces while image download stays opt-in',
-        jwState.mediaControlOpacity === '0.35' &&
+        jwState.mediaControlOpacity === '1' &&
+          jwState.mediaControlBackground === 'rgba(0, 0, 0, 0)' &&
+          jwState.mediaControlBackgroundImage === 'none' &&
           jwState.imageButtons === 0 &&
-          ['Copy time URL', 'Second display', 'Transcript'].every((label) => jwState.mediaButtons.includes(label)),
+          ['Copy page + time', 'Media segment', 'Second display', 'Transcript']
+            .every((label) => jwState.mediaButtons.includes(label)),
         jwState,
       ),
       makeAssertion(
         'StudyNav paragraph Copy and Link buttons write clean clipboard values',
-        copiedParagraph === 'Paragraph one with meaningful text.' && copiedLink.endsWith('#p1') &&
+        copiedParagraph === 'A useful thought is easier to revisit when it stays beside the text.' && copiedLink.endsWith('#p1') &&
           generatedLink.endsWith('#studynav-pid-generated-pid-2') &&
           generatedAnchorRemoved?.id === '' && generatedAnchorRemoved?.owned === false,
         { copiedParagraph, copiedLink, generatedLink, generatedAnchorRemoved },
@@ -2779,38 +2942,48 @@ async function runStudyNavScenario(executablePath, port) {
         { mnemonicResults, docIdResults, paletteEnterUrl, paletteClickUrl, commandApiProbe },
       ),
       makeAssertion(
-        'StudyNav media keys, timestamp, second display, and transcript helpers execute',
+        'StudyNav media keys, page time, media segment, second display, and transcript helpers execute',
         videoMutedBefore === false && videoMutedAfter === true &&
-          mediaTime === 12 && timestampCopied && timestampWithoutVideo === timestampPageUrl &&
-          secondDisplayUrl.includes('/media/fixture.mp4') &&
+          Number.isFinite(mediaClock.duration) && mediaClock.duration > 0 &&
+          Number.isFinite(mediaClock.currentTime) && mediaClock.currentTime >= 0 && pageAndTimeCopied === true &&
+          clipPanelState.title === 'Download an audio or video segment' &&
+          clipPanelState.labels.join('|') === 'Format|Start|End' &&
+          clipPanelState.formats.join('|') === 'Audio (.wav) · up to 2 minutes|Video (.webm) · up to 1 minute' &&
+          clipPanelState.maxLengthHint === true &&
+          /end must be after the start/i.test(clipInvalidError || '') &&
+          secondDisplayUrl === 'about:blank' &&
           secondDisplayState.name === 'studynav-second' &&
+          secondDisplayState.playerTag === 'VIDEO' &&
+          secondDisplayState.playerSource === `https://${HOSTS.jwMedia}/media/fixture.mp4` &&
+          secondDisplayState.autoplay === false &&
           secondDisplayState.innerWidth > 0 && secondDisplayState.innerHeight > 0 &&
           transcriptState.panelVisible && transcriptState.text === 'Second searchable transcript line mentions lantern.' &&
           transcriptDownload.suggestedFilename() === 'transcript.txt' &&
           /First transcript line/.test(transcriptDownloadText) && /lantern/.test(transcriptDownloadText) &&
-          /No transcript text was detected/.test(emptyTranscriptText || ''),
+          transcriptSourceRemoved === true,
         {
           videoMutedBefore,
           videoMutedAfter,
-          mediaTime,
-          timestampCopied,
+          mediaClock,
+          pageAndTimeCopied,
           timestampPageUrl,
-          timestampWithoutVideo,
+          clipPanelState,
+          clipInvalidError,
           secondDisplayUrl,
           secondDisplayState,
           transcriptState,
           transcriptDownloadText,
-          emptyTranscriptText,
+          transcriptSourceRemoved,
         },
       ),
       makeAssertion(
-        'StudyNav opt-in image helper is a blue semantic icon button and produces a local download',
-        imageButtonState.text === '' &&
+        'StudyNav opt-in image helper is a labeled blue button and produces a local download',
+        imageButtonState.text === 'Download image' &&
           imageButtonState.ariaLabel === 'Download image' &&
           imageButtonState.title === 'Download image' &&
           imageButtonState.childTag === 'svg' &&
           imageButtonState.pathCount === 1 &&
-          imageButtonState.width >= 36 && imageButtonState.height >= 36 &&
+          imageButtonState.width >= 100 && imageButtonState.height >= 36 &&
           imageButtonState.background === 'rgb(67, 102, 159)' &&
           imageButtonHoverState.hovered === true &&
           imageButtonHoverState.background === 'rgb(82, 120, 179)' &&
@@ -2825,8 +2998,24 @@ async function runStudyNavScenario(executablePath, port) {
           selectedVerseState.selectedToolbarDisplay !== 'none' &&
           selectedVerseState.selectedToolbarFloating === true &&
           selectedVerseState.selectedToolbarInViewport === true &&
+          selectedVerseState.selectedToolbarOverlapsVerse === false &&
           selectedVerseState.selectedAudioButtonClickable === true,
         selectedVerseState,
+      ),
+      makeAssertion(
+        'StudyNav Shift-selects contiguous verse ranges, copies clean text, and creates one range link',
+        JSON.stringify(selectedRangeState.selectedVerses) === JSON.stringify(['v1001001', 'v1001002', 'v1001003']) &&
+          rangeSingleVerseControlsHidden === true &&
+          copiedVerseRange === [
+            'A quiet path began near the hills.',
+            'Travelers paused to study the map.',
+            'A small lamp marked the next step.',
+          ].join('\n') &&
+          copiedVerseRangeLink.endsWith('#v1001001-v1001003') &&
+          rangeStatus?.selectedVerseRange?.chapter === 1 &&
+          rangeStatus?.selectedVerseRange?.startVerse === 1 &&
+          rangeStatus?.selectedVerseRange?.endVerse === 3,
+        { selectedRangeState, rangeSingleVerseControlsHidden, copiedVerseRange, copiedVerseRangeLink, rangeStatus },
       ),
       makeAssertion(
         'StudyNav popup identifies its site and purpose before its handle',
@@ -2842,11 +3031,11 @@ async function runStudyNavScenario(executablePath, port) {
         popupState,
       ),
       makeAssertion(
-        'StudyNav popup explains the workflow and progressively discloses all 22 settings',
-        popupState.rowCount === 22 && popupState.groupCount === 4 &&
+        'StudyNav popup explains the workflow and progressively discloses all 23 settings',
+        popupState.rowCount === 23 && popupState.groupCount === 4 &&
           popupState.masterChecked === true && popupState.settingsOpen === false &&
-          popupState.enabledCount === '19 on' &&
-          filteredPopupState.settingsOpen === true && filteredPopupState.visibleRows === 1,
+          popupState.enabledCount === '20 on' &&
+          filteredPopupState.settingsOpen === true && filteredPopupState.visibleRows === 2,
         { popupState, filteredPopupState },
       ),
       makeAssertion(
@@ -2856,10 +3045,10 @@ async function runStudyNavScenario(executablePath, port) {
         { copyOffFlags, copyOffButtons },
       ),
       makeAssertion(
-        'StudyNav verse-audio toggle removes its controls and selection without removing paragraph tools',
+        'StudyNav verse-audio toggle removes only audio controls while retaining verse selection tools',
         verseAudioOffFlags.verseAudio === false &&
           verseAudioOffState.verseAudioButtons === 0 &&
-          verseAudioOffState.selectedVerse == null &&
+          verseAudioOffState.selectedVerse === 'v1001003' &&
           verseAudioOffState.paraTools >= 2,
         { verseAudioOffFlags, verseAudioOffState },
       ),
@@ -2930,12 +3119,13 @@ async function runStudyNavScenario(executablePath, port) {
 
 async function runStudyNavStudySuiteScenario(executablePath, port) {
   const scenario = createScenario('studynav-study-suite', ['StudyNav']);
-  await withContext({ executablePath, extensions: ['StudyNav'] }, async (context, launchMeta) => {
+  await withContext({ executablePath, extensions: ['StudyNav'], deviceScaleFactor: 2 }, async (context, launchMeta) => {
     scenario.launchMode = launchMeta.launchMode;
     const workers = await waitForNamedWorkers(context, ['StudyNav']);
     scenario.serviceWorkers = workers;
     const worker = await getWorkerByName(context, 'StudyNav');
     await setStudyNavFlags(worker, DEFAULT_STUDYNAV_FLAGS);
+    await context.route(`https://${HOSTS.jwMedia}/media/fixture.mp4`, fulfillFixtureVideo);
 
     const page = await openPage(
       context,
@@ -2965,8 +3155,8 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
     }));
 
     const directHighlights = [
-      ['yellow', 'Paragraph'],
-      ['green', 'meaningful'],
+      ['yellow', 'A useful'],
+      ['green', 'thought'],
       ['blue', 'text.'],
     ];
     for (const [color, exact] of directHighlights) {
@@ -2986,6 +3176,8 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
     await markButton.click();
     await page.waitForSelector('#studynav-note-editor');
     await captureScreenshot(page, '03-note-editor.png');
+    const editorColors = await page.locator('#studynav-note-editor input[name="color"]').evaluateAll((inputs) =>
+      inputs.map((input) => input.value));
     await page.keyboard.press('x');
     await page.keyboard.press('Escape');
     await page.waitForFunction(() => !document.getElementById('studynav-note-editor'));
@@ -3001,8 +3193,43 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       async () => (await chrome.storage.local.get('studynavStudyDataV2')).studynavStudyDataV2,
       (data) => data?.annotations?.length === 4 &&
         ['yellow', 'green', 'blue', 'pink'].every((color) => data.annotations.some((item) => item.color === color)),
-      'StudyNav did not persist all four highlight colors',
+      'StudyNav did not persist the representative highlight colors',
     );
+    await page.setViewportSize({ width: 1600, height: 900 });
+    await page.waitForFunction(() => document.getElementById('studynav-note-rail')?.dataset.mode === 'rail');
+    const noteRailLayoutState = await page.evaluate(() => {
+      const rail = document.getElementById('studynav-note-rail');
+      const article = document.getElementById('article');
+      const badge = document.getElementById('studynav-langcount');
+      const rect = (element) => {
+        const value = element?.getBoundingClientRect();
+        return value ? { left: value.left, top: value.top, right: value.right, bottom: value.bottom } : null;
+      };
+      const railRect = rect(rail);
+      const articleRect = rect(article);
+      const badgeRect = rect(badge);
+      const overlaps = (a, b) => !!a && !!b && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+      return {
+        mode: rail?.dataset.mode || null,
+        railRect,
+        articleRect,
+        badgeRect,
+        overlapsArticle: overlaps(railRect, articleRect),
+        overlapsBadge: overlaps(railRect, badgeRect),
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      };
+    });
+    await captureScreenshot(page, '19-note-rail.png');
+    await page.setViewportSize({ width: 1280, height: 720 });
+
+    await selectFixtureText(page, '#p1', 'A useful');
+    const selectionColors = await page.locator('.studynav-color-button').evaluateAll((buttons) =>
+      buttons.map((button) => button.getAttribute('data-color')));
+    await page.evaluate(() => {
+      window.getSelection()?.removeAllRanges();
+      document.dispatchEvent(new Event('selectionchange'));
+    });
 
     await page.waitForFunction(() => {
       const registry = CSS.highlights;
@@ -3079,7 +3306,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
     await captureScreenshot(page, '04-study-panel.png');
 
     await page.locator('#studynav-study-panel button', { hasText: 'Close' }).click();
-    await selectFixtureText(page, '#p1', 'meaningful');
+    await selectFixtureText(page, '#p1', 'thought');
     const paragraphBookmarkResponse = await sendStudyNavPageAction(
       worker,
       page.url(),
@@ -3115,12 +3342,31 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       page.url(),
       'TOGGLE_STUDY_BOOKMARK',
     );
-    const savedPlacesData = await waitForWorkerState(
-      worker,
-      async () => (await chrome.storage.local.get('studynavStudyDataV2')).studynavStudyDataV2,
-      (data) => data?.bookmarks?.length === 3 && data.bookmarks.some((bookmark) => !new URL(bookmark.targetUrl).hash),
-      'StudyNav did not save page, paragraph, and verse places independently',
+    const pageBookmarkDataImmediately = await readStudyNavLocalData(worker);
+    ensure(pageBookmarkDataImmediately, `StudyNav bookmark storage disappeared: ${json({
+      paragraphBookmarkResponse,
+      verseBookmarkResponse,
+      pageBookmarkResponse,
+    })}`);
+    await sleep(500);
+    const pageBookmarkDataAfterSettle = await readStudyNavLocalData(worker);
+    ensure(pageBookmarkDataAfterSettle, `StudyNav bookmark storage disappeared after settle: ${json({
+      paragraphBookmarkResponse,
+      verseBookmarkResponse,
+      pageBookmarkResponse,
+      pageBookmarkDataImmediately,
+    })}`);
+    ensure(
+      pageBookmarkDataAfterSettle.bookmarks.length === 3 &&
+        pageBookmarkDataAfterSettle.bookmarks.some((bookmark) => !new URL(bookmark.targetUrl).hash),
+      `StudyNav did not save page, paragraph, and verse places independently: ${json({
+        paragraphBookmarkResponse,
+        verseBookmarkResponse,
+        pageBookmarkResponse,
+        bookmarks: pageBookmarkDataAfterSettle.bookmarks,
+      })}`,
     );
+    const savedPlacesData = pageBookmarkDataAfterSettle;
 
     await sendStudyNavPageAction(worker, page.url(), 'OPEN_STUDY_PANEL');
     await page.click('#studynav-study-panel [data-view="bookmarks"]');
@@ -3209,7 +3455,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
     await page.waitForFunction(() => document.getElementById('studynav-note-count')?.textContent === '4 notes');
 
     const familyCard = page.locator('.studynav-note-card', {
-      has: page.locator('blockquote', { hasText: 'Paragraph two with more meaningful text.' }),
+      has: page.locator('blockquote', { hasText: 'A precise link returns to the same place without searching again.' }),
     });
     await familyCard.locator('button', { hasText: 'Edit' }).click();
     await page.fill('#studynav-note-text', 'Updated local note');
@@ -3266,7 +3512,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       id: 'fixture-mixed-valid',
       updatedAt: Math.max(Date.now(), mixedSource.updatedAt + 1),
     };
-    const mixedInvalid = { ...mixedValid, id: 'fixture-mixed-invalid', color: 'orange' };
+    const mixedInvalid = { ...mixedValid, id: 'fixture-mixed-invalid', color: 'chartreuse' };
     const mixedJson = JSON.stringify({
       schemaVersion: 1,
       annotations: [mixedValid, mixedInvalid],
@@ -3518,7 +3764,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
     );
     await activateTabByUrl(worker, page.url());
     await popup.reload({ waitUntil: 'load' });
-    await popup.waitForFunction(() => document.querySelectorAll('.row').length === 22);
+    await popup.waitForFunction(() => document.querySelectorAll('.row').length === 23);
     const studyPopupState = await getPopupState(popup);
     await popup.setViewportSize({ width: 380, height: 760 });
     await captureScreenshot(popup, '06-popup.png', { fullPage: true });
@@ -3561,6 +3807,25 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       preMediaStatus?.continueWatching?.enabled === true && preMediaStatus.continueWatching.trackedVideoCount === 1,
       `StudyNav continue-watching runtime was not active: ${json(preMediaStatus)}`,
     );
+    await page.evaluate(() => {
+      const recorderVideo = document.createElement('video');
+      recorderVideo.id = 'studynav-owned-recorder-probe';
+      recorderVideo.setAttribute('data-studynav-owned', '1');
+      document.documentElement.appendChild(recorderVideo);
+    });
+    await page.waitForTimeout(250);
+    const ownedMediaStatus = await sendStudyNavPageAction(worker, page.url(), 'GET_STUDYNAV_STATUS');
+    await page.evaluate(() => document.getElementById('studynav-owned-recorder-probe')?.remove());
+    ensure(
+      ownedMediaStatus?.continueWatching?.trackedVideoCount === 1 &&
+        ownedMediaStatus.continueWatching.listenerCount === 1,
+      `StudyNav tracked its own recorder video: ${json(ownedMediaStatus)}`,
+    );
+    await page.reload({ waitUntil: 'load' });
+    await waitFor(async () => {
+      const status = await sendStudyNavPageAction(worker, page.url(), 'GET_STUDYNAV_STATUS');
+      return status?.continueWatching?.enabled === true && status.continueWatching.trackedVideoCount === 1;
+    }, 5_000, 'StudyNav media runtime did not recover after recorder isolation probe');
 
     await page.waitForTimeout(1_000);
     const mediaMetadataState = await page.evaluate(() => {
@@ -3730,7 +3995,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
     for (const flag of flagIds) {
       const enabledFlags = { ...DEFAULT_STUDYNAV_FLAGS, [flag]: true };
       await setStudyNavFlags(worker, enabledFlags);
-      await page.waitForTimeout(240);
+      await waitForStudyNavFlagSurface(page, flag, true);
 
       let enabledAction = null;
       if (flag === 'citations') {
@@ -3758,7 +4023,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       const localBeforeOff = await readStudyNavLocalData(worker);
 
       await setStudyNavFlags(worker, { ...DEFAULT_STUDYNAV_FLAGS, [flag]: false });
-      await page.waitForTimeout(240);
+      await waitForStudyNavFlagSurface(page, flag, false);
       let offAction = null;
       if (flag === 'citations') {
         offAction = await sendStudyNavPageAction(worker, page.url(), 'COPY_STUDY_CITATION');
@@ -3781,7 +4046,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       const storedOffFlags = await worker.evaluate(async () => (await chrome.storage.sync.get('flags')).flags);
 
       await setStudyNavFlags(worker, DEFAULT_STUDYNAV_FLAGS);
-      await page.waitForTimeout(240);
+      await waitForStudyNavFlagSurface(page, flag, DEFAULT_STUDYNAV_FLAGS[flag]);
       if (DEFAULT_STUDYNAV_FLAGS.continueWatching && flag === 'continueWatching') {
         await page.waitForFunction(() => !!document.getElementById('studynav-resume-media'));
       }
@@ -3802,7 +4067,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
         : flag === 'qrShare'
           ? offAction?.ok === false && offAction?.message === 'QR sharing is off'
           : flag === 'officialOpen'
-            ? offAction?.ok === false && offAction?.message === 'Official links are off'
+            ? offAction?.ok === false && offAction?.message === 'Publication links are off'
             : flag === 'annotations'
               ? offAction?.ok === true
               : flag === 'bookmarks'
@@ -4032,12 +4297,21 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
 
     scenario.assertions.push(
       makeAssertion(
-        'StudyNav selection toolbar saves yellow, green, blue, and pink local highlights',
+        'StudyNav exposes six colors and persists representative local highlights',
         fourColorData.annotations.length === 4 &&
           ['yellow', 'green', 'blue', 'pink'].every((color) =>
             fourColorData.annotations.some((item) => item.color === color)) &&
+          ['yellow', 'green', 'blue', 'pink', 'purple', 'orange'].every((color) =>
+            selectionColors.includes(color) && editorColors.includes(color)) &&
           Object.values(annotationRenderState.registrySizes).every((size) => size > 0),
-        { fourColorData, annotationRenderState },
+        { fourColorData, annotationRenderState, selectionColors, editorColors },
+      ),
+      makeAssertion(
+        'StudyNav shows page notes beside the article without covering text or the language badge',
+        noteRailLayoutState.mode === 'rail' && noteRailLayoutState.overlapsArticle === false &&
+          noteRailLayoutState.overlapsBadge === false &&
+          noteRailLayoutState.scrollWidth <= noteRailLayoutState.clientWidth,
+        noteRailLayoutState,
       ),
       makeAssertion(
         'StudyNav editor keeps Escape active after unrelated input and normalizes private tags',
@@ -4190,7 +4464,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       makeAssertion(
         'StudyNav opens only the page-derived official Finder target and fails closed without metadata',
         officialResponse?.ok === true &&
-          officialUrl === 'https://www.jw.org/finder?pub=nwtsty&bible=1001000&wtlocale=E&srcid=share' &&
+          officialUrl === 'https://www.jw.org/finder?pub=nwtsty&bible=1001003&wtlocale=E&srcid=share' &&
           openerIsNull && unavailableOfficialResponse?.ok === false &&
           unavailableOfficialResponse?.message === 'Not available on this page' &&
           russianArticleOfficialResponse?.ok === true &&
@@ -4210,11 +4484,11 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       ),
       makeAssertion(
         'StudyNav popup exposes five blue page actions and opens the local study library',
-        studyPopupState.rowCount === 22 && studyPopupState.groupCount === 4 &&
-          studyPopupState.enabledCount === '18 on' && studyPopupState.actionButtons.length === 5 &&
+        studyPopupState.rowCount === 23 && studyPopupState.groupCount === 4 &&
+          studyPopupState.enabledCount === '19 on' && studyPopupState.actionButtons.length === 5 &&
           studyPopupState.actionButtons.every((button) => button.disabled === false) &&
           studyPopupState.actionButtons.map((button) => button.text).join('|') ===
-            'Study library|Remove saved place|Copy citation|Show QR|Open official JW link' && popupPanelOpened,
+            'Study library|Remove saved place|Copy citation|Show QR|Open stable publication link' && popupPanelOpened,
         { studyPopupState, popupPanelOpened },
       ),
       makeAssertion(
@@ -4222,6 +4496,12 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
         rapidOffFlags.annotations === false && rapidOffFlags.citations === false &&
           rapidRestoredFlags.annotations === true && rapidRestoredFlags.citations === true,
         { rapidOffFlags, rapidRestoredFlags },
+      ),
+      makeAssertion(
+        'StudyNav excludes its hidden recorder media from playback progress',
+        ownedMediaStatus?.continueWatching?.trackedVideoCount === 1 &&
+          ownedMediaStatus.continueWatching.listenerCount === 1,
+        ownedMediaStatus,
       ),
       makeAssertion(
         'StudyNav throttles playback saves and persists pause/pagehide immediately',
@@ -4249,7 +4529,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
 async function runStudyNavRussianLocaleScenario(executablePath, port) {
   const scenario = createScenario('studynav-russian-locale', ['StudyNav']);
   await withContext(
-    { executablePath, extensions: ['StudyNav'], locale: 'ru' },
+    { executablePath, extensions: ['StudyNav'], locale: 'ru', deviceScaleFactor: 2 },
     async (context, launchMeta) => {
       scenario.launchMode = launchMeta.launchMode;
       await waitFor(() => context.serviceWorkers().length > 0, 15_000, 'Russian StudyNav worker did not start');
@@ -4288,6 +4568,7 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
       }));
       await captureScreenshot(page, 'ru-article-tools.png');
 
+      await page.hover('#p1');
       await page.locator('#p1 > .studynav-para-tools button').first().click();
       await page.waitForSelector('#studynav-note-editor');
       const editorLocaleState = await page.evaluate(() => ({
@@ -4299,7 +4580,14 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
         closeAria: document.querySelector('#studynav-note-editor .studynav-icon-button')?.getAttribute('aria-label'),
       }));
       await captureScreenshot(page, 'ru-note-editor.png');
-      await page.locator('#studynav-note-editor .studynav-icon-button').click();
+      await page.fill('#studynav-note-text', 'Личная заметка рядом с текстом');
+      await page.fill('#studynav-note-tags', 'изучение');
+      await page.check('#studynav-note-editor input[value="purple"]');
+      await page.locator('#studynav-note-editor button[type="submit"]').click();
+      await page.setViewportSize({ width: 1600, height: 900 });
+      await page.waitForFunction(() => document.getElementById('studynav-note-rail')?.dataset.mode === 'rail');
+      await captureScreenshot(page, 'ru-note-rail.png');
+      await page.setViewportSize({ width: 1280, height: 720 });
 
       const panelResponse = await sendStudyNavPageAction(worker, page.url(), 'OPEN_STUDY_PANEL');
       await page.waitForSelector('#studynav-study-panel');
@@ -4339,7 +4627,7 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
       await activateTabByUrl(worker, page.url());
       await popup.reload({ waitUntil: 'load' });
       await popup.waitForFunction(() =>
-        document.querySelectorAll('.row').length === 22);
+        document.querySelectorAll('.row').length === 23);
       const popupLocaleState = await popup.evaluate(() => ({
         lang: document.documentElement.lang,
         uiLanguage: chrome.i18n.getUILanguage(),
@@ -4402,9 +4690,9 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
             popupLocaleState.statusTitle === 'Готово для этой главы Библии' &&
             /Выбран стих 1:3/.test(popupLocaleState.statusHint || '') &&
             popupLocaleState.actions.join('|') ===
-              'Библиотека изучения|Сохранить место|Копировать ссылку с цитатой|Показать QR-код|Открыть официальную ссылку JW' &&
+              'Библиотека изучения|Сохранить место|Копировать ссылку с цитатой|Показать QR-код|Открыть стабильную ссылку' &&
             popupLocaleState.featureNames.includes('Сохранённые места') &&
-            popupLocaleState.enabledCount === 'Включено: 18' &&
+            popupLocaleState.enabledCount === 'Включено: 19' &&
             popupLocaleState.bodyOverflows === false,
           popupLocaleState,
         ),
@@ -4841,6 +5129,100 @@ async function runStudyNavVerseAudioLiveScenario(executablePath, liveCase) {
             }
           : null;
 
+        let mediaClipState = null;
+        let mediaVideoClipState = null;
+        if (liveCase.id === 'studynav-verse-audio-live') {
+          if (!marker.source) throw new Error('Official English audio source is missing from the live marker');
+          await page.evaluate((source) => {
+            document.querySelectorAll('video, audio').forEach((media) => media.remove());
+            const audio = document.createElement('audio');
+            audio.id = 'studynav-live-clip-source';
+            audio.src = source;
+            audio.controls = true;
+            document.querySelector('#article, main, body')?.appendChild(audio);
+          }, marker.source);
+          await page.waitForFunction(() => Array.from(document.querySelectorAll('#studynav-media-bar button'))
+            .some((button) => button.textContent?.trim() === 'Media segment'));
+          await page.locator('#studynav-media-bar button', { hasText: 'Media segment' }).click();
+          const inputs = page.locator('#studynav-clip-panel input');
+          await inputs.nth(0).fill('0:00');
+          await inputs.nth(1).fill('0:01');
+          const clipDownloadWatcher = page.waitForEvent('download', { timeout: 60_000 })
+            .then((clipDownload) => ({ kind: 'download', clipDownload }))
+            .catch((clipError) => ({ kind: 'timeout', clipError }));
+          const clipErrorWatcher = page.waitForFunction(() =>
+            !!document.querySelector('.studynav-clip-error')?.textContent?.trim(),
+          { timeout: 60_000 })
+            .then(async () => ({
+              kind: 'error',
+              clipError: await page.locator('.studynav-clip-error').textContent(),
+            }))
+            .catch((clipError) => ({ kind: 'timeout', clipError }));
+          await page.locator('#studynav-clip-panel button[type="submit"]').click();
+          const clipOutcome = await Promise.race([clipDownloadWatcher, clipErrorWatcher]);
+          if (clipOutcome.kind !== 'download') {
+            throw new Error(`Live media audio export failed: ${clipOutcome.kind === 'error' ? clipOutcome.clipError : clipOutcome.clipError?.message}`);
+          }
+          const clipPath = await clipOutcome.clipDownload.path();
+          const clipBytes = clipPath ? await readFile(clipPath) : null;
+          mediaClipState = clipBytes && clipBytes.length >= 44
+            ? {
+                filename: clipOutcome.clipDownload.suggestedFilename(),
+                riff: clipBytes.subarray(0, 4).toString('ascii'),
+                wave: clipBytes.subarray(8, 12).toString('ascii'),
+                channels: clipBytes.readUInt16LE(22),
+                sampleRate: clipBytes.readUInt32LE(24),
+                duration: clipBytes.readUInt32LE(40) /
+                  (clipBytes.readUInt32LE(24) * clipBytes.readUInt16LE(22) * 2),
+              }
+            : null;
+
+          await page.evaluate((source) => {
+            document.querySelectorAll('video, audio').forEach((media) => media.remove());
+            const video = document.createElement('video');
+            video.id = 'studynav-live-video-clip-source';
+            video.src = source;
+            video.controls = true;
+            document.querySelector('#article, main, body')?.appendChild(video);
+          }, MEDIA_VIDEO_LIVE_URL);
+          await page.waitForFunction(() => Array.from(document.querySelectorAll('#studynav-media-bar button'))
+            .some((button) => button.textContent?.trim() === 'Media segment'));
+          await page.locator('#studynav-media-bar button', { hasText: 'Media segment' }).click();
+          await page.selectOption('#studynav-clip-panel select', 'video');
+          const videoInputs = page.locator('#studynav-clip-panel input');
+          await videoInputs.nth(0).fill('0:03');
+          await videoInputs.nth(1).fill('0:04');
+          const videoDownloadWatcher = page.waitForEvent('download', { timeout: 90_000 })
+            .then((clipDownload) => ({ kind: 'download', clipDownload }))
+            .catch((clipError) => ({ kind: 'timeout', clipError }));
+          const videoErrorWatcher = page.waitForFunction(() =>
+            !!document.querySelector('.studynav-clip-error')?.textContent?.trim(),
+          { timeout: 90_000 })
+            .then(async () => ({
+              kind: 'error',
+              clipError: await page.locator('.studynav-clip-error').textContent(),
+            }))
+            .catch((clipError) => ({ kind: 'timeout', clipError }));
+          await page.locator('#studynav-clip-panel button[type="submit"]').click();
+          const videoOutcome = await Promise.race([videoDownloadWatcher, videoErrorWatcher]);
+          if (videoOutcome.kind !== 'download') {
+            throw new Error(`Live media video export failed: ${videoOutcome.kind === 'error' ? videoOutcome.clipError : videoOutcome.clipError?.message}`);
+          }
+          const videoPath = await videoOutcome.clipDownload.path();
+          const videoBytes = videoPath ? await readFile(videoPath) : null;
+          if (SCREENSHOT_DIR && videoPath) {
+            await mkdir(SCREENSHOT_DIR, { recursive: true });
+            await cp(videoPath, path.join(SCREENSHOT_DIR, 'studynav-live-media-clip.webm'));
+          }
+          mediaVideoClipState = videoBytes
+            ? {
+                filename: videoOutcome.clipDownload.suggestedFilename(),
+                bytes: videoBytes.length,
+                ebml: videoBytes.subarray(0, 4).toString('hex'),
+              }
+            : null;
+        }
+
         scenario.assertions.push(
           makeAssertion(
             `Live ${liveCase.label} page exposes its official embedded audio endpoint`,
@@ -4870,6 +5252,25 @@ async function runStudyNavVerseAudioLiveScenario(executablePath, liveCase) {
             { marker, state },
           ),
         );
+        if (liveCase.id === 'studynav-verse-audio-live') {
+          scenario.assertions.push(makeAssertion(
+            'Live media audio export downloads the requested one-second JW CDN interval as WAV',
+            mediaClipState?.filename.endsWith('_0000-0001.wav') &&
+              mediaClipState.riff === 'RIFF' &&
+              mediaClipState.wave === 'WAVE' &&
+              mediaClipState.channels >= 1 && mediaClipState.channels <= 2 &&
+              mediaClipState.sampleRate >= 8_000 &&
+              Math.abs(mediaClipState.duration - 1) <= 1 / mediaClipState.sampleRate,
+            { source: marker.source, mediaClipState },
+          ));
+          scenario.assertions.push(makeAssertion(
+            'Live media video export records the requested one-second JW CDN interval as WebM',
+            mediaVideoClipState?.filename.endsWith('_0003-0004.webm') &&
+              mediaVideoClipState.bytes > 10_000 &&
+              mediaVideoClipState.ebml === '1a45dfa3',
+            { source: MEDIA_VIDEO_LIVE_URL, mediaVideoClipState },
+          ));
+        }
       },
     );
   } catch (error) {

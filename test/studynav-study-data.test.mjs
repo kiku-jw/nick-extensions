@@ -101,11 +101,12 @@ function legacyEnvelope(annotations = [], mediaProgress = []) {
 }
 
 describe('StudyNav study data constants and empty envelope', () => {
-  test('exports the stable storage key, schema version, and four semantic colors', () => {
+  test('exports the stable storage key, schema version, and six semantic colors', () => {
     expect(STUDY_DATA_STORAGE_KEY).toBe('studynavStudyDataV2');
     expect(STUDY_DATA_LEGACY_STORAGE_KEY).toBe('studynavStudyDataV1');
     expect(STUDY_DATA_SCHEMA_VERSION).toBe(2);
-    expect(HIGHLIGHT_COLORS).toEqual(['yellow', 'green', 'blue', 'pink']);
+    expect(HIGHLIGHT_COLORS).toEqual(['yellow', 'green', 'blue', 'pink', 'purple', 'orange']);
+    expect(MAX_TEXT_LENGTH).toBe(10_000);
     expect(createEmptyStudyData()).toEqual(envelope());
   });
 });
@@ -347,7 +348,8 @@ describe('StudyNav strict record and envelope validation', () => {
     expect(validateAnnotation({ ...annotation(), extra: true })).toBeNull();
     expect(validateAnnotation({ ...annotation(), selector: { ...annotation().selector, exact: '' } })).toBeNull();
     expect(validateAnnotation({ ...annotation(), updatedAt: Number.POSITIVE_INFINITY })).toBeNull();
-    expect(validateAnnotation({ ...annotation(), color: 'orange' })).toBeNull();
+    expect(validateAnnotation({ ...annotation(), color: 'orange' })).not.toBeNull();
+    expect(validateAnnotation({ ...annotation(), color: 'black' })).toBeNull();
   });
 
   test('accepts a null-prototype envelope but rejects a custom-prototype record', () => {

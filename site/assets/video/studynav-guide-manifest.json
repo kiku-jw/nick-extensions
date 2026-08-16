@@ -1,0 +1,121 @@
+{
+  "version": 2,
+  "duration": 159.29999999999998,
+  "scenes": [
+    {
+      "id": "annotations",
+      "start": 4,
+      "duration": 6.6
+    },
+    {
+      "id": "bookmarks",
+      "start": 10.6,
+      "duration": 6.6
+    },
+    {
+      "id": "citations",
+      "start": 17.2,
+      "duration": 6.6
+    },
+    {
+      "id": "qrShare",
+      "start": 23.8,
+      "duration": 6.6
+    },
+    {
+      "id": "officialOpen",
+      "start": 30.4,
+      "duration": 6.6
+    },
+    {
+      "id": "verseAudio",
+      "start": 37,
+      "duration": 6.6
+    },
+    {
+      "id": "copyText",
+      "start": 43.6,
+      "duration": 6.6
+    },
+    {
+      "id": "parLink",
+      "start": 50.2,
+      "duration": 6.6
+    },
+    {
+      "id": "advSearch",
+      "start": 56.8,
+      "duration": 6.6
+    },
+    {
+      "id": "altText",
+      "start": 63.4,
+      "duration": 6.6
+    },
+    {
+      "id": "imgGet",
+      "start": 70,
+      "duration": 6.6
+    },
+    {
+      "id": "langCount",
+      "start": 76.6,
+      "duration": 6.6
+    },
+    {
+      "id": "actionBar",
+      "start": 83.2,
+      "duration": 6.6
+    },
+    {
+      "id": "expandWidth",
+      "start": 89.8,
+      "duration": 6.6
+    },
+    {
+      "id": "cstblView",
+      "start": 96.4,
+      "duration": 6.6
+    },
+    {
+      "id": "mediaPlayerUI",
+      "start": 103,
+      "duration": 6.6
+    },
+    {
+      "id": "customSub",
+      "start": 109.6,
+      "duration": 6.6
+    },
+    {
+      "id": "mediaCtrl",
+      "start": 116.2,
+      "duration": 6.6
+    },
+    {
+      "id": "mediaTS",
+      "start": 122.8,
+      "duration": 6.6
+    },
+    {
+      "id": "mediaClip",
+      "start": 129.4,
+      "duration": 6.6
+    },
+    {
+      "id": "continueWatching",
+      "start": 136,
+      "duration": 6.6
+    },
+    {
+      "id": "sndDisp",
+      "start": 142.6,
+      "duration": 6.6
+    },
+    {
+      "id": "transcCreate",
+      "start": 149.2,
+      "duration": 6.6
+    }
+  ]
+}

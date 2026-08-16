@@ -4,9 +4,11 @@ import encodeQR, { Bitmap } from '../packages/studynav/node_modules/qr/index.js'
 
 import {
   buildOfficialFinderUrl,
+  buildImageSearchUrl,
   canonicalStudyUrl,
   cleanCitationText,
   formatOnlineCitation,
+  formatPageAndTime,
   isSupportedJwHttpsUrl,
   preciseStudyUrl,
   truncateCitationQuote,
@@ -59,6 +61,19 @@ describe('StudyNav document actions', () => {
     expect(buildOfficialFinderUrl({ pub: 'nwtsty', bible: 'bad', wtLocale: 'E' })).toBeNull();
     expect(buildOfficialFinderUrl({ docId: '123', wtLocale: 'E' })).toBeNull();
     expect(buildOfficialFinderUrl({ docId: '1102021201', wtLocale: '../E' })).toBeNull();
+    expect(buildOfficialFinderUrl({ pub: 'nwtsty', bible: '1001003-1001005', wtLocale: 'U' }))
+      .toBe('https://www.jw.org/finder?pub=nwtsty&bible=1001003-1001005&wtlocale=U&srcid=share');
+    expect(buildOfficialFinderUrl({ pub: 'nwtsty', bible: '1001005-1001003', wtLocale: 'U' })).toBeNull();
+    expect(buildOfficialFinderUrl({ pub: 'nwtsty', bible: '1001003-1002005', wtLocale: 'U' })).toBeNull();
+  });
+
+  test('formats honest page-and-time text and external image search URLs', () => {
+    expect(formatPageAndTime('https://www.jw.org/en/library/videos/sample/', 65.9))
+      .toBe('https://www.jw.org/en/library/videos/sample/\nTime: 1:05');
+    expect(formatPageAndTime('https://example.com/', 65)).toBeNull();
+    expect(buildImageSearchUrl('  peaceful   paradise  '))
+      .toBe('https://cse.google.com/cse?cx=3c6c549b8ed4c34fe#gsc.tab=0&gsc.q=peaceful+paradise&gsc.page=1');
+    expect(buildImageSearchUrl('   ')).toBeNull();
   });
 
   test('formats page and selected-text citations deterministically', () => {

@@ -112,6 +112,23 @@ header {
 .action-grid button:active:not(:disabled) { background: var(--sn-accent-active); transform: translateY(1px); }
 .action-grid button:focus-visible { outline: 3px solid var(--sn-focus); outline-offset: 2px; }
 .action-grid button:disabled { cursor: not-allowed; opacity: .48; }
+.image-search { display: grid; gap: 5px; margin-top: 11px; }
+.image-search > label { color: var(--sn-text); font-weight: 650; }
+.image-search > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
+.image-search input {
+  min-width: 0; min-height: 38px; padding: 7px 9px; border: 1px solid #4d668b; border-radius: 8px;
+  background: var(--sn-control-bg); color: var(--sn-text); font: inherit;
+}
+.image-search button,
+#reset-defaults {
+  min-height: 38px; padding: 7px 9px; border: 1px solid #5473a2; border-radius: 8px;
+  background: var(--sn-accent); color: #fff; cursor: pointer; font: 600 11px/1.25 system-ui,sans-serif;
+}
+.image-search button { max-width: 118px; }
+.image-search small { color: var(--sn-muted); }
+.image-search input:focus-visible,
+.image-search button:focus-visible,
+#reset-defaults:focus-visible { outline: 3px solid var(--sn-focus); outline-offset: 2px; }
 
 .guide {
   padding: 13px 14px 11px;
@@ -147,7 +164,7 @@ details[open] > summary { border-bottom: 1px solid var(--sn-border); }
 details > summary:focus-visible { outline: 3px solid var(--sn-focus); outline-offset: -3px; }
 details > summary span:first-child { margin-right: auto; }
 
-.toolbar { padding: 9px 10px; border-bottom: 1px solid var(--sn-border); }
+.toolbar { display: grid; gap: 7px; padding: 9px 10px; border-bottom: 1px solid var(--sn-border); }
 .toolbar input {
   width: 100%;
   border: 1px solid #4d668b;
@@ -159,6 +176,7 @@ details > summary span:first-child { margin-right: auto; }
 }
 .toolbar input::placeholder { color: var(--sn-muted); opacity: 1; }
 .toolbar input:focus-visible { outline: 3px solid var(--sn-focus); outline-offset: 1px; }
+#reset-defaults { width: 100%; background: #222e40; }
 
 .list { max-height: 360px; overflow: auto; padding: 5px 8px 9px; }
 .group {

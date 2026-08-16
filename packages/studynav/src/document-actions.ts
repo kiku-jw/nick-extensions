@@ -15,6 +15,8 @@ export type CitationInput = {
   reference?: string | null;
 };
 
+const IMAGE_SEARCH_BASE = 'https://cse.google.com/cse?cx=3c6c549b8ed4c34fe';
+
 function finiteToken(value: string | null | undefined, pattern: RegExp, maxLength: number): string | null {
   const token = String(value || '').trim();
   return token && token.length <= maxLength && pattern.test(token) ? token : null;
@@ -55,11 +57,11 @@ export function buildOfficialFinderUrl(metadata: OfficialFinderMetadata): string
   if (!wtLocale) return null;
 
   const pub = finiteToken(metadata.pub, /^[A-Za-z0-9-]{1,32}$/, 32);
-  const bible = finiteToken(metadata.bible, /^\d{7,12}$/, 12);
+  const bible = finiteToken(metadata.bible, /^\d{7,12}(?:-\d{7,12})?$/, 25);
   const docId = finiteToken(metadata.docId, /^\d{6,16}$/, 16);
   const url = new URL('https://www.jw.org/finder');
 
-  if (pub && bible) {
+  if (pub && bible && isValidBibleToken(bible)) {
     url.searchParams.set('pub', pub);
     url.searchParams.set('bible', bible);
   } else if (docId) {
@@ -70,6 +72,38 @@ export function buildOfficialFinderUrl(metadata: OfficialFinderMetadata): string
 
   url.searchParams.set('wtlocale', wtLocale.toUpperCase());
   url.searchParams.set('srcid', 'share');
+  return url.toString();
+}
+
+function isValidBibleToken(value: string): boolean {
+  const [startText, endText] = value.split('-');
+  const start = Number(startText);
+  const end = endText ? Number(endText) : start;
+  if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end) || end < start) return false;
+  const startVerse = start % 1_000;
+  const endVerse = end % 1_000;
+  const sameChapter = Math.floor(start / 1_000) === Math.floor(end / 1_000);
+  if (!endText) return startVerse >= 0 && startVerse <= 200;
+  return sameChapter && startVerse >= 1 && startVerse <= 200 && endVerse >= startVerse && endVerse <= 200;
+}
+
+export function formatPageAndTime(url: string, seconds: number): string | null {
+  if (!isSupportedJwHttpsUrl(url) || !Number.isFinite(seconds) || seconds < 0) return null;
+  const whole = Math.floor(seconds);
+  const hours = Math.floor(whole / 3_600);
+  const minutes = Math.floor((whole % 3_600) / 60);
+  const rest = whole % 60;
+  const timestamp = hours
+    ? `${hours}:${String(minutes).padStart(2, '0')}:${String(rest).padStart(2, '0')}`
+    : `${minutes}:${String(rest).padStart(2, '0')}`;
+  return `${url}\nTime: ${timestamp}`;
+}
+
+export function buildImageSearchUrl(query: string): string | null {
+  const clean = cleanCitationText(query).slice(0, 200);
+  if (!clean) return null;
+  const url = new URL(IMAGE_SEARCH_BASE);
+  url.hash = new URLSearchParams({ 'gsc.tab': '0', 'gsc.q': clean, 'gsc.page': '1' }).toString();
   return url.toString();
 }
 

@@ -5,6 +5,8 @@ const MEDIA_API_PATH = '/apis/pub-media/getpubmedialinks';
 const MAX_CHAPTER_AUDIO_BYTES = 64 * 1024 * 1024;
 const MAX_VERSE_SECONDS = 120;
 const MAX_WAV_BYTES = 24 * 1024 * 1024;
+export const MAX_MEDIA_CLIP_SECONDS = 120;
+export const MAX_MEDIA_VIDEO_CLIP_SECONDS = 60;
 
 export type BibleVerse = {
   book: number;
@@ -17,6 +19,30 @@ export type VerseAudioRequest = {
   verseId: string;
   apiUrl: string;
   label: string;
+};
+
+export type MediaAudioClipRequest = {
+  type: 'DOWNLOAD_MEDIA_AUDIO_CLIP';
+  mediaUrl: string;
+  startSeconds: number;
+  endSeconds: number;
+  label: string;
+};
+
+export type ValidatedMediaAudioClipRequest = MediaAudioClipRequest & {
+  filename: string;
+};
+
+export type MediaVideoClipRequest = {
+  type: 'DOWNLOAD_MEDIA_VIDEO_CLIP';
+  mediaUrl: string;
+  startSeconds: number;
+  endSeconds: number;
+  label: string;
+};
+
+export type ValidatedMediaVideoClipRequest = MediaVideoClipRequest & {
+  filename: string;
 };
 
 export type ValidatedVerseAudioRequest = {
@@ -178,6 +204,101 @@ export function validateVerseAudioRequest(
     verseId: value.verseId,
     apiUrl,
     label: value.label.slice(0, 120),
+  };
+}
+
+export function parseUserMediaTime(value: string): number | null {
+  const parts = String(value || '').trim().split(':');
+  if (!parts.length || parts.length > 3 || parts.some((part) => !/^\d+(?:\.\d{1,3})?$/.test(part))) return null;
+  const numbers = parts.map(Number);
+  if (numbers.some((part) => !Number.isFinite(part))) return null;
+  if (parts.length === 1) return numbers[0] <= 36_000 ? numbers[0] : null;
+  const seconds = numbers.at(-1)!;
+  const minutes = numbers.at(-2)!;
+  if (seconds >= 60 || minutes >= 60) return null;
+  const hours = parts.length === 3 ? numbers[0] : 0;
+  if (hours > 10) return null;
+  return hours * 3_600 + minutes * 60 + seconds;
+}
+
+export function validateMediaAudioClipRequest(
+  value: unknown,
+  senderUrl: string,
+): ValidatedMediaAudioClipRequest | null {
+  if (!isRecord(value) || value.type !== 'DOWNLOAD_MEDIA_AUDIO_CLIP') return null;
+  if (
+    typeof value.mediaUrl !== 'string' ||
+    typeof value.label !== 'string'
+  ) return null;
+  const startSeconds = finiteNumber(value.startSeconds);
+  const endSeconds = finiteNumber(value.endSeconds);
+  if (
+    startSeconds === null ||
+    endSeconds === null ||
+    startSeconds < 0 ||
+    endSeconds <= startSeconds ||
+    endSeconds - startSeconds > MAX_MEDIA_CLIP_SECONDS ||
+    endSeconds > 36_000 ||
+    !isJwCdnUrl(value.mediaUrl)
+  ) return null;
+
+  try {
+    const sender = new URL(senderUrl);
+    const allowedHost = sender.hostname === 'jw.org' || sender.hostname.endsWith('.jw.org');
+    if (sender.protocol !== 'https:' || !allowedHost || sender.username || sender.password) return null;
+  } catch {
+    return null;
+  }
+
+  const label = safeFilenamePart(value.label);
+  const startLabel = Math.floor(startSeconds).toString().padStart(4, '0');
+  const endLabel = Math.floor(endSeconds).toString().padStart(4, '0');
+  return {
+    type: 'DOWNLOAD_MEDIA_AUDIO_CLIP',
+    mediaUrl: value.mediaUrl,
+    startSeconds,
+    endSeconds,
+    label,
+    filename: `${label}_${startLabel}-${endLabel}.wav`,
+  };
+}
+
+export function validateMediaVideoClipRequest(
+  value: unknown,
+  senderUrl: string,
+): ValidatedMediaVideoClipRequest | null {
+  if (!isRecord(value) || value.type !== 'DOWNLOAD_MEDIA_VIDEO_CLIP') return null;
+  if (typeof value.mediaUrl !== 'string' || typeof value.label !== 'string') return null;
+  const startSeconds = finiteNumber(value.startSeconds);
+  const endSeconds = finiteNumber(value.endSeconds);
+  if (
+    startSeconds === null ||
+    endSeconds === null ||
+    startSeconds < 0 ||
+    endSeconds <= startSeconds ||
+    endSeconds - startSeconds > MAX_MEDIA_VIDEO_CLIP_SECONDS ||
+    endSeconds > 36_000 ||
+    !isJwCdnUrl(value.mediaUrl)
+  ) return null;
+
+  try {
+    const sender = new URL(senderUrl);
+    const allowedHost = sender.hostname === 'jw.org' || sender.hostname.endsWith('.jw.org');
+    if (sender.protocol !== 'https:' || !allowedHost || sender.username || sender.password) return null;
+  } catch {
+    return null;
+  }
+
+  const label = safeFilenamePart(value.label);
+  const startLabel = Math.floor(startSeconds).toString().padStart(4, '0');
+  const endLabel = Math.floor(endSeconds).toString().padStart(4, '0');
+  return {
+    type: 'DOWNLOAD_MEDIA_VIDEO_CLIP',
+    mediaUrl: value.mediaUrl,
+    startSeconds,
+    endSeconds,
+    label,
+    filename: `${label}_${startLabel}-${endLabel}.webm`,
   };
 }
 
@@ -369,5 +490,11 @@ export function assertChapterAudioSize(actualBytes: number, expectedBytes: numbe
   }
   if (expectedBytes !== null && actualBytes > Math.max(expectedBytes * 1.05, expectedBytes + 4096)) {
     throw new Error(t('chapter_audio_size_mismatch'));
+  }
+}
+
+export function assertMediaClipSourceSize(actualBytes: number) {
+  if (!Number.isFinite(actualBytes) || actualBytes <= 0 || actualBytes > MAX_CHAPTER_AUDIO_BYTES) {
+    throw new Error(t('clip_source_too_large'));
   }
 }

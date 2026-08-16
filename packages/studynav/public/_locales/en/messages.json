@@ -51,7 +51,22 @@
     "message": "Show QR"
   },
   "open_official_link": {
-    "message": "Open official JW link"
+    "message": "Open stable publication link"
+  },
+  "image_search": {
+    "message": "Search JW images with Google"
+  },
+  "image_search_placeholder": {
+    "message": "What picture do you need?"
+  },
+  "image_search_external": {
+    "message": "Opens an external Google search"
+  },
+  "reset_defaults": {
+    "message": "Reset recommended defaults"
+  },
+  "defaults_restored": {
+    "message": "Recommended defaults restored"
   },
   "what_it_gives_you": {
     "message": "What it gives you"
@@ -78,7 +93,7 @@
     "message": "Media:"
   },
   "guide_media_text": {
-    "message": "use the floating controls for time links, resume, and transcripts."
+    "message": "use the floating controls for playback, media segments, resume, and available captions."
   },
   "feature_settings": {
     "message": "Feature settings"
@@ -126,16 +141,19 @@
     "message": "Ready on this Bible chapter"
   },
   "status_bible_selected": {
-    "message": "Verse $1:$2 is selected. Choose Download audio beside it."
+    "message": "Verse $1:$2 is selected. Shift-click another verse for a consecutive range."
+  },
+  "status_bible_range": {
+    "message": "Verses $1:$2–$3 are selected. Copy creates one range link."
   },
   "status_bible_hint": {
-    "message": "Select one verse number. Download audio will appear beside the selected verse."
+    "message": "Click one verse number for audio; Shift-click another verse for a range link."
   },
   "status_media_title": {
     "message": "Ready on this media page"
   },
   "status_media_hint": {
-    "message": "Use the floating controls for time links, a second display, and transcripts."
+    "message": "Use the floating controls for playback, media segments, and captions when present."
   },
   "status_article_title": {
     "message": "Ready on this article"
@@ -152,6 +170,9 @@
   "working": {
     "message": "Working…"
   },
+  "preparing": {
+    "message": "Preparing…"
+  },
   "done": {
     "message": "Done"
   },
@@ -167,11 +188,17 @@
   "saved_place_removed": {
     "message": "Saved place removed"
   },
+  "bookmark_limit": {
+    "message": "The local saved-place limit has been reached."
+  },
+  "remove_saved_place_confirm": {
+    "message": "Remove this saved place?"
+  },
   "feature_annotations_name": {
     "message": "Highlights, notes & tags"
   },
   "feature_annotations_blurb": {
-    "message": "Keep four-color highlights and searchable notes locally"
+    "message": "Keep six-color highlights and searchable notes locally"
   },
   "feature_bookmarks_name": {
     "message": "Saved places"
@@ -192,10 +219,10 @@
     "message": "Create a local QR code for the precise official page link"
   },
   "feature_officialOpen_name": {
-    "message": "Open official JW link"
+    "message": "Stable publication link"
   },
   "feature_officialOpen_blurb": {
-    "message": "Use page-owned metadata to open the official Finder link"
+    "message": "Open a clean Finder address for saving or sharing"
   },
   "feature_verseAudio_name": {
     "message": "Download verse audio"
@@ -204,22 +231,22 @@
     "message": "Select one Bible verse to save only its narration"
   },
   "feature_copyText_name": {
-    "message": "Copy text"
+    "message": "Copy clean text"
   },
   "feature_copyText_blurb": {
-    "message": "Copy a paragraph or verse without tool labels"
+    "message": "Copy without verse numbers, reference letters, or StudyNav controls"
   },
   "feature_parLink_name": {
-    "message": "Copy paragraph link"
+    "message": "Copy precise link"
   },
   "feature_parLink_blurb": {
-    "message": "Copy a direct link to a paragraph or verse"
+    "message": "Copy a direct link to a paragraph, verse, or verse range"
   },
   "feature_advSearch_name": {
-    "message": "Quick publication search"
+    "message": "Publication shortcuts"
   },
   "feature_advSearch_blurb": {
-    "message": "Press Ctrl/Cmd+Shift+K to search by mnemonic or DOCID"
+    "message": "Open a mnemonic or DOCID with the existing JW searches; this is not AI"
   },
   "feature_altText_name": {
     "message": "Image descriptions"
@@ -258,10 +285,10 @@
     "message": "Add spacing and row separation to article tables"
   },
   "feature_mediaPlayerUI_name": {
-    "message": "Dim player controls"
+    "message": "Remove video shading"
   },
   "feature_mediaPlayerUI_blurb": {
-    "message": "Reduce player chrome until you hover it"
+    "message": "Keep the picture clear when the player controls appear"
   },
   "feature_customSub_name": {
     "message": "Larger subtitles"
@@ -276,10 +303,16 @@
     "message": "Use Space/K/J/L/F/M while watching media"
   },
   "feature_mediaTS_name": {
-    "message": "Copy time link"
+    "message": "Copy page and time"
   },
   "feature_mediaTS_blurb": {
-    "message": "Copy the current media URL with its time"
+    "message": "Copy the page link together with the current playback time"
+  },
+  "feature_mediaClip_name": {
+    "message": "Download an audio or video segment"
+  },
+  "feature_mediaClip_blurb": {
+    "message": "Enter start and end times, then save audio as WAV or video as WebM"
   },
   "feature_continueWatching_name": {
     "message": "Continue watching"
@@ -294,10 +327,10 @@
     "message": "Open the current media in a popup window"
   },
   "feature_transcCreate_name": {
-    "message": "Search video transcript"
+    "message": "Search available captions"
   },
   "feature_transcCreate_blurb": {
-    "message": "Open a searchable transcript panel"
+    "message": "Open a searchable panel only when text is present"
   },
   "copied": {
     "message": "Copied"
@@ -321,7 +354,7 @@
     "message": "QR sharing is off"
   },
   "official_links_off": {
-    "message": "Official links are off"
+    "message": "Publication links are off"
   },
   "action_failed": {
     "message": "Action failed"
@@ -350,6 +383,9 @@
   "copy_link": {
     "message": "Copy link"
   },
+  "link_copied": {
+    "message": "Link copied"
+  },
   "qr_opened": {
     "message": "QR opened"
   },
@@ -357,13 +393,16 @@
     "message": "Not available on this page"
   },
   "official_link_opened": {
-    "message": "Official link opened"
+    "message": "Stable publication link opened"
   },
   "palette_title": {
-    "message": "Quick publication search"
+    "message": "Publication shortcuts"
   },
   "palette_placeholder": {
     "message": "Mnemonic / DOCID (for example w25.03, lff, wp24.01, mwb25.01)"
+  },
+  "palette_hint": {
+    "message": "Enter to open · Esc to close · Unofficial StudyNav"
   },
   "study_tools_aria": {
     "message": "Study tools"
@@ -373,6 +412,18 @@
   },
   "download_audio_title": {
     "message": "Download only this verse as audio"
+  },
+  "chapter_audio_not_ready": {
+    "message": "Chapter audio is not ready. Open Play Audio once, then try again."
+  },
+  "verse_audio_prepare_failed": {
+    "message": "Verse audio could not be prepared."
+  },
+  "verse_audio_downloaded": {
+    "message": "Downloaded $1:$2 audio"
+  },
+  "verse_audio_download_failed": {
+    "message": "Verse audio download failed."
   },
   "mark": {
     "message": "Mark"
@@ -384,13 +435,13 @@
     "message": "Copy"
   },
   "copy_text_title": {
-    "message": "Copy text"
+    "message": "Copy without verse numbers, reference letters, or StudyNav controls"
   },
   "link": {
     "message": "Link"
   },
   "copy_paragraph_link_title": {
-    "message": "Copy paragraph link"
+    "message": "Copy a link to this paragraph, verse, or selected verse range"
   },
   "languages_count": {
     "message": "$1 languages"
@@ -398,8 +449,98 @@
   "download_image": {
     "message": "Download image"
   },
-  "copy_time_url": {
-    "message": "Copy time URL"
+  "image_download_started": {
+    "message": "Image download started"
+  },
+  "copy_page_time": {
+    "message": "Copy page + time"
+  },
+  "page_time_copied": {
+    "message": "Page link and time copied"
+  },
+  "media_clip": {
+    "message": "Media segment"
+  },
+  "media_clip_title": {
+    "message": "Download an audio or video segment"
+  },
+  "clip_format": {
+    "message": "Format"
+  },
+  "clip_format_audio": {
+    "message": "Audio (.wav) · up to 2 minutes"
+  },
+  "clip_format_video": {
+    "message": "Video (.webm) · up to 1 minute"
+  },
+  "clip_start": {
+    "message": "Start"
+  },
+  "clip_end": {
+    "message": "End"
+  },
+  "clip_download_audio": {
+    "message": "Download WAV"
+  },
+  "clip_download_video": {
+    "message": "Record WebM"
+  },
+  "clip_cancel": {
+    "message": "Cancel"
+  },
+  "clip_invalid_time": {
+    "message": "Enter times as M:SS or H:MM:SS. The end must be after the start."
+  },
+  "clip_too_long": {
+    "message": "Choose a segment no longer than 2 minutes."
+  },
+  "clip_video_too_long": {
+    "message": "Choose a video segment no longer than 1 minute."
+  },
+  "clip_preparing": {
+    "message": "Preparing audio segment…"
+  },
+  "clip_recording": {
+    "message": "Recording video segment in real time…"
+  },
+  "clip_downloaded": {
+    "message": "Media segment downloaded"
+  },
+  "clip_failed": {
+    "message": "The requested media segment could not be created."
+  },
+  "clip_video_failed": {
+    "message": "The video segment could not be created."
+  },
+  "clip_video_recorder_failed": {
+    "message": "The browser recorder failed while creating the video segment."
+  },
+  "clip_video_timeout": {
+    "message": "The video did not advance while the segment was being recorded."
+  },
+  "clip_video_load_failed": {
+    "message": "The official video could not be loaded for recording."
+  },
+  "clip_video_unsupported": {
+    "message": "This browser cannot record a video segment from this player."
+  },
+  "clip_video_too_large": {
+    "message": "The recorded video segment is too large to download safely."
+  },
+  "clip_source_unavailable": {
+    "message": "Play the media once so its source is available, then try again."
+  },
+  "clip_request_rejected": {
+    "message": "This media-segment request was rejected."
+  },
+  "clip_source_download_failed": {
+    "message": "The official media file could not be downloaded."
+  },
+  "clip_source_too_large": {
+    "message": "This media file is too large to process safely."
+  },
+  "clip_outside_media": {
+    "message": "The selected times are outside this media file."
   },
   "second_display": {
     "message": "Second display"
@@ -410,11 +551,38 @@
   "transcript_search": {
     "message": "Search…"
   },
+  "transcript_download": {
+    "message": "Download .txt"
+  },
+  "close_transcript_aria": {
+    "message": "Close transcript"
+  },
+  "loading": {
+    "message": "Loading…"
+  },
   "no_matches": {
     "message": "(no matches)"
   },
+  "no_transcript_detected": {
+    "message": "No transcript text was detected on this page. If captions load later, reopen this panel."
+  },
   "annotation_limit": {
     "message": "The local annotation limit has been reached."
+  },
+  "selection_cannot_save": {
+    "message": "This selection cannot be saved."
+  },
+  "note_updated": {
+    "message": "Note updated"
+  },
+  "highlight_saved": {
+    "message": "Highlight saved locally"
+  },
+  "select_one_paragraph": {
+    "message": "Select text within one paragraph or verse."
+  },
+  "select_character_count": {
+    "message": "Select between 1 and $1 characters."
   },
   "highlight_color_aria": {
     "message": "$1 highlight"
@@ -427,6 +595,18 @@
   },
   "reattach_here": {
     "message": "Reattach here"
+  },
+  "note_missing": {
+    "message": "That note no longer exists."
+  },
+  "reattach_source_first": {
+    "message": "Return to the note’s source page before reattaching it."
+  },
+  "reattach_cancelled": {
+    "message": "Reattach cancelled"
+  },
+  "reattach_instruction": {
+    "message": "Select the replacement text, then choose Reattach here."
   },
   "cancel": {
     "message": "Cancel"
@@ -458,8 +638,23 @@
   "color_pink": {
     "message": "Pink"
   },
+  "color_purple": {
+    "message": "Purple"
+  },
+  "color_orange": {
+    "message": "Orange"
+  },
+  "page_notes": {
+    "message": "Notes on this page"
+  },
+  "open_all_notes": {
+    "message": "Open all notes"
+  },
   "note": {
     "message": "Note"
+  },
+  "write_private_note": {
+    "message": "Write a private note…"
   },
   "tags": {
     "message": "Tags"
@@ -473,8 +668,32 @@
   "tags_error": {
     "message": "Use at most 20 short, comma-separated tags."
   },
+  "paragraph_mark_unreliable": {
+    "message": "This paragraph cannot be marked reliably."
+  },
   "needs_attention": {
     "message": "Needs attention"
+  },
+  "delete_highlight_confirm": {
+    "message": "Delete this local highlight and note?"
+  },
+  "highlight_deleted": {
+    "message": "Highlight deleted"
+  },
+  "locate": {
+    "message": "Locate"
+  },
+  "open_page": {
+    "message": "Open page"
+  },
+  "edit": {
+    "message": "Edit"
+  },
+  "delete": {
+    "message": "Delete"
+  },
+  "reattach": {
+    "message": "Reattach"
   },
   "no_notes_filtered": {
     "message": "No notes match these filters."
@@ -491,6 +710,18 @@
   "study_export_failed": {
     "message": "Study data could not be exported."
   },
+  "study_backup_downloaded": {
+    "message": "Study backup downloaded"
+  },
+  "backup_too_large": {
+    "message": "Backup is larger than 5 MB."
+  },
+  "backup_invalid": {
+    "message": "That is not a valid StudyNav backup."
+  },
+  "import_summary": {
+    "message": "Import: $1 added, $2 updated, $3 ignored, $4 rejected"
+  },
   "notes_tab": {
     "message": "Notes"
   },
@@ -500,11 +731,17 @@
   "this_page": {
     "message": "This page"
   },
+  "all_notes": {
+    "message": "All notes"
+  },
   "all_pages": {
     "message": "All pages"
   },
   "search_notes": {
     "message": "Search study notes"
+  },
+  "search_notes_placeholder": {
+    "message": "Search quote, note, or tag…"
   },
   "search_saved_places": {
     "message": "Search saved places"
@@ -523,6 +760,9 @@
   },
   "study_library_opened": {
     "message": "Study library opened"
+  },
+  "close_study_library_aria": {
+    "message": "Close study library"
   },
   "saved_places_count_one": {
     "message": "$1 saved place"
@@ -551,6 +791,9 @@
   "study_data_save_failed": {
     "message": "Study data could not be saved."
   },
+  "migration_save_failed": {
+    "message": "Migrated study data could not be saved."
+  },
   "video_progress_save_failed": {
     "message": "Video progress could not be saved."
   },
@@ -570,7 +813,7 @@
     "message": "This verse audio request was rejected."
   },
   "verse_job_busy": {
-    "message": "Another verse audio clip is already being prepared."
+    "message": "Another media clip is already being prepared."
   },
   "verse_processing_failed": {
     "message": "Verse audio processing failed."
@@ -610,70 +853,5 @@
   },
   "chapter_audio_size_mismatch": {
     "message": "The chapter audio size does not match its official metadata."
-  },
-  "link_copied": {
-    "message": "Link copied"
-  },
-  "palette_hint": {
-    "message": "Enter to open · Esc to close · Unofficial StudyNav"
-  },
-  "chapter_audio_not_ready": {
-    "message": "Chapter audio is not ready. Open Play Audio once, then try again."
-  },
-  "verse_audio_prepare_failed": {
-    "message": "Verse audio could not be prepared."
-  },
-  "verse_audio_downloaded": {
-    "message": "Downloaded $1:$2 audio"
-  },
-  "verse_audio_download_failed": {
-    "message": "Verse audio download failed."
-  },
-  "image_download_started": {
-    "message": "Image download started"
-  },
-  "timestamp_url_copied": {
-    "message": "Timestamp URL copied"
-  },
-  "transcript_download": {
-    "message": "Download .txt"
-  },
-  "close_transcript_aria": {
-    "message": "Close transcript"
-  },
-  "loading": {
-    "message": "Loading…"
-  },
-  "no_transcript_detected": {
-    "message": "No transcript text was detected on this page. If captions load later, reopen this panel."
-  },
-  "selection_cannot_save": { "message": "This selection cannot be saved." },
-  "note_updated": { "message": "Note updated" },
-  "highlight_saved": { "message": "Highlight saved locally" },
-  "select_one_paragraph": { "message": "Select text within one paragraph or verse." },
-  "select_character_count": { "message": "Select between 1 and $1 characters." },
-  "note_missing": { "message": "That note no longer exists." },
-  "reattach_source_first": { "message": "Return to the note’s source page before reattaching it." },
-  "reattach_cancelled": { "message": "Reattach cancelled" },
-  "reattach_instruction": { "message": "Select the replacement text, then choose Reattach here." },
-  "write_private_note": { "message": "Write a private note…" },
-  "paragraph_mark_unreliable": { "message": "This paragraph cannot be marked reliably." },
-  "delete_highlight_confirm": { "message": "Delete this local highlight and note?" },
-  "highlight_deleted": { "message": "Highlight deleted" },
-  "locate": { "message": "Locate" },
-  "open_page": { "message": "Open page" },
-  "edit": { "message": "Edit" },
-  "delete": { "message": "Delete" },
-  "reattach": { "message": "Reattach" },
-  "study_backup_downloaded": { "message": "Study backup downloaded" },
-  "backup_too_large": { "message": "Backup is larger than 5 MB." },
-  "backup_invalid": { "message": "That is not a valid StudyNav backup." },
-  "import_summary": { "message": "Import: $1 added, $2 updated, $3 ignored, $4 rejected" },
-  "all_notes": { "message": "All notes" },
-  "search_notes_placeholder": { "message": "Search quote, note, or tag…" },
-  "close_study_library_aria": { "message": "Close study library" },
-  "preparing": { "message": "Preparing…" },
-  "bookmark_limit": { "message": "The local saved-place limit has been reached." },
-  "remove_saved_place_confirm": { "message": "Remove this saved place?" },
-  "migration_save_failed": { "message": "Migrated study data could not be saved." }
+  }
 }

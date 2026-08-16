@@ -51,7 +51,22 @@
     "message": "Показать QR-код"
   },
   "open_official_link": {
-    "message": "Открыть официальную ссылку JW"
+    "message": "Открыть стабильную ссылку"
+  },
+  "image_search": {
+    "message": "Искать изображения JW через Google"
+  },
+  "image_search_placeholder": {
+    "message": "Какое изображение вам нужно?"
+  },
+  "image_search_external": {
+    "message": "Откроется внешний поиск Google"
+  },
+  "reset_defaults": {
+    "message": "Вернуть рекомендуемые настройки"
+  },
+  "defaults_restored": {
+    "message": "Рекомендуемые настройки восстановлены"
   },
   "what_it_gives_you": {
     "message": "Что даёт расширение"
@@ -78,7 +93,7 @@
     "message": "Медиа:"
   },
   "guide_media_text": {
-    "message": "используйте плавающую панель для ссылок на время, продолжения просмотра и стенограмм."
+    "message": "используйте плавающие кнопки для управления, фрагментов медиа, продолжения и доступных субтитров."
   },
   "feature_settings": {
     "message": "Настройки функций"
@@ -126,16 +141,19 @@
     "message": "Готово для этой главы Библии"
   },
   "status_bible_selected": {
-    "message": "Выбран стих $1:$2. Рядом с ним нажмите «Скачать аудио»."
+    "message": "Выбран стих $1:$2. Нажмите другой стих с Shift, чтобы выбрать диапазон."
+  },
+  "status_bible_range": {
+    "message": "Выбраны стихи $1:$2–$3. Кнопка «Ссылка» скопирует один адрес диапазона."
   },
   "status_bible_hint": {
-    "message": "Выберите номер одного стиха. Рядом появится кнопка «Скачать аудио»."
+    "message": "Нажмите номер стиха для аудио; нажмите другой номер с Shift для ссылки на диапазон."
   },
   "status_media_title": {
     "message": "Готово для этой медиа-страницы"
   },
   "status_media_hint": {
-    "message": "Используйте плавающую панель для ссылки на время, второго экрана и стенограммы."
+    "message": "Используйте плавающие кнопки для управления, фрагментов медиа и субтитров, если они есть."
   },
   "status_article_title": {
     "message": "Готово для этой статьи"
@@ -152,6 +170,9 @@
   "working": {
     "message": "Выполняется…"
   },
+  "preparing": {
+    "message": "Подготовка…"
+  },
   "done": {
     "message": "Готово"
   },
@@ -167,11 +188,17 @@
   "saved_place_removed": {
     "message": "Сохранённое место удалено"
   },
+  "bookmark_limit": {
+    "message": "Достигнут лимит локальных сохранённых мест."
+  },
+  "remove_saved_place_confirm": {
+    "message": "Удалить это сохранённое место?"
+  },
   "feature_annotations_name": {
     "message": "Выделения, заметки и теги"
   },
   "feature_annotations_blurb": {
-    "message": "Хранить локально выделения четырёх цветов и заметки с поиском"
+    "message": "Хранить локально выделения шести цветов и заметки с поиском"
   },
   "feature_bookmarks_name": {
     "message": "Сохранённые места"
@@ -192,10 +219,10 @@
     "message": "Создавать локальный QR-код для точной официальной ссылки"
   },
   "feature_officialOpen_name": {
-    "message": "Открытие официальной ссылки JW"
+    "message": "Стабильная ссылка на публикацию"
   },
   "feature_officialOpen_blurb": {
-    "message": "Использовать метаданные страницы для открытия официальной ссылки Finder"
+    "message": "Открывать Finder-адрес без лишних параметров для сохранения или отправки"
   },
   "feature_verseAudio_name": {
     "message": "Скачивание аудио стиха"
@@ -204,22 +231,22 @@
     "message": "Выбрать один стих Библии и сохранить только его озвучку"
   },
   "feature_copyText_name": {
-    "message": "Копирование текста"
+    "message": "Копировать чистый текст"
   },
   "feature_copyText_blurb": {
-    "message": "Копировать абзац или стих без подписей инструментов"
+    "message": "Копировать без номеров стихов, букв сносок и кнопок StudyNav"
   },
   "feature_parLink_name": {
-    "message": "Копирование ссылки на абзац"
+    "message": "Копировать точную ссылку"
   },
   "feature_parLink_blurb": {
-    "message": "Копировать прямую ссылку на абзац или стих"
+    "message": "Ссылка на абзац, стих или диапазон стихов"
   },
   "feature_advSearch_name": {
-    "message": "Быстрый поиск публикаций"
+    "message": "Команды публикаций"
   },
   "feature_advSearch_blurb": {
-    "message": "Нажать Ctrl/Cmd+Shift+K для поиска по сокращению или DOCID"
+    "message": "Открывать мнемонику или DOCID в существующем поиске JW; это не ИИ"
   },
   "feature_altText_name": {
     "message": "Описания изображений"
@@ -258,10 +285,10 @@
     "message": "Добавлять интервалы и разделение строк в таблицах статьи"
   },
   "feature_mediaPlayerUI_name": {
-    "message": "Приглушённые элементы плеера"
+    "message": "Убрать затемнение видео"
   },
   "feature_mediaPlayerUI_blurb": {
-    "message": "Уменьшать заметность панели плеера до наведения указателя"
+    "message": "Не затемнять изображение при появлении элементов управления"
   },
   "feature_customSub_name": {
     "message": "Увеличенные субтитры"
@@ -276,10 +303,16 @@
     "message": "Использовать Space/K/J/L/F/M при просмотре медиа"
   },
   "feature_mediaTS_name": {
-    "message": "Копирование ссылки на время"
+    "message": "Копировать страницу и время"
   },
   "feature_mediaTS_blurb": {
-    "message": "Копировать URL медиа с текущей отметкой времени"
+    "message": "Копировать ссылку на страницу вместе с текущим временем воспроизведения"
+  },
+  "feature_mediaClip_name": {
+    "message": "Скачать фрагмент аудио или видео"
+  },
+  "feature_mediaClip_blurb": {
+    "message": "Указать начало и конец, затем сохранить аудио в WAV или видео в WebM"
   },
   "feature_continueWatching_name": {
     "message": "Продолжение просмотра"
@@ -294,10 +327,10 @@
     "message": "Открывать текущее медиа в отдельном всплывающем окне"
   },
   "feature_transcCreate_name": {
-    "message": "Поиск по стенограмме видео"
+    "message": "Поиск по доступным субтитрам"
   },
   "feature_transcCreate_blurb": {
-    "message": "Открывать панель стенограммы с поиском"
+    "message": "Показывать поиск только когда на странице есть текст субтитров"
   },
   "copied": {
     "message": "Скопировано"
@@ -321,7 +354,7 @@
     "message": "Обмен через QR-код выключен"
   },
   "official_links_off": {
-    "message": "Официальные ссылки выключены"
+    "message": "Ссылки на публикации выключены"
   },
   "action_failed": {
     "message": "Не удалось выполнить действие"
@@ -350,6 +383,9 @@
   "copy_link": {
     "message": "Копировать ссылку"
   },
+  "link_copied": {
+    "message": "Ссылка скопирована"
+  },
   "qr_opened": {
     "message": "QR-код открыт"
   },
@@ -357,13 +393,16 @@
     "message": "Недоступно на этой странице"
   },
   "official_link_opened": {
-    "message": "Официальная ссылка открыта"
+    "message": "Стабильная ссылка открыта"
   },
   "palette_title": {
-    "message": "Быстрый поиск публикаций"
+    "message": "Команды публикаций"
   },
   "palette_placeholder": {
     "message": "Сокращение / DOCID (например: w25.03, lff, wp24.01, mwb25.01)"
+  },
+  "palette_hint": {
+    "message": "Enter — открыть · Esc — закрыть · Неофициальный StudyNav"
   },
   "study_tools_aria": {
     "message": "Инструменты изучения"
@@ -373,6 +412,18 @@
   },
   "download_audio_title": {
     "message": "Скачать аудио только этого стиха"
+  },
+  "chapter_audio_not_ready": {
+    "message": "Аудио главы ещё не готово. Один раз нажмите «Воспроизвести аудио» и повторите попытку."
+  },
+  "verse_audio_prepare_failed": {
+    "message": "Не удалось подготовить аудио стиха."
+  },
+  "verse_audio_downloaded": {
+    "message": "Скачано аудио $1:$2"
+  },
+  "verse_audio_download_failed": {
+    "message": "Не удалось скачать аудио стиха."
   },
   "mark": {
     "message": "Отметить"
@@ -384,13 +435,13 @@
     "message": "Копировать"
   },
   "copy_text_title": {
-    "message": "Копировать текст"
+    "message": "Копировать без номеров стихов, букв сносок и кнопок StudyNav"
   },
   "link": {
     "message": "Ссылка"
   },
   "copy_paragraph_link_title": {
-    "message": "Копировать ссылку на абзац"
+    "message": "Копировать ссылку на абзац, стих или выбранный диапазон"
   },
   "languages_count": {
     "message": "Языков: $1"
@@ -398,8 +449,98 @@
   "download_image": {
     "message": "Скачать изображение"
   },
-  "copy_time_url": {
-    "message": "Копировать ссылку на время"
+  "image_download_started": {
+    "message": "Скачивание изображения началось"
+  },
+  "copy_page_time": {
+    "message": "Копировать страницу + время"
+  },
+  "page_time_copied": {
+    "message": "Ссылка на страницу и время скопированы"
+  },
+  "media_clip": {
+    "message": "Фрагмент медиа"
+  },
+  "media_clip_title": {
+    "message": "Скачать фрагмент аудио или видео"
+  },
+  "clip_format": {
+    "message": "Формат"
+  },
+  "clip_format_audio": {
+    "message": "Аудио (.wav) · до 2 минут"
+  },
+  "clip_format_video": {
+    "message": "Видео (.webm) · до 1 минуты"
+  },
+  "clip_start": {
+    "message": "Начало"
+  },
+  "clip_end": {
+    "message": "Конец"
+  },
+  "clip_download_audio": {
+    "message": "Скачать WAV"
+  },
+  "clip_download_video": {
+    "message": "Записать WebM"
+  },
+  "clip_cancel": {
+    "message": "Отмена"
+  },
+  "clip_invalid_time": {
+    "message": "Введите время как М:СС или Ч:ММ:СС. Конец должен быть позже начала."
+  },
+  "clip_too_long": {
+    "message": "Выберите фрагмент не длиннее 2 минут."
+  },
+  "clip_video_too_long": {
+    "message": "Выберите видеофрагмент не длиннее 1 минуты."
+  },
+  "clip_preparing": {
+    "message": "Готовим аудиофрагмент…"
+  },
+  "clip_recording": {
+    "message": "Записываем видеофрагмент в реальном времени…"
+  },
+  "clip_downloaded": {
+    "message": "Фрагмент медиа скачан"
+  },
+  "clip_failed": {
+    "message": "Не удалось создать выбранный фрагмент медиа."
+  },
+  "clip_video_failed": {
+    "message": "Не удалось создать видеофрагмент."
+  },
+  "clip_video_recorder_failed": {
+    "message": "Сбой браузерной записи при создании видеофрагмента."
+  },
+  "clip_video_timeout": {
+    "message": "Видео не воспроизводилось во время записи фрагмента."
+  },
+  "clip_video_load_failed": {
+    "message": "Не удалось загрузить официальное видео для записи."
+  },
+  "clip_video_unsupported": {
+    "message": "Этот браузер не может записать видеофрагмент из данного плеера."
+  },
+  "clip_video_too_large": {
+    "message": "Записанный видеофрагмент слишком большой для безопасного скачивания."
+  },
+  "clip_source_unavailable": {
+    "message": "Один раз запустите медиа, чтобы появился источник, и попробуйте снова."
+  },
+  "clip_request_rejected": {
+    "message": "Запрос фрагмента медиа отклонён."
+  },
+  "clip_source_download_failed": {
+    "message": "Не удалось скачать официальный медиафайл."
+  },
+  "clip_source_too_large": {
+    "message": "Этот медиафайл слишком большой для безопасной обработки."
+  },
+  "clip_outside_media": {
+    "message": "Выбранное время находится за пределами медиафайла."
   },
   "second_display": {
     "message": "Второй экран"
@@ -410,11 +551,38 @@
   "transcript_search": {
     "message": "Поиск…"
   },
+  "transcript_download": {
+    "message": "Скачать .txt"
+  },
+  "close_transcript_aria": {
+    "message": "Закрыть стенограмму"
+  },
+  "loading": {
+    "message": "Загрузка…"
+  },
   "no_matches": {
     "message": "(совпадений нет)"
   },
+  "no_transcript_detected": {
+    "message": "На этой странице не найден текст стенограммы. Если субтитры загрузятся позже, откройте панель снова."
+  },
   "annotation_limit": {
     "message": "Достигнут лимит локальных выделений."
+  },
+  "selection_cannot_save": {
+    "message": "Это выделение нельзя сохранить."
+  },
+  "note_updated": {
+    "message": "Заметка обновлена"
+  },
+  "highlight_saved": {
+    "message": "Выделение сохранено локально"
+  },
+  "select_one_paragraph": {
+    "message": "Выберите текст в пределах одного абзаца или стиха."
+  },
+  "select_character_count": {
+    "message": "Выберите от 1 до $1 символов."
   },
   "highlight_color_aria": {
     "message": "Выделение: $1"
@@ -427,6 +595,18 @@
   },
   "reattach_here": {
     "message": "Привязать здесь"
+  },
+  "note_missing": {
+    "message": "Этой заметки больше нет."
+  },
+  "reattach_source_first": {
+    "message": "Перед повторной привязкой вернитесь на исходную страницу заметки."
+  },
+  "reattach_cancelled": {
+    "message": "Повторная привязка отменена"
+  },
+  "reattach_instruction": {
+    "message": "Выберите новый текст, затем нажмите «Привязать здесь»."
   },
   "cancel": {
     "message": "Отмена"
@@ -458,8 +638,23 @@
   "color_pink": {
     "message": "Розовый"
   },
+  "color_purple": {
+    "message": "Фиолетовый"
+  },
+  "color_orange": {
+    "message": "Оранжевый"
+  },
+  "page_notes": {
+    "message": "Заметки на этой странице"
+  },
+  "open_all_notes": {
+    "message": "Открыть все заметки"
+  },
   "note": {
     "message": "Заметка"
+  },
+  "write_private_note": {
+    "message": "Напишите личную заметку…"
   },
   "tags": {
     "message": "Теги"
@@ -473,8 +668,32 @@
   "tags_error": {
     "message": "Используйте не более 20 коротких тегов, разделённых запятыми."
   },
+  "paragraph_mark_unreliable": {
+    "message": "Этот абзац нельзя надёжно отметить."
+  },
   "needs_attention": {
     "message": "Требует внимания"
+  },
+  "delete_highlight_confirm": {
+    "message": "Удалить это локальное выделение и заметку?"
+  },
+  "highlight_deleted": {
+    "message": "Выделение удалено"
+  },
+  "locate": {
+    "message": "Найти"
+  },
+  "open_page": {
+    "message": "Открыть страницу"
+  },
+  "edit": {
+    "message": "Изменить"
+  },
+  "delete": {
+    "message": "Удалить"
+  },
+  "reattach": {
+    "message": "Привязать заново"
   },
   "no_notes_filtered": {
     "message": "Нет заметок, соответствующих фильтрам."
@@ -491,6 +710,18 @@
   "study_export_failed": {
     "message": "Не удалось экспортировать данные изучения."
   },
+  "study_backup_downloaded": {
+    "message": "Резервная копия изучения скачана"
+  },
+  "backup_too_large": {
+    "message": "Размер резервной копии превышает 5 МБ."
+  },
+  "backup_invalid": {
+    "message": "Это не действительная резервная копия StudyNav."
+  },
+  "import_summary": {
+    "message": "Импорт: добавлено $1, обновлено $2, без изменений $3, отклонено $4"
+  },
   "notes_tab": {
     "message": "Заметки"
   },
@@ -500,11 +731,17 @@
   "this_page": {
     "message": "Эта страница"
   },
+  "all_notes": {
+    "message": "Все заметки"
+  },
   "all_pages": {
     "message": "Все страницы"
   },
   "search_notes": {
     "message": "Поиск по заметкам"
+  },
+  "search_notes_placeholder": {
+    "message": "Поиск по цитате, заметке или тегу…"
   },
   "search_saved_places": {
     "message": "Поиск по сохранённым местам"
@@ -523,6 +760,9 @@
   },
   "study_library_opened": {
     "message": "Библиотека изучения открыта"
+  },
+  "close_study_library_aria": {
+    "message": "Закрыть библиотеку изучения"
   },
   "saved_places_count_one": {
     "message": "Сохранённых мест: $1"
@@ -551,6 +791,9 @@
   "study_data_save_failed": {
     "message": "Не удалось сохранить данные изучения."
   },
+  "migration_save_failed": {
+    "message": "Не удалось сохранить перенесённые данные изучения."
+  },
   "video_progress_save_failed": {
     "message": "Не удалось сохранить прогресс видео."
   },
@@ -570,7 +813,7 @@
     "message": "Запрос аудио этого стиха отклонён."
   },
   "verse_job_busy": {
-    "message": "Уже подготавливается другой аудиофрагмент стиха."
+    "message": "Сейчас уже готовится другой фрагмент медиа."
   },
   "verse_processing_failed": {
     "message": "Не удалось обработать аудио стиха."
@@ -610,70 +853,5 @@
   },
   "chapter_audio_size_mismatch": {
     "message": "Размер аудио главы не соответствует официальным метаданным."
-  },
-  "link_copied": {
-    "message": "Ссылка скопирована"
-  },
-  "palette_hint": {
-    "message": "Enter — открыть · Esc — закрыть · Неофициальный StudyNav"
-  },
-  "chapter_audio_not_ready": {
-    "message": "Аудио главы ещё не готово. Один раз нажмите «Воспроизвести аудио» и повторите попытку."
-  },
-  "verse_audio_prepare_failed": {
-    "message": "Не удалось подготовить аудио стиха."
-  },
-  "verse_audio_downloaded": {
-    "message": "Скачано аудио $1:$2"
-  },
-  "verse_audio_download_failed": {
-    "message": "Не удалось скачать аудио стиха."
-  },
-  "image_download_started": {
-    "message": "Скачивание изображения началось"
-  },
-  "timestamp_url_copied": {
-    "message": "Ссылка на время скопирована"
-  },
-  "transcript_download": {
-    "message": "Скачать .txt"
-  },
-  "close_transcript_aria": {
-    "message": "Закрыть стенограмму"
-  },
-  "loading": {
-    "message": "Загрузка…"
-  },
-  "no_transcript_detected": {
-    "message": "На этой странице не найден текст стенограммы. Если субтитры загрузятся позже, откройте панель снова."
-  },
-  "selection_cannot_save": { "message": "Это выделение нельзя сохранить." },
-  "note_updated": { "message": "Заметка обновлена" },
-  "highlight_saved": { "message": "Выделение сохранено локально" },
-  "select_one_paragraph": { "message": "Выберите текст в пределах одного абзаца или стиха." },
-  "select_character_count": { "message": "Выберите от 1 до $1 символов." },
-  "note_missing": { "message": "Этой заметки больше нет." },
-  "reattach_source_first": { "message": "Перед повторной привязкой вернитесь на исходную страницу заметки." },
-  "reattach_cancelled": { "message": "Повторная привязка отменена" },
-  "reattach_instruction": { "message": "Выберите новый текст, затем нажмите «Привязать здесь»." },
-  "write_private_note": { "message": "Напишите личную заметку…" },
-  "paragraph_mark_unreliable": { "message": "Этот абзац нельзя надёжно отметить." },
-  "delete_highlight_confirm": { "message": "Удалить это локальное выделение и заметку?" },
-  "highlight_deleted": { "message": "Выделение удалено" },
-  "locate": { "message": "Найти" },
-  "open_page": { "message": "Открыть страницу" },
-  "edit": { "message": "Изменить" },
-  "delete": { "message": "Удалить" },
-  "reattach": { "message": "Привязать заново" },
-  "study_backup_downloaded": { "message": "Резервная копия изучения скачана" },
-  "backup_too_large": { "message": "Размер резервной копии превышает 5 МБ." },
-  "backup_invalid": { "message": "Это не действительная резервная копия StudyNav." },
-  "import_summary": { "message": "Импорт: добавлено $1, обновлено $2, без изменений $3, отклонено $4" },
-  "all_notes": { "message": "Все заметки" },
-  "search_notes_placeholder": { "message": "Поиск по цитате, заметке или тегу…" },
-  "close_study_library_aria": { "message": "Закрыть библиотеку изучения" },
-  "preparing": { "message": "Подготовка…" },
-  "bookmark_limit": { "message": "Достигнут лимит локальных сохранённых мест." },
-  "remove_saved_place_confirm": { "message": "Удалить это сохранённое место?" },
-  "migration_save_failed": { "message": "Не удалось сохранить перенесённые данные изучения." }
+  }
 }

@@ -19,12 +19,12 @@ export const STUDY_DATA_SCHEMA_VERSION = 2 as const;
 export const STUDY_DATA_SCHEMA_VERSION_V1 = STUDY_DATA_SCHEMA_V1;
 export const STUDY_DATA_SCHEMA_VERSION_V2 = STUDY_DATA_SCHEMA_VERSION;
 
-export const HIGHLIGHT_COLORS = ['yellow', 'green', 'blue', 'pink'] as const;
+export const HIGHLIGHT_COLORS = ['yellow', 'green', 'blue', 'pink', 'purple', 'orange'] as const;
 export type HighlightColor = typeof HIGHLIGHT_COLORS[number];
 
 export const MAX_BACKUP_JSON_BYTES = 5 * 1024 * 1024;
 export const MAX_ANNOTATIONS = 5_000;
-export const MAX_TEXT_LENGTH = 2_000;
+export const MAX_TEXT_LENGTH = 10_000;
 export const MAX_CONTEXT_LENGTH = 32;
 export const MAX_NOTE_LENGTH = 20_000;
 export const MAX_TAGS = 20;

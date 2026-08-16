@@ -4,6 +4,7 @@ import {
   applyFeatures,
   copyCurrentCitation,
   currentOfficialFinderUrl,
+  currentSelectedVerseElements,
   currentStudyBookmarkCandidate,
   currentStudyBookmarkSaved,
   openOfficialJwLink,
@@ -127,10 +128,7 @@ async function currentPageStatus() {
   const support = currentSupport();
   const verseNodes = Array.from(document.querySelectorAll<HTMLElement>('.verse[id^="v"]'))
     .filter((node) => !!parseBibleVerseId(node.id));
-  const selected = verseNodes
-    .filter((node) =>
-      node.classList.contains('jwac-textHighlight') ||
-      node.classList.contains('studynav-verse-selected'))
+  const selected = currentSelectedVerseElements()
     .map((node) => parseBibleVerseId(node.id))
     .filter((verse): verse is NonNullable<typeof verse> => !!verse);
   const kind = verseNodes.length
@@ -149,6 +147,11 @@ async function currentPageStatus() {
     kind,
     masterEnabled: latest.masterEnabled !== false,
     selectedVerse: selected.length === 1 ? selected[0] : null,
+    selectedVerseRange: selected.length > 1 ? {
+      chapter: selected[0].chapter,
+      startVerse: selected[0].verse,
+      endVerse: selected.at(-1)!.verse,
+    } : null,
     officialOpenAvailable: !!currentOfficialFinderUrl(),
     bookmarkAvailable: latest.bookmarks && !!bookmarkCandidate,
     bookmarkSaved: latest.bookmarks && bookmarkCandidate ? await currentStudyBookmarkSaved() : false,

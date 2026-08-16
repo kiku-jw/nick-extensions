@@ -3,6 +3,7 @@ import { resolveQuery } from './mnemonics';
 import {
   buildOfficialFinderUrl,
   canonicalStudyUrl,
+  formatPageAndTime,
   formatOnlineCitation,
   preciseStudyUrl,
   type OfficialFinderMetadata,
@@ -34,8 +35,16 @@ import {
 import {
   base64ToBytes,
   findBibleAudioApiUrl,
+  isJwCdnUrl,
+  MAX_MEDIA_CLIP_SECONDS,
+  MAX_MEDIA_VIDEO_CLIP_SECONDS,
   parseBibleVerseId,
+  parseUserMediaTime,
+  type MediaAudioClipRequest,
+  type MediaVideoClipRequest,
+  type ValidatedMediaVideoClipRequest,
   type VerseAudioRequest,
+  validateMediaVideoClipRequest,
 } from './verse-audio';
 
 const STYLE_ID = 'studynav-dynamic-style';
@@ -43,14 +52,15 @@ const ARTICLE_MARKER = 'data-studynav-article';
 const QR_OVERLAY_ID = 'studynav-qr-overlay';
 const verseAudioJobs = new Set<string>();
 let verseSelectionListening = false;
-let selectedVerseId: string | null = null;
+let selectedVerseIds: string[] = [];
 let verseToolbarFrame: number | null = null;
 let qrReturnFocus: HTMLElement | null = null;
 
 function positionSelectedVerseToolbar() {
   verseToolbarFrame = null;
-  if (!selectedVerseId) return;
-  const verse = document.getElementById(selectedVerseId);
+  const anchorId = selectedVerseIds.at(-1);
+  if (!anchorId) return;
+  const verse = document.getElementById(anchorId);
   const toolbar = verse?.querySelector<HTMLElement>(':scope > .studynav-para-tools');
   if (!verse || !toolbar || getComputedStyle(toolbar).display === 'none') return;
 
@@ -66,13 +76,25 @@ function positionSelectedVerseToolbar() {
   const gap = 6;
   const edge = 8;
   const maxLeft = Math.max(edge, window.innerWidth - toolbarRect.width - edge);
-  const left = Math.min(Math.max(verseRect.left, edge), maxLeft);
+  const leftDock = verseRect.left - toolbarRect.width - gap;
+  const rightDock = verseRect.right + gap;
   const above = verseRect.top - toolbarRect.height - gap;
   const below = verseRect.bottom + gap;
   const maxTop = Math.max(edge, window.innerHeight - toolbarRect.height - edge);
-  const top = above >= edge
-    ? above
-    : Math.min(Math.max(below, edge), maxTop);
+  let left: number;
+  let top: number;
+  if (leftDock >= edge) {
+    left = leftDock;
+    top = Math.min(Math.max(verseRect.top, edge), maxTop);
+  } else if (rightDock + toolbarRect.width <= window.innerWidth - edge) {
+    left = rightDock;
+    top = Math.min(Math.max(verseRect.top, edge), maxTop);
+  } else {
+    left = Math.min(Math.max(verseRect.left, edge), maxLeft);
+    top = above >= edge
+      ? above
+      : Math.min(Math.max(below, edge), maxTop);
+  }
 
   toolbar.style.left = `${Math.round(left)}px`;
   toolbar.style.top = `${Math.round(top)}px`;
@@ -123,6 +145,14 @@ export function cssFor(flags: FeatureFlags, hostname: string): string {
         box-sizing: border-box !important;
         margin-left: auto !important; margin-right: auto !important;
       }
+      @media (min-width: 900px) {
+        #content.readingPane:has([${ARTICLE_MARKER}="1"]) {
+          width: 68% !important;
+        }
+        #content.readingPane:has([${ARTICLE_MARKER}="1"]) ~ .studyPane {
+          width: 32% !important;
+        }
+      }
     `);
   }
   if (flags.cstblView && !isWol) {
@@ -141,13 +171,14 @@ export function cssFor(flags: FeatureFlags, hostname: string): string {
   }
   if (flags.mediaPlayerUI) {
     bits.push(`
-      .vjs-control-bar, .video-js .vjs-control-bar, [class*="player"] [class*="controls"],
-      .jwplayer .jw-controls, [class*="mediaPlayer"] [class*="control"] {
-        opacity: 0.35 !important; transition: opacity .2s;
+      .video-js .vjs-control-bar,
+      .video-js:hover .vjs-control-bar,
+      .video-js.vjs-user-active .vjs-control-bar {
+        opacity: 1 !important;
+        background: transparent !important;
+        background-image: none !important;
+        box-shadow: none !important;
       }
-      .vjs-control-bar:hover, .video-js:hover .vjs-control-bar,
-      [class*="player"]:hover [class*="controls"],
-      .jwplayer:hover .jw-controls { opacity: 1 !important; }
     `);
   }
   if (flags.customSub) {
@@ -198,7 +229,7 @@ function teardownCopyAndLinks() {
     window.removeEventListener('click', verseSelectionHandler, true);
     verseSelectionListening = false;
   }
-  selectedVerseId = null;
+  selectedVerseIds = [];
   removeOwnedNodes('.studynav-para-tools');
   qsa<HTMLElement>('[data-sn-tools], .studynav-para').forEach((el) => {
     delete el.dataset.snTools;
@@ -206,6 +237,7 @@ function teardownCopyAndLinks() {
   });
   qsa<HTMLElement>('.studynav-verse-selected').forEach((el) => {
     el.classList.remove('studynav-verse-selected');
+    el.classList.remove('studynav-verse-toolbar-anchor');
   });
   clearOwnedAnchors();
 }
@@ -226,6 +258,7 @@ function teardownLanguageBadge() {
 
 function teardownMediaToolbar() {
   document.getElementById('studynav-media-bar')?.remove();
+  document.getElementById('studynav-clip-panel')?.remove();
 }
 
 function teardownTranscript() {
@@ -330,7 +363,9 @@ export function deriveFeaturePlan(flags: FeatureFlags, support: SupportState): F
       palette: !flags.advSearch || !support.palette,
       mediaCtrl: !flags.mediaCtrl || !support.media,
       languageBadge: !flags.langCount || !support.language,
-      mediaToolbar: true,
+      mediaToolbar: !support.media || !(
+        flags.mediaTS || flags.mediaClip || flags.sndDisp || flags.transcCreate || flags.continueWatching
+      ),
       annotations: !flags.annotations && !flags.bookmarks,
       continueWatching: !flags.continueWatching || !support.media,
     },
@@ -403,6 +438,69 @@ function referenceForElement(element: HTMLElement | null): string {
   return pid ? `Paragraph ${pid}` : 'Paragraph';
 }
 
+function verseElementsInDocumentOrder(): HTMLElement[] {
+  return qsa<HTMLElement>('.verse[id^="v"]').filter((element) => !!parseBibleVerseId(element.id));
+}
+
+function verseElementsForIds(ids: readonly string[]): HTMLElement[] {
+  const wanted = new Set(ids);
+  return verseElementsInDocumentOrder().filter((element) => wanted.has(element.id));
+}
+
+function verseElementsFromHash(): HTMLElement[] {
+  let hash: string;
+  try {
+    hash = decodeURIComponent(location.hash.slice(1));
+  } catch {
+    return [];
+  }
+  const match = /^(v[1-9]\d?\d{6})(?:-(v[1-9]\d?\d{6}))?$/.exec(hash);
+  if (!match) return [];
+  const start = parseBibleVerseId(match[1]);
+  const end = parseBibleVerseId(match[2] || match[1]);
+  if (!start || !end || start.book !== end.book || start.chapter !== end.chapter || end.verse < start.verse) return [];
+  return verseElementsInDocumentOrder().filter((element) => {
+    const verse = parseBibleVerseId(element.id);
+    return !!verse && verse.book === start.book && verse.chapter === start.chapter &&
+      verse.verse >= start.verse && verse.verse <= end.verse;
+  });
+}
+
+export function currentSelectedVerseElements(): HTMLElement[] {
+  const explicit = verseElementsForIds(selectedVerseIds);
+  return explicit.length ? explicit : verseElementsFromHash();
+}
+
+function verseRangeFragment(elements: readonly HTMLElement[]): string | null {
+  const first = elements[0];
+  const last = elements.at(-1);
+  if (!first || !last || !parseBibleVerseId(first.id) || !parseBibleVerseId(last.id)) return null;
+  return first.id === last.id ? first.id : `${first.id}-${last.id}`;
+}
+
+function verseRangeFinderToken(elements: readonly HTMLElement[]): string | null {
+  const fragment = verseRangeFragment(elements);
+  return fragment ? fragment.replaceAll('v', '') : null;
+}
+
+function verseRangeReference(elements: readonly HTMLElement[]): string {
+  const first = elements[0] ? parseBibleVerseId(elements[0].id) : null;
+  const last = elements.at(-1) ? parseBibleVerseId(elements.at(-1)!.id) : null;
+  if (!first || !last) return '';
+  const verses = first.verse === last.verse ? `${first.verse}` : `${first.verse}–${last.verse}`;
+  return `${bibleReferenceLabel()} ${first.chapter}:${verses}`;
+}
+
+function verseRangeText(elements: readonly HTMLElement[]): string {
+  return elements.map((element) => textForCopy(element)).filter(Boolean).join('\n');
+}
+
+function preciseLinkForVerseRange(elements: readonly HTMLElement[]): string | null {
+  const base = canonicalCurrentPageUrl();
+  const fragment = verseRangeFragment(elements);
+  return base && fragment ? preciseStudyUrl(base, fragment) : null;
+}
+
 function currentCitationTarget(): CurrentCitationTarget {
   const support = currentSupport();
   const selection = window.getSelection();
@@ -416,13 +514,14 @@ function currentCitationTarget(): CurrentCitationTarget {
     };
   }
 
-  const selectedVerse = qs<HTMLElement>('.verse.studynav-verse-selected[id^="v"], .verse.jwac-textHighlight[id^="v"]');
-  if (selectedVerse && parseBibleVerseId(selectedVerse.id)) {
+  const selectedVerses = currentSelectedVerseElements();
+  const selectedVerse = selectedVerses[0];
+  if (selectedVerse) {
     return {
       element: selectedVerse,
-      quote: textForCopy(selectedVerse),
-      reference: referenceForElement(selectedVerse),
-      fragment: elementFragment(selectedVerse),
+      quote: verseRangeText(selectedVerses),
+      reference: verseRangeReference(selectedVerses),
+      fragment: verseRangeFragment(selectedVerses),
     };
   }
 
@@ -447,9 +546,10 @@ function pageFinderMetadata(): OfficialFinderMetadata {
   const computedBible = /^\d{1,2}$/.test(book || '') && /^\d{1,3}$/.test(chapter || '')
     ? String(Number(book) * 1_000_000 + Number(chapter) * 1_000)
     : null;
+  const selectedBible = verseRangeFinderToken(currentSelectedVerseElements());
   return {
     pub: data?.getAttribute('data-pub') || article?.getAttribute('data-bible-pub'),
-    bible: data?.getAttribute('data-bible') || computedBible,
+    bible: selectedBible || data?.getAttribute('data-bible') || computedBible,
     docId: data?.getAttribute('data-docid') || classDocId,
     wtLocale: data?.getAttribute('data-wtlocale') || classLocale,
   };
@@ -685,24 +785,55 @@ function embeddedBibleAudioApiUrls(): string[] {
   return [...new Set(urls)];
 }
 
+function syncVerseSelectionPresentation() {
+  const selected = new Set(selectedVerseIds);
+  const anchor = selectedVerseIds.at(-1) || null;
+  qsa<HTMLElement>('.verse[id^="v"]').forEach((element) => {
+    const isSelected = selected.has(element.id);
+    element.classList.toggle('studynav-verse-selected', isSelected);
+    element.classList.toggle('studynav-verse-toolbar-anchor', isSelected && element.id === anchor);
+    const toolbar = element.querySelector<HTMLElement>(':scope > .studynav-para-tools');
+    if (toolbar && element.id !== anchor) {
+      delete toolbar.dataset.snVerseFloating;
+      toolbar.removeAttribute('style');
+    }
+    toolbar?.querySelectorAll<HTMLElement>('[data-single-verse-only="1"]').forEach((control) => {
+      control.hidden = selectedVerseIds.length > 1;
+    });
+  });
+  if (selectedVerseIds.length) scheduleVerseToolbarPosition();
+  else stopVerseToolbarPositioning();
+}
+
 const verseSelectionHandler = (event: MouseEvent) => {
   const target = event.target;
   if (!(target instanceof Element)) return;
   const number = target.closest('.verse .jsHighlightOnly, .verse .verseNum a, .verse .chapterNum a');
   const verse = number?.closest<HTMLElement>('.verse[id^="v"]');
-  if (!verse || !parseBibleVerseId(verse.id)) return;
-  if (selectedVerseId === verse.id) {
-    selectedVerseId = null;
-    verse.classList.remove('studynav-verse-selected');
-    stopVerseToolbarPositioning();
-    return;
+  const clicked = verse ? parseBibleVerseId(verse.id) : null;
+  if (!verse || !clicked) return;
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+
+  const anchorElement = selectedVerseIds[0] ? document.getElementById(selectedVerseIds[0]) : null;
+  const anchor = anchorElement ? parseBibleVerseId(anchorElement.id) : null;
+  if (event.shiftKey && anchor && anchor.book === clicked.book && anchor.chapter === clicked.chapter) {
+    const low = Math.min(anchor.verse, clicked.verse);
+    const high = Math.max(anchor.verse, clicked.verse);
+    selectedVerseIds = verseElementsInDocumentOrder()
+      .filter((candidate) => {
+        const current = parseBibleVerseId(candidate.id);
+        return !!current && current.book === clicked.book && current.chapter === clicked.chapter &&
+          current.verse >= low && current.verse <= high;
+      })
+      .map((candidate) => candidate.id);
+  } else if (selectedVerseIds.length === 1 && selectedVerseIds[0] === verse.id) {
+    selectedVerseIds = [];
+  } else {
+    selectedVerseIds = [verse.id];
   }
-  selectedVerseId = verse.id;
-  qsa<HTMLElement>('.studynav-verse-selected').forEach((selected) => {
-    selected.classList.toggle('studynav-verse-selected', selected === verse);
-  });
-  verse.classList.add('studynav-verse-selected');
-  scheduleVerseToolbarPosition();
+  syncVerseSelectionPresentation();
 };
 
 function syncVerseSelectionListener(enabled: boolean) {
@@ -716,9 +847,10 @@ function syncVerseSelectionListener(enabled: boolean) {
   else {
     window.removeEventListener('click', verseSelectionHandler, true);
     stopVerseToolbarPositioning();
-    selectedVerseId = null;
+    selectedVerseIds = [];
     qsa<HTMLElement>('.studynav-verse-selected').forEach((el) => {
       el.classList.remove('studynav-verse-selected');
+      el.classList.remove('studynav-verse-toolbar-anchor');
     });
   }
 }
@@ -792,16 +924,12 @@ async function downloadVerseAudio(verseElement: HTMLElement, button: HTMLButtonE
 
 function runCopyAndLinks(articleRoots: HTMLElement[], flags: FeatureFlags) {
   const hasBibleVerses = articleRoots.some((root) => !!root.querySelector('.verse[id^="v"]'));
-  syncVerseSelectionListener(!!flags.verseAudio && hasBibleVerses);
+  syncVerseSelectionListener(hasBibleVerses && !!(flags.verseAudio || flags.copyText || flags.parLink || flags.annotations));
   paragraphNodes(articleRoots).forEach((el) => {
     const existing = el.querySelector(':scope > .studynav-para-tools');
     if (existing) existing.remove();
     el.dataset.snTools = '1';
     el.classList.add('studynav-para');
-    if (parseBibleVerseId(el.id)) {
-      el.classList.toggle('studynav-verse-selected', el.id === selectedVerseId);
-    }
-
     const bar = document.createElement('span');
     bar.className = 'studynav-para-tools';
     bar.setAttribute('data-studynav-owned', '1');
@@ -814,6 +942,7 @@ function runCopyAndLinks(articleRoots: HTMLElement[], flags: FeatureFlags) {
       button.textContent = t('download_audio');
       button.title = t('download_audio_title');
       button.dataset.verseAudio = el.id;
+      button.dataset.singleVerseOnly = '1';
       button.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -827,6 +956,7 @@ function runCopyAndLinks(articleRoots: HTMLElement[], flags: FeatureFlags) {
       button.type = 'button';
       button.textContent = t('mark');
       button.title = t('mark_title');
+      if (parseBibleVerseId(el.id)) button.dataset.singleVerseOnly = '1';
       button.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -843,7 +973,8 @@ function runCopyAndLinks(articleRoots: HTMLElement[], flags: FeatureFlags) {
       button.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        copy(textForCopy(el));
+        const selected = currentSelectedVerseElements();
+        copy(selected.length > 1 && selected.includes(el) ? verseRangeText(selected) : textForCopy(el));
       });
       bar.appendChild(button);
     }
@@ -856,7 +987,9 @@ function runCopyAndLinks(articleRoots: HTMLElement[], flags: FeatureFlags) {
       button.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        copy(deepestLinkFor(el), t('link_copied'));
+        const selected = currentSelectedVerseElements();
+        const rangeLink = selected.length > 1 && selected.includes(el) ? preciseLinkForVerseRange(selected) : null;
+        copy(rangeLink || deepestLinkFor(el), t('link_copied'));
       });
       bar.appendChild(button);
     }
@@ -864,7 +997,7 @@ function runCopyAndLinks(articleRoots: HTMLElement[], flags: FeatureFlags) {
     if (bar.childElementCount) el.appendChild(bar);
     else bar.remove();
   });
-  scheduleVerseToolbarPosition();
+  syncVerseSelectionPresentation();
 }
 
 function runLangCount(articleRoots: HTMLElement[]) {
@@ -944,7 +1077,7 @@ function runImgGet(articleRoots: HTMLElement[]) {
     btn.innerHTML = `
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14" />
-      </svg>`;
+      </svg><span>${escapeHtml(t('download_image'))}</span>`;
     btn.setAttribute('aria-label', t('download_image'));
     btn.title = t('download_image');
     btn.setAttribute('data-studynav-owned', '1');
@@ -964,7 +1097,8 @@ function runImgGet(articleRoots: HTMLElement[]) {
         URL.revokeObjectURL(a.href);
         toast(t('image_download_started'));
       } catch {
-        window.open(src, '_blank');
+        const opened = window.open(src, '_blank', 'noopener,noreferrer');
+        if (opened) opened.opener = null;
       }
     });
     img.insertAdjacentElement('afterend', btn);
@@ -972,18 +1106,30 @@ function runImgGet(articleRoots: HTMLElement[]) {
 }
 
 function activeVideo(): HTMLVideoElement | null {
-  const vids = qsa<HTMLVideoElement>('video');
+  const vids = qsa<HTMLVideoElement>('video').filter((video) => !video.closest('[data-studynav-owned]'));
   return vids.find((v) => !v.paused) || vids[0] || null;
+}
+
+function activePlayableMedia(): HTMLMediaElement | null {
+  const media = qsa<HTMLMediaElement>('video, audio')
+    .filter((item) => !item.closest('[data-studynav-owned]'));
+  const focused = document.activeElement;
+  if (focused instanceof HTMLMediaElement && media.includes(focused)) return focused;
+  return media.find((item) => !item.paused) || media.find((item) => item instanceof HTMLVideoElement) || media[0] || null;
 }
 
 const mediaKeyHandler = (e: KeyboardEvent) => {
   const t = e.target as HTMLElement | null;
-  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
-  const v = activeVideo();
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
+  if (e.altKey || e.ctrlKey || e.metaKey) return;
+  const v = activePlayableMedia();
   if (!v) return;
   const k = e.key.toLowerCase();
+  const handled = k === ' ' || e.code === 'Space' || ['k', 'j', 'l', 'm', 'f'].includes(k);
+  if (!handled || (e.repeat && (k === ' ' || e.code === 'Space' || k === 'k'))) return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
   if (k === ' ' || k === 'k') {
-    e.preventDefault();
     if (v.paused) {
       void v.play().catch(() => {
         // Playback can be interrupted by another key press or browser policy.
@@ -1007,49 +1153,432 @@ const mediaKeyHandler = (e: KeyboardEvent) => {
   }
 };
 
+function transcriptDomText(): string {
+  return qsa<HTMLElement>('[class*="transcript"], [id*="transcript"], [class*="subtitle"]')
+    .filter((node) => !node.closest('[data-studynav-owned]'))
+    .map((node) => (node.innerText || '').trim())
+    .filter((line) => line.length > 40)
+    .join('\n\n');
+}
+
+function transcriptSourceAvailable(): boolean {
+  if (transcriptDomText()) return true;
+  const video = activeVideo();
+  return !!video && (video.textTracks.length > 0 || !!video.querySelector('track[src]'));
+}
+
+function mediaSource(media: HTMLMediaElement | null): string | null {
+  const source = media?.currentSrc || media?.src || '';
+  return source && isJwCdnUrl(source) ? source : null;
+}
+
+function openSecondDisplay() {
+  const sourceMedia = activePlayableMedia();
+  const source = mediaSource(sourceMedia);
+  if (!sourceMedia || !source) {
+    toast(t('clip_source_unavailable'));
+    return;
+  }
+  const popup = window.open('about:blank', 'studynav-second', 'popup=yes,width=960,height=540');
+  if (!popup) return;
+  popup.opener = null;
+  const doc = popup.document;
+  doc.title = pageDocumentTitle();
+  doc.documentElement.lang = document.documentElement.lang || 'en';
+  const style = doc.createElement('style');
+  style.textContent = `
+    :root { color-scheme: dark; background: #080b10; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: #080b10; }
+    video { width: 100vw; height: 100vh; object-fit: contain; background: #000; }
+    audio { width: min(760px, calc(100vw - 40px)); }
+  `;
+  const player = doc.createElement(sourceMedia instanceof HTMLAudioElement ? 'audio' : 'video');
+  player.controls = true;
+  player.autoplay = false;
+  player.preload = 'metadata';
+  player.src = source;
+  const startTime = sourceMedia.currentTime;
+  player.addEventListener('loadedmetadata', () => {
+    if (Number.isFinite(startTime)) player.currentTime = Math.min(startTime, player.duration || startTime);
+  }, { once: true });
+  doc.head.appendChild(style);
+  doc.body.replaceChildren(player);
+  player.focus();
+}
+
+function formatClipInput(seconds: number): string {
+  const whole = Math.max(0, Math.floor(seconds));
+  const hours = Math.floor(whole / 3_600);
+  const minutes = Math.floor((whole % 3_600) / 60);
+  const rest = whole % 60;
+  return hours
+    ? `${hours}:${String(minutes).padStart(2, '0')}:${String(rest).padStart(2, '0')}`
+    : `${minutes}:${String(rest).padStart(2, '0')}`;
+}
+
+function waitForClipMediaEvent(media: HTMLMediaElement, eventName: string, timeoutMs: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const timer = window.setTimeout(() => {
+      cleanup();
+      reject(new Error(t('clip_video_load_failed')));
+    }, timeoutMs);
+    const onReady = () => {
+      cleanup();
+      resolve();
+    };
+    const onError = () => {
+      cleanup();
+      reject(new Error(t('clip_video_load_failed')));
+    };
+    const cleanup = () => {
+      clearTimeout(timer);
+      media.removeEventListener(eventName, onReady);
+      media.removeEventListener('error', onError);
+    };
+    media.addEventListener(eventName, onReady, { once: true });
+    media.addEventListener('error', onError, { once: true });
+  });
+}
+
+async function recordVideoClip(request: ValidatedMediaVideoClipRequest): Promise<void> {
+  if (!('MediaRecorder' in window) || !('captureStream' in HTMLMediaElement.prototype)) {
+    throw new Error(t('clip_video_unsupported'));
+  }
+  const probe = await fetch(request.mediaUrl, {
+    cache: 'no-store',
+    credentials: 'omit',
+    headers: { Range: 'bytes=0-0' },
+  });
+  if (!probe.ok) throw new Error(t('clip_source_download_failed'));
+  if (!isJwCdnUrl(probe.url)) throw new Error(t('chapter_audio_redirected'));
+  await probe.body?.cancel();
+
+  const video = document.createElement('video');
+  video.crossOrigin = 'anonymous';
+  video.preload = 'metadata';
+  video.playsInline = true;
+  video.muted = false;
+  video.src = request.mediaUrl;
+  video.setAttribute('data-studynav-owned', '1');
+  Object.assign(video.style, {
+    position: 'fixed',
+    left: '0',
+    bottom: '0',
+    width: '2px',
+    height: '2px',
+    opacity: '0.01',
+    pointerEvents: 'none',
+    zIndex: '-1',
+  });
+  document.documentElement.appendChild(video);
+
+  let audioContext: AudioContext | null = null;
+  let stream: MediaStream | null = null;
+  try {
+    if (video.readyState < HTMLMediaElement.HAVE_METADATA) await waitForClipMediaEvent(video, 'loadedmetadata', 45_000);
+    if (!Number.isFinite(video.duration) || request.endSeconds > video.duration + 0.25) {
+      throw new Error(t('clip_outside_media'));
+    }
+    video.currentTime = request.startSeconds;
+    if (video.seeking || Math.abs(video.currentTime - request.startSeconds) > 0.1) {
+      await waitForClipMediaEvent(video, 'seeked', 30_000);
+    }
+    if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+      await waitForClipMediaEvent(video, 'loadeddata', 30_000);
+    }
+
+    audioContext = new AudioContext();
+    const sourceNode = audioContext.createMediaElementSource(video);
+    const audioDestination = audioContext.createMediaStreamDestination();
+    const silentOutput = audioContext.createGain();
+    silentOutput.gain.value = 0;
+    sourceNode.connect(audioDestination);
+    sourceNode.connect(silentOutput);
+    silentOutput.connect(audioContext.destination);
+    await audioContext.resume();
+
+    const captured = (video as HTMLVideoElement & { captureStream(): MediaStream }).captureStream();
+    const videoTrack = captured.getVideoTracks()[0];
+    if (!videoTrack) throw new Error(t('clip_video_unsupported'));
+    stream = new MediaStream([videoTrack, ...audioDestination.stream.getAudioTracks()]);
+    const mimeType = [
+      'video/webm;codecs=vp9,opus',
+      'video/webm;codecs=vp8,opus',
+      'video/webm',
+    ].find((candidate) => MediaRecorder.isTypeSupported(candidate));
+    if (!mimeType) throw new Error(t('clip_video_unsupported'));
+
+    const recorder = new MediaRecorder(stream, {
+      mimeType,
+      videoBitsPerSecond: 1_600_000,
+      audioBitsPerSecond: 128_000,
+    });
+    const chunks: Blob[] = [];
+    const stopped = new Promise<void>((resolve, reject) => {
+      recorder.addEventListener('dataavailable', (event) => {
+        if (event.data.size) chunks.push(event.data);
+      });
+      recorder.addEventListener('stop', () => resolve(), { once: true });
+      recorder.addEventListener('error', () => reject(new Error(t('clip_video_recorder_failed'))), { once: true });
+    });
+    recorder.start(250);
+    await video.play();
+    await new Promise<void>((resolve, reject) => {
+      const deadline = window.setTimeout(() => {
+        clearInterval(poll);
+        reject(new Error(t('clip_video_timeout')));
+      }, Math.ceil((request.endSeconds - request.startSeconds) * 1_000) + 10_000);
+      const check = () => {
+        if (video.currentTime >= request.endSeconds - 0.03 || video.ended) {
+          clearTimeout(deadline);
+          clearInterval(poll);
+          resolve();
+        }
+      };
+      const poll = window.setInterval(check, 50);
+      check();
+    });
+    video.pause();
+    recorder.stop();
+    await stopped;
+
+    const blob = new Blob(chunks, { type: mimeType });
+    if (blob.size <= 0 || blob.size > 24 * 1024 * 1024) throw new Error(t('clip_video_too_large'));
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = request.filename;
+    anchor.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 2_000);
+  } finally {
+    video.pause();
+    video.removeAttribute('src');
+    video.load();
+    video.remove();
+    stream?.getTracks().forEach((track) => track.stop());
+    if (audioContext) await audioContext.close();
+  }
+}
+
+function downloadMediaResponse(response: unknown, fallbackMessage: string): boolean {
+  if (
+    !response ||
+    typeof response !== 'object' ||
+    !('ok' in response) ||
+    response.ok !== true ||
+    !('base64' in response) ||
+    typeof response.base64 !== 'string' ||
+    !('filename' in response) ||
+    typeof response.filename !== 'string' ||
+    response.base64.length > 34 * 1024 * 1024
+  ) {
+    const error = response && typeof response === 'object' && 'error' in response && typeof response.error === 'string'
+      ? response.error
+      : fallbackMessage;
+    throw new Error(error);
+  }
+  const mime = 'mime' in response && (response.mime === 'audio/wav' || response.mime === 'video/webm')
+    ? response.mime
+    : 'audio/wav';
+  const bytes = base64ToBytes(response.base64);
+  const buffer = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(buffer).set(bytes);
+  const url = URL.createObjectURL(new Blob([buffer], { type: mime }));
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = response.filename;
+  anchor.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
+  return true;
+}
+
+function openMediaClipPanel() {
+  document.getElementById('studynav-clip-panel')?.remove();
+  const media = activePlayableMedia();
+  if (!media || !mediaSource(media)) {
+    toast(t('clip_source_unavailable'));
+    return;
+  }
+
+  const startAt = Number.isFinite(media.currentTime) ? media.currentTime : 0;
+  const duration = Number.isFinite(media.duration) ? media.duration : startAt + 30;
+  const endAt = Math.min(duration, startAt + 30);
+  const panel = document.createElement('form');
+  panel.id = 'studynav-clip-panel';
+  panel.className = 'studynav-clip-panel';
+  panel.setAttribute('data-studynav-owned', '1');
+  panel.setAttribute('role', 'dialog');
+  panel.setAttribute('aria-label', t('media_clip_title'));
+
+  const title = document.createElement('strong');
+  title.textContent = t('media_clip_title');
+  const fields = document.createElement('div');
+  fields.className = 'studynav-clip-fields';
+  const formatLabel = document.createElement('label');
+  formatLabel.textContent = t('clip_format');
+  const format = document.createElement('select');
+  const audioOption = document.createElement('option');
+  audioOption.value = 'audio';
+  audioOption.textContent = t('clip_format_audio');
+  format.appendChild(audioOption);
+  if (media instanceof HTMLVideoElement) {
+    const videoOption = document.createElement('option');
+    videoOption.value = 'video';
+    videoOption.textContent = t('clip_format_video');
+    format.appendChild(videoOption);
+  }
+  formatLabel.appendChild(format);
+  fields.appendChild(formatLabel);
+  const createField = (labelText: string, value: string) => {
+    const label = document.createElement('label');
+    label.textContent = labelText;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.inputMode = 'decimal';
+    input.value = value;
+    label.appendChild(input);
+    fields.appendChild(label);
+    return input;
+  };
+  const start = createField(t('clip_start'), formatClipInput(startAt));
+  const end = createField(t('clip_end'), formatClipInput(endAt));
+  const error = document.createElement('p');
+  error.className = 'studynav-clip-error';
+  error.setAttribute('aria-live', 'polite');
+  const actions = document.createElement('div');
+  actions.className = 'studynav-clip-actions';
+  const cancel = document.createElement('button');
+  cancel.type = 'button';
+  cancel.textContent = t('clip_cancel');
+  cancel.addEventListener('click', () => panel.remove());
+  const download = document.createElement('button');
+  download.type = 'submit';
+  const updateDownloadLabel = () => {
+    download.textContent = format.value === 'video' ? t('clip_download_video') : t('clip_download_audio');
+  };
+  format.addEventListener('change', updateDownloadLabel);
+  updateDownloadLabel();
+  actions.append(cancel, download);
+  panel.append(title, fields, error, actions);
+  panel.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const startSeconds = parseUserMediaTime(start.value);
+    const endSeconds = parseUserMediaTime(end.value);
+    if (startSeconds === null || endSeconds === null || endSeconds <= startSeconds) {
+      error.textContent = t('clip_invalid_time');
+      return;
+    }
+    const isVideoClip = format.value === 'video';
+    const maxSeconds = isVideoClip ? MAX_MEDIA_VIDEO_CLIP_SECONDS : MAX_MEDIA_CLIP_SECONDS;
+    if (endSeconds - startSeconds > maxSeconds) {
+      error.textContent = isVideoClip ? t('clip_video_too_long') : t('clip_too_long');
+      return;
+    }
+    const source = mediaSource(media);
+    if (!source) {
+      error.textContent = t('clip_source_unavailable');
+      return;
+    }
+    const request: MediaAudioClipRequest | MediaVideoClipRequest = isVideoClip
+      ? {
+          type: 'DOWNLOAD_MEDIA_VIDEO_CLIP',
+          mediaUrl: source,
+          startSeconds,
+          endSeconds,
+          label: pageDocumentTitle(),
+        }
+      : {
+          type: 'DOWNLOAD_MEDIA_AUDIO_CLIP',
+          mediaUrl: source,
+          startSeconds,
+          endSeconds,
+          label: pageDocumentTitle(),
+    };
+    download.disabled = true;
+    cancel.disabled = true;
+    panel.setAttribute('aria-busy', 'true');
+    download.textContent = isVideoClip ? t('clip_recording') : t('clip_preparing');
+    try {
+      if (request.type === 'DOWNLOAD_MEDIA_VIDEO_CLIP') {
+        const validated = validateMediaVideoClipRequest(request, window.location.href);
+        if (!validated) throw new Error(t('clip_request_rejected'));
+        await recordVideoClip(validated);
+      } else {
+        const response: unknown = await chrome.runtime.sendMessage(request);
+        downloadMediaResponse(response, t('clip_failed'));
+      }
+      toast(t('clip_downloaded'));
+      panel.remove();
+    } catch (caught) {
+      error.textContent = caught instanceof Error ? caught.message : t('clip_failed');
+    } finally {
+      if (download.isConnected) {
+        download.disabled = false;
+        cancel.disabled = false;
+        panel.removeAttribute('aria-busy');
+        updateDownloadLabel();
+      }
+    }
+  });
+  document.documentElement.appendChild(panel);
+  start.focus();
+  start.select();
+}
+
+function syncToolbarButton(
+  bar: HTMLElement,
+  id: string,
+  enabled: boolean,
+  label: string,
+  action: () => void,
+) {
+  let button = document.getElementById(id) as HTMLButtonElement | null;
+  if (!enabled) {
+    button?.remove();
+    return;
+  }
+  if (!button) {
+    button = document.createElement('button');
+    button.id = id;
+    button.type = 'button';
+  }
+  button.textContent = label;
+  button.onclick = action;
+  bar.appendChild(button);
+}
+
 function mountMediaToolbar(flags: FeatureFlags, mediaSupported: boolean): HTMLElement | null {
-  teardownMediaToolbar();
-  if (!mediaSupported || (!flags.mediaTS && !flags.sndDisp && !flags.transcCreate && !flags.continueWatching)) return null;
-
-  const bar = document.createElement('div');
-  bar.id = 'studynav-media-bar';
-  bar.className = 'studynav-media-bar';
-  bar.setAttribute('data-studynav-owned', '1');
-
-  if (flags.mediaTS) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.textContent = t('copy_time_url');
-    button.onclick = () => {
-      const vid = activeVideo();
-      const u = new URL(location.href);
-      if (vid) u.searchParams.set('t', String(Math.floor(vid.currentTime)));
-      copy(u.toString(), t('timestamp_url_copied'));
-    };
-    bar.appendChild(button);
+  const anyEnabled = flags.mediaTS || flags.mediaClip || flags.sndDisp || flags.transcCreate || flags.continueWatching;
+  if (!mediaSupported || !anyEnabled) {
+    teardownMediaToolbar();
+    return null;
   }
 
-  if (flags.sndDisp) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.textContent = t('second_display');
-    button.onclick = () => {
-      const vid = activeVideo();
-      const url = vid?.currentSrc || vid?.src || location.href;
-      window.open(url, 'studynav-second', 'popup=yes,width=960,height=540');
-    };
-    bar.appendChild(button);
+  let bar = document.getElementById('studynav-media-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'studynav-media-bar';
+    bar.className = 'studynav-media-bar';
+    bar.setAttribute('data-studynav-owned', '1');
+    document.documentElement.appendChild(bar);
   }
 
-  if (flags.transcCreate) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.textContent = t('transcript');
-    button.onclick = () => void openTranscript();
-    bar.appendChild(button);
-  }
-
-  document.documentElement.appendChild(bar);
+  syncToolbarButton(bar, 'studynav-copy-page-time', !!flags.mediaTS, t('copy_page_time'), () => {
+    const media = activePlayableMedia();
+    const url = canonicalCurrentPageUrl();
+    const value = url ? formatPageAndTime(url, media?.currentTime || 0) : null;
+    if (value) void copy(value, t('page_time_copied'));
+  });
+  syncToolbarButton(bar, 'studynav-media-clip', !!flags.mediaClip, t('media_clip'), openMediaClipPanel);
+  syncToolbarButton(bar, 'studynav-second-display', !!flags.sndDisp, t('second_display'), openSecondDisplay);
+  syncToolbarButton(
+    bar,
+    'studynav-transcript-button',
+    !!flags.transcCreate && transcriptSourceAvailable(),
+    t('transcript'),
+    () => void openTranscript(),
+  );
   return bar;
 }
 
@@ -1122,13 +1651,11 @@ async function openTranscript() {
   panel.classList.remove('hidden');
   const body = panel.querySelector('#studynav-tr-body') as HTMLElement;
 
-  let text = qsa<HTMLElement>('[class*="transcript"], [id*="transcript"], [class*="subtitle"]')
-    .filter((node) => !node.closest('[data-studynav-owned]'))
-    .map((node) => (node.innerText || '').trim())
-    .filter((line) => line.length > 40)
-    .join('\n\n');
-
-  if (!text) text = await readTranscriptFromTracks(activeVideo());
+  let text = transcriptDomText();
+  for (let attempt = 0; !text && attempt < 4; attempt += 1) {
+    text = await readTranscriptFromTracks(activeVideo());
+    if (!text && attempt < 3) await new Promise((resolve) => window.setTimeout(resolve, 300));
+  }
   if (!text) text = t('no_transcript_detected');
 
   body.dataset.full = text;
@@ -1189,7 +1716,10 @@ export function applyFeatures(flags: FeatureFlags) {
     if (flags.mediaCtrl && support.media) window.addEventListener('keydown', mediaKeyHandler, true);
     const mediaToolbar = mountMediaToolbar(flags, support.media);
     if (flags.continueWatching && support.media) {
-      applyContinueWatching(qsa<HTMLVideoElement>('video'), mediaToolbar);
+      applyContinueWatching(
+        qsa<HTMLVideoElement>('video').filter((video) => !video.closest('[data-studynav-owned]')),
+        mediaToolbar,
+      );
     }
   } catch (e) {
     console.warn('StudyNav feature error', e);

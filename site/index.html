@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="StudyNav is an unofficial, local-first browser extension with study, reading, sharing, and media helpers for supported JW.org pages.">
+  <meta name="description" content="StudyNav adds local notes, verse-range links, audio clips, and practical reading and media controls to supported JW.org pages in Chromium browsers.">
   <meta name="theme-color" content="#43669F">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="StudyNav — Unofficial Study Tools">
-  <meta property="og:description" content="A local-first guide to StudyNav's 22 focused study, reading, sharing, and media tools.">
+  <meta property="og:title" content="StudyNav — study tools for JW.org">
+  <meta property="og:description" content="23 local study, reading, sharing, and media tools for Chromium browsers.">
   <meta property="og:image" content="https://kiku-jw.github.io/nick-extensions/assets/screenshots/tutorial-poster-en.jpg">
   <meta property="og:url" content="https://kiku-jw.github.io/nick-extensions/">
   <meta name="twitter:card" content="summary_large_image">
-  <title>StudyNav — Unofficial Study Tools</title>
+  <title>StudyNav — study tools for JW.org</title>
   <link rel="canonical" href="https://kiku-jw.github.io/nick-extensions/">
   <link rel="alternate" hreflang="en" href="https://kiku-jw.github.io/nick-extensions/">
   <link rel="alternate" hreflang="ru" href="https://kiku-jw.github.io/nick-extensions/ru/">
@@ -23,20 +23,10 @@
   <a class="skip-link" href="#content">Skip to content</a>
   <header class="site-header">
     <nav class="nav" aria-label="Primary navigation">
-      <a class="brand" href="#top" aria-label="StudyNav home">
-        <span class="brand-mark" aria-hidden="true">SN</span>
-        <span class="brand-text">StudyNav</span>
-      </a>
+      <a class="brand" href="#top" aria-label="StudyNav home"><span class="brand-mark" aria-hidden="true">SN</span><span>StudyNav</span></a>
       <div class="nav-links">
-        <a href="#workflows">Workflows</a>
-        <a href="#features">Features</a>
-        <a href="#privacy">Privacy</a>
-        <a href="#research">Research</a>
-        <a href="#install">Install</a>
-        <span class="language-switch" aria-label="Language">
-          <a href="./" aria-current="page" lang="en">EN</a>
-          <a href="ru/" lang="ru">RU</a>
-        </span>
+        <a href="#uses">How it helps</a><a href="#features">Features</a><a href="#tutorial">Video</a><a href="#install">Install</a><a href="#faq">Questions</a>
+        <span class="language-switch" aria-label="Language"><a href="./" aria-current="page" lang="en">EN</a><a href="ru/" lang="ru">RU</a></span>
       </div>
     </nav>
   </header>
@@ -44,216 +34,104 @@
   <main id="content" tabindex="-1">
     <section class="hero" id="top">
       <div class="container hero-grid">
-        <div>
-          <p class="eyebrow">Version 1.4 · local-first · English + Russian</p>
-          <h1>Focused study tools, without turning the website into another app.</h1>
-          <p class="lede">StudyNav adds optional highlights, notes, saved places, precise links, one-verse audio, and media helpers to supported public JW.org pages. Personal study data stays in the browser.</p>
-          <div class="hero-actions">
-            <a class="button" href="#tutorial">Watch the 77-second guide</a>
-            <a class="button secondary" href="#install">Install from source</a>
+        <div class="hero-copy">
+          <p class="eyebrow">Chromium browsers · version 1.5 · English + Russian</p>
+          <h1>Study, copy, and media tools for JW.org</h1>
+          <p class="lede">Highlight a thought, keep a note beside the text, copy one verse or a verse range, download a short audio or video segment, and fix common player annoyances. Your study data stays in your browser.</p>
+          <div class="hero-actions"><a class="button" href="downloads/studynav-1.5.0.zip" download>Download StudyNav</a><a class="button secondary" href="#install">See the 5 install steps</a></div>
+          <ul class="trust-list" aria-label="Compatibility and data summary"><li>Chrome, Edge, and other Chromium browsers</li><li>No account or telemetry</li><li>Russian UI follows the browser language</li></ul>
+        </div>
+
+        <div class="extension-demo" data-demo-root aria-label="Interactive StudyNav menu preview">
+          <div class="demo-browser" aria-hidden="true">
+            <div class="demo-browser-bar"><i></i><i></i><i></i><span>Supported reading page</span></div>
+            <div class="demo-reading">
+              <div class="demo-reading-main"><span class="demo-kicker">Sample chapter</span><h2>A thought worth keeping</h2><p><b>3</b> A useful point can be <mark data-demo-highlight>highlighted without changing the page text</mark>.</p><p><b>4</b> Shift-click another number to select a consecutive range.</p><div class="demo-verse-tools"><button type="button" tabindex="-1">Copy</button><button type="button" tabindex="-1">Link</button><button type="button" tabindex="-1">Download audio</button></div></div>
+              <aside class="demo-notes" data-demo-notes><strong>Notes</strong><p>The note stays beside the reading column and never covers it.</p><span>study · talk</span></aside>
+            </div>
           </div>
-          <ul class="trust-list" aria-label="Product principles">
-            <li>No telemetry</li>
-            <li>No account or backend</li>
-            <li>Layout helpers off by default</li>
-            <li>Open source</li>
-          </ul>
-        </div>
-        <figure class="hero-shot">
-          <img src="assets/screenshots/06-popup.png" width="760" height="1080" alt="StudyNav popup showing current-page actions and grouped settings on a synthetic fixture">
-          <figcaption>Current-page actions first; detailed settings stay behind progressive disclosure.</figcaption>
-        </figure>
-      </div>
-      <p class="container disclaimer"><strong>Unofficial project.</strong> StudyNav is not produced, endorsed, or maintained by Jehovah’s Witnesses. Every screenshot and tutorial uses a clearly labeled synthetic fixture—no official publication text, artwork, logo, or page design is reproduced.</p>
-    </section>
-
-    <section class="section" id="tutorial">
-      <div class="container">
-        <div class="section-head">
-          <p class="eyebrow">Complete walkthrough</p>
-          <h2>Every feature, one concise tutorial</h2>
-          <p>The chaptered video covers all 22 settings. Each scene names the feature, shows its result on the synthetic fixture, and moves on without long pauses.</p>
-        </div>
-        <div class="media-frame">
-          <video data-tutorial controls playsinline poster="assets/screenshots/tutorial-poster-en.jpg" aria-label="StudyNav English feature tutorial">
-            <source src="assets/video/studynav-guide-en.mp4" type="video/mp4">
-            Your browser cannot play this video. <a href="assets/video/studynav-guide-en.mp4">Download the MP4</a>.
-          </video>
-          <div class="media-caption">English · 1920×1080 · synthetic fixture · captions are embedded as scene cards</div>
-        </div>
-        <details class="chapters">
-          <summary>Jump to any of the 22 feature chapters</summary>
-          <div class="chapter-grid" aria-label="Tutorial chapters">
-            <button type="button" data-seek="2.8">01 Highlights, notes &amp; tags</button>
-            <button type="button" data-seek="6.05">02 Saved places</button>
-            <button type="button" data-seek="9.3">03 Formatted citations</button>
-            <button type="button" data-seek="12.55">04 Local QR sharing</button>
-            <button type="button" data-seek="15.8">05 Open official link</button>
-            <button type="button" data-seek="19.05">06 One-verse audio</button>
-            <button type="button" data-seek="22.3">07 Clean text copy</button>
-            <button type="button" data-seek="25.55">08 Paragraph links</button>
-            <button type="button" data-seek="28.8">09 Quick publication search</button>
-            <button type="button" data-seek="32.05">10 Image descriptions</button>
-            <button type="button" data-seek="35.3">11 Image download</button>
-            <button type="button" data-seek="38.55">12 Available languages</button>
-            <button type="button" data-seek="41.8">13 Sticky page header</button>
-            <button type="button" data-seek="45.05">14 Wider reading column</button>
-            <button type="button" data-seek="48.3">15 Clearer tables</button>
-            <button type="button" data-seek="51.55">16 Calmer player controls</button>
-            <button type="button" data-seek="54.8">17 Larger subtitles</button>
-            <button type="button" data-seek="58.05">18 Media keyboard shortcuts</button>
-            <button type="button" data-seek="61.3">19 Copy time link</button>
-            <button type="button" data-seek="64.55">20 Continue watching</button>
-            <button type="button" data-seek="67.8">21 Second display</button>
-            <button type="button" data-seek="71.05">22 Searchable transcript</button>
-          </div>
-        </details>
-      </div>
-    </section>
-
-    <section class="section soft" id="workflows">
-      <div class="container">
-        <div class="section-head">
-          <p class="eyebrow">Start here</p>
-          <h2>Four practical workflows</h2>
-          <p>The popup tells you which workflow is available on the current page. Advanced toggles stay out of the way until needed.</p>
-        </div>
-        <div class="card-grid">
-          <article class="card"><div class="step">1</div><h3>Study a paragraph</h3><p>Select text, choose one of four highlight colors, optionally add a private note and tags, then search it later in Study library.</p></article>
-          <article class="card"><div class="step">2</div><h3>Return to an exact place</h3><p>Save the current page, paragraph, or selected verse. Saved places are local, searchable, removable, and included in JSON backup.</p></article>
-          <article class="card"><div class="step">3</div><h3>Download one verse</h3><p>Select a verse number and choose <strong>Download audio</strong>. StudyNav clips the official chapter audio locally and saves only that verse as WAV.</p></article>
-          <article class="card"><div class="step">4</div><h3>Work with media</h3><p>Use keyboard controls, copy a time link, resume explicitly, open a second display, or search and download the page transcript.</p></article>
-          <article class="card"><div class="step">5</div><h3>Share a precise reference</h3><p>Copy a formatted citation, paragraph link, or visible local QR code derived from the current supported page.</p></article>
-          <article class="card"><div class="step">6</div><h3>Keep the page stable</h3><p>Image download and the three layout-changing helpers are off by default. WOL layout overrides are always suppressed.</p></article>
+          <section class="demo-popup" aria-label="Try the StudyNav controls">
+            <div class="demo-popup-head"><span class="demo-logo">SN</span><div><strong>StudyNav</strong><small>Tools for this page</small></div></div>
+            <label class="demo-master"><span><strong>Tools</strong><small><span data-demo-count>4</span> on</small></span><input type="checkbox" checked data-demo-master><span class="switch" aria-hidden="true"></span></label>
+            <div class="demo-status"><i></i><span><strong>Ready on this Bible chapter</strong><small data-demo-status>Verse 3 is selected</small></span></div>
+            <div class="demo-actions"><button type="button" data-demo-action="note">Add note</button><button type="button" data-demo-action="range">Select 3–4</button><button type="button" data-demo-action="audio">Media segment</button></div>
+            <details open><summary>Feature settings</summary>
+              <label class="demo-row"><span><strong>Notes beside text</strong><small>Local highlights, notes, and tags</small></span><input type="checkbox" checked data-demo-toggle="notes"><span class="switch" aria-hidden="true"></span></label>
+              <label class="demo-row"><span><strong>Clean verse copy</strong><small>No verse numbers or reference letters</small></span><input type="checkbox" checked data-demo-toggle="copy"><span class="switch" aria-hidden="true"></span></label>
+              <label class="demo-row"><span><strong>Remove video shading</strong><small>Keep the picture clear on hover</small></span><input type="checkbox" checked data-demo-toggle="media"><span class="switch" aria-hidden="true"></span></label>
+              <label class="demo-row"><span><strong>Download article images</strong><small>Optional; off for new installs</small></span><input type="checkbox" data-demo-toggle="images"><span class="switch" aria-hidden="true"></span></label>
+            </details>
+          </section>
         </div>
       </div>
     </section>
 
-    <section class="section">
-      <div class="container release-band">
-        <div><div class="release-label">New in 1.4</div><h3>Saved places</h3><p>Page, paragraph, and verse bookmarks with exact targets, search, remove, and merge-only JSON backup.</p></div>
-        <div><div class="release-label">New in 1.4</div><h3>Real Russian UI</h3><p>Chrome manifest, popup, injected controls, editors, dialogs, errors, and accessibility labels follow a Russian browser locale.</p></div>
-      </div>
-    </section>
+    <section class="section" id="uses"><div class="container"><div class="section-head"><p class="eyebrow">What you can do</p><h2>Six useful jobs, explained plainly</h2><p>Each tool appears only where it has something useful to work with.</p></div><div class="use-grid">
+      <article class="use-card"><span class="use-number">01</span><h3>Keep a place for later</h3><p>Save the exact paragraph or verse you want to revisit for a meeting, talk, or personal study—not just the top of the page.</p><strong>Use it when:</strong><span>you found something useful but cannot study it now.</span></article>
+      <article class="use-card"><span class="use-number">02</span><h3>Send a quote that makes sense</h3><p>Copy the selected words, their reference, and a precise link in one action. It is ready to paste into a message or notes.</p><strong>Use it when:</strong><span>you want the reader to see both the quote and its source.</span></article>
+      <article class="use-card"><span class="use-number">03</span><h3>Link several verses</h3><p>Click the first verse number, then Shift-click the last. Copy one link for the whole consecutive range.</p><strong>Use it when:</strong><span>one thought continues through verses 3–5.</span></article>
+      <article class="use-card"><span class="use-number">04</span><h3>Get a stable publication link</h3><p>StudyNav uses the current publication data to open a clean Finder address that is easier to save or share.</p><strong>Use it when:</strong><span>the visible page address is long or contains extra parameters.</span></article>
+      <article class="use-card"><span class="use-number">05</span><h3>Download only what you need</h3><p>Save one narrated verse, or enter start and end times to export audio as WAV or video as WebM. No manual trimming afterward.</p><strong>Use it when:</strong><span>you need a short excerpt for rehearsal, offline listening, or playback.</span></article>
+      <article class="use-card"><span class="use-number">06</span><h3>Keep notes beside the text</h3><p>Six Library-like colors, notes, and tags are stored locally. On wide screens, notes appear in a right rail; on narrow screens, a Notes button opens them.</p><strong>Use it when:</strong><span>you want the note visible without moving or covering the article.</span></article>
+    </div></div></section>
 
-    <section class="section soft" id="features">
-      <div class="container">
-        <div class="section-head">
-          <p class="eyebrow">Feature reference</p>
-          <h2>22 independent settings</h2>
-          <p>The master switch disables every StudyNav surface. Individual choices remain available under <strong>Feature settings</strong>. “On” below means the default is inert until the relevant page or user action appears.</p>
-        </div>
-        <div class="feature-tools"><label for="feature-filter">Find a feature</label><input id="feature-filter" data-feature-filter type="search" placeholder="Try notes, verse, transcript…" autocomplete="off"></div>
-        <p class="filter-empty" data-filter-empty hidden>No feature matches that search.</p>
+    <section class="section soft" id="visual-fixes"><div class="container"><div class="section-head"><p class="eyebrow">Visible differences</p><h2>Four options you can judge at a glance</h2><p>The three layout options are off by default. Turn them on only when the current article benefits from them.</p></div><div class="comparison-grid">
+      <article class="comparison-card"><div class="comparison-stage header-stage"><div class="mini-header">Article navigation</div><div class="mini-copy"><i></i><i></i><i></i><i></i></div></div><h3>Keep the header visible</h3><p>The article header stays reachable during a long scroll. It affects supported JW.org article pages, not the homepage or WOL.</p></article>
+      <article class="comparison-card"><div class="comparison-stage width-stage"><div class="column before"><span>Before</span></div><div class="column after"><span>Wider</span></div></div><h3>Wider reading column</h3><p>The reading pane receives more of the window while an existing study pane keeps its own space. Dialogs are not widened.</p></article>
+      <article class="comparison-card"><div class="comparison-stage table-stage"><table><tr><th>Before</th><th>Clearer</th></tr><tr><td>Row one</td><td>Row one</td></tr><tr><td>Row two</td><td>Row two</td></tr></table></div><h3>Clearer tables</h3><p>Cell padding, borders, and alternating rows make dense article tables easier to scan.</p></article>
+      <article class="comparison-card"><div class="comparison-stage player-stage"><div class="player-picture">Picture stays visible</div><div class="player-controls">▶︎ <span>00:18</span><i></i><b>⛶</b></div></div><h3>Remove video shading</h3><p>JW Player’s dark edge gradient is removed when controls appear. Buttons remain visible, but the picture no longer darkens around them.</p></article>
+    </div></div></section>
 
-        <section class="feature-group" aria-labelledby="study-heading"><h3 id="study-heading">Study & sharing <span>5 settings</span></h3><table class="feature-table"><thead><tr><th>Feature</th><th>What it does</th><th>Default</th></tr></thead><tbody>
-          <tr data-feature-row><td>Highlights, notes & tags</td><td>Four CSS-highlight colors, optional local notes, tags, search, edit, delete, and exact reattach.</td><td><span class="state">On</span></td></tr>
-          <tr data-feature-row><td>Saved places</td><td>Save and reopen exact supported pages, paragraphs, and verses. Search and remove them in Study library.</td><td><span class="state">On</span></td></tr>
-          <tr data-feature-row><td>Copy formatted citations</td><td>Copy selected text, a selected verse, or the page title with its precise validated HTTPS link.</td><td><span class="state">On</span></td></tr>
-          <tr data-feature-row><td>Show QR for this page</td><td>Create a visible QR code locally for the precise link; no QR request leaves the browser.</td><td><span class="state">On</span></td></tr>
-          <tr data-feature-row><td>Open official JW link</td><td>Build a Finder URL only when the current page exposes valid publication metadata.</td><td><span class="state">On</span></td></tr>
-        </tbody></table></section>
+    <section class="section" id="tutorial"><div class="container"><div class="section-head"><p class="eyebrow">Watch it work</p><h2>A slower, guided walkthrough</h2><p>Each chapter holds long enough to read the label and follow the action. A red focus ring points to the control or result that matters.</p></div>
+      <div class="media-frame"><video data-tutorial controls playsinline poster="assets/screenshots/tutorial-poster-en.jpg" aria-label="StudyNav English feature tutorial"><source src="assets/video/studynav-guide-en.mp4" type="video/mp4"><track kind="chapters" src="assets/video/studynav-guide-en-chapters.vtt" srclang="en" label="Chapters" default>Your browser cannot play this video. <a href="assets/video/studynav-guide-en.mp4">Download the MP4</a>.</video><div class="media-caption">English · 2560×1440 · 60 fps · 23 chapters</div></div>
+      <details class="chapters"><summary>Jump to a feature</summary><div class="chapter-grid" aria-label="Tutorial chapters">
+        <button type="button" data-scene="annotations">01 Highlights, notes, and tags</button><button type="button" data-scene="bookmarks">02 Saved places</button><button type="button" data-scene="citations">03 Formatted citations</button><button type="button" data-scene="qrShare">04 QR code</button><button type="button" data-scene="officialOpen">05 Stable link</button><button type="button" data-scene="verseAudio">06 One-verse audio</button><button type="button" data-scene="copyText">07 Clean text copy</button><button type="button" data-scene="parLink">08 Verse-range links</button><button type="button" data-scene="advSearch">09 Publication shortcuts</button><button type="button" data-scene="altText">10 Image descriptions</button><button type="button" data-scene="imgGet">11 Image download</button><button type="button" data-scene="langCount">12 Languages</button><button type="button" data-scene="actionBar">13 Visible header</button><button type="button" data-scene="expandWidth">14 Wider reading</button><button type="button" data-scene="cstblView">15 Clearer tables</button><button type="button" data-scene="mediaPlayerUI">16 Remove shading</button><button type="button" data-scene="customSub">17 Larger subtitles</button><button type="button" data-scene="mediaCtrl">18 Media keys</button><button type="button" data-scene="mediaTS">19 Page and time</button><button type="button" data-scene="mediaClip">20 Media segment</button><button type="button" data-scene="continueWatching">21 Resume</button><button type="button" data-scene="sndDisp">22 Second display</button><button type="button" data-scene="transcCreate">23 Available captions</button>
+      </div></details><p class="voice-note">Download the <a href="assets/narration/studynav-voiceover-en.md">English narration script</a>, <a href="assets/narration/studynav-voiceover-ru.md">Russian script</a>, and <a href="assets/narration/studynav-music-prompt.md">Suno music prompt</a>. When recorded narration is supplied, the final cut can be aligned to word-level timestamps with intentional pauses.</p>
+    </div></section>
 
-        <section class="feature-group" aria-labelledby="reading-heading"><h3 id="reading-heading">Bible & articles <span>7 settings</span></h3><table class="feature-table"><thead><tr><th>Feature</th><th>What it does</th><th>Default</th></tr></thead><tbody>
-          <tr data-feature-row><td>Download verse audio</td><td>Select one verse number and save only its locally clipped narration as PCM WAV.</td><td><span class="state">On</span></td></tr>
-          <tr data-feature-row><td>Copy text</td><td>Copy a paragraph or verse without StudyNav labels or controls.</td><td><span class="state">On</span></td></tr>
-          <tr data-feature-row><td>Copy paragraph link</td><td>Copy a direct link to the paragraph or verse anchor.</td><td><span class="state">On</span></td></tr>
-          <tr data-feature-row><td>Quick publication search</td><td>Press Ctrl/Cmd+Shift+K to search supported mnemonics or a document ID.</td><td><span class="state">On</span></td></tr>
-          <tr data-feature-row><td>Image descriptions</td><td>Show an eligible image’s existing alt text and caption below it.</td><td><span class="state">On</span></td></tr>
-          <tr data-feature-row><td>Download article images</td><td>Add a compact semantic download button beside eligible article images.</td><td><span class="state off">Off</span></td></tr>
-          <tr data-feature-row><td>Available languages</td><td>Show the number of real language options exposed by the page.</td><td><span class="state">On</span></td></tr>
-        </tbody></table></section>
+    <section class="section soft" id="features"><div class="container"><div class="section-head"><p class="eyebrow">All settings</p><h2>23 controls, each with one job</h2><p>The image-download and three layout controls start off. Use <strong>Reset recommended defaults</strong> if an older profile retained different choices.</p></div>
+      <div class="feature-tools"><label for="feature-filter">Find a feature</label><input id="feature-filter" data-feature-filter type="search" placeholder="Try notes, verse, captions…" autocomplete="off"></div><p class="filter-empty" data-filter-empty hidden>No feature matches that search.</p>
+      <section class="feature-group" aria-labelledby="study-heading"><h3 id="study-heading">Study and sharing <span>5 settings</span></h3><table class="feature-table"><thead><tr><th>Feature</th><th>What it gives you</th><th>Default</th></tr></thead><tbody>
+        <tr data-feature-row><td>Highlights, notes, and tags</td><td>Six colors, local notes, tags, search, edit, delete, exact recovery, and a non-overlapping notes rail.</td><td><span class="state">On</span></td></tr><tr data-feature-row><td>Saved places</td><td>Return to an exact supported page, paragraph, verse, or selected verse range.</td><td><span class="state">On</span></td></tr><tr data-feature-row><td>Formatted citations</td><td>Copy selected words or verses with a reference and precise validated HTTPS link.</td><td><span class="state">On</span></td></tr><tr data-feature-row><td>QR code</td><td>Create a visible QR code locally from the same precise link.</td><td><span class="state">On</span></td></tr><tr data-feature-row><td>Stable publication link</td><td>Open a clean Finder address for saving or sharing when the page provides valid publication data.</td><td><span class="state">On</span></td></tr>
+      </tbody></table></section>
+      <section class="feature-group" aria-labelledby="reading-heading"><h3 id="reading-heading">Bible and articles <span>7 settings</span></h3><table class="feature-table"><thead><tr><th>Feature</th><th>What it gives you</th><th>Default</th></tr></thead><tbody>
+        <tr data-feature-row><td>One-verse audio</td><td>Select one verse and save only its narration as WAV. English, Russian, and Ukrainian Bible pages are supported.</td><td><span class="state">On</span></td></tr><tr data-feature-row><td>Clean text copy</td><td>Copy verse words without the verse number, reference letters, footnote links, or StudyNav controls.</td><td><span class="state">On</span></td></tr><tr data-feature-row><td>Precise paragraph and verse links</td><td>Copy one anchor, or Shift-select consecutive verses and copy one range link.</td><td><span class="state">On</span></td></tr><tr data-feature-row><td>Publication shortcuts</td><td>Open existing JW.org/WOL search for known publication codes or document IDs. This is not AI or semantic search.</td><td><span class="state">On</span></td></tr><tr data-feature-row><td>Image descriptions</td><td>Show the alt text and caption already supplied by the page.</td><td><span class="state">On</span></td></tr><tr data-feature-row><td>Article image download</td><td>Add a labeled Download image button beside eligible article images.</td><td><span class="state off">Off</span></td></tr><tr data-feature-row><td>Available languages</td><td>Show the number of language choices actually exposed by the page.</td><td><span class="state">On</span></td></tr>
+      </tbody></table></section>
+      <section class="feature-group" aria-labelledby="layout-heading"><h3 id="layout-heading">Reading layout <span>3 settings</span></h3><table class="feature-table"><thead><tr><th>Feature</th><th>What it gives you</th><th>Default</th></tr></thead><tbody>
+        <tr data-feature-row><td>Keep article header visible</td><td>Reach article navigation while scrolling a supported JW.org article.</td><td><span class="state off">Off</span></td></tr><tr data-feature-row><td>Wider reading column</td><td>Give more of a wide window to the reading pane while preserving the study pane.</td><td><span class="state off">Off</span></td></tr><tr data-feature-row><td>Clearer tables</td><td>Add padding, borders, and alternating rows inside detected article tables.</td><td><span class="state off">Off</span></td></tr>
+      </tbody></table></section>
+      <section class="feature-group" aria-labelledby="media-heading"><h3 id="media-heading">Video and audio <span>8 settings</span></h3><table class="feature-table"><thead><tr><th>Feature</th><th>What it gives you</th><th>Default</th></tr></thead><tbody>
+        <tr data-feature-row><td>Remove video shading</td><td>Remove the dark edge gradient when JW Player controls appear.</td><td><span class="state">On</span></td></tr><tr data-feature-row><td>Larger subtitles</td><td>Increase the size and contrast of captions displayed by the player.</td><td><span class="state">On</span></td></tr><tr data-feature-row><td>Media keyboard shortcuts</td><td>Space/K play or pause the focused player; J/L seek, M mutes, and F toggles full screen. Input fields are ignored.</td><td><span class="state">On</span></td></tr><tr data-feature-row><td>Copy page and time</td><td>Copy the page address plus a readable line such as <code>Time: 2:14</code>. No invented seek parameter.</td><td><span class="state">On</span></td></tr><tr data-feature-row><td>Download a media segment</td><td>Save up to two minutes of audio as WAV or record up to one minute of video as WebM. Video recording runs locally in real time.</td><td><span class="state">On</span></td></tr><tr data-feature-row><td>Continue watching</td><td>Keep bounded progress locally and restore it only after you press Resume.</td><td><span class="state">On</span></td></tr><tr data-feature-row><td>Second display</td><td>Open a lightweight native player in a separate window without navigating to a download URL.</td><td><span class="state">On</span></td></tr><tr data-feature-row><td>Available captions</td><td>Show search and text download only when a caption track or transcript text is actually present.</td><td><span class="state">On</span></td></tr>
+      </tbody></table></section>
+      <aside class="search-callout"><div><strong>Image search shortcut</strong><p>The popup can open the public Google Custom Search for JW.org images with the query you type. It is a separate, explicit Google action and is not one of the 23 background settings.</p></div><a href="https://cse.google.com/cse?cx=3c6c549b8ed4c34fe#gsc.tab=0&gsc.q=paradise&gsc.page=1">Open image search</a></aside>
+    </div></section>
 
-        <section class="feature-group" aria-labelledby="layout-heading"><h3 id="layout-heading">Reading layout <span>3 settings</span></h3><table class="feature-table"><thead><tr><th>Feature</th><th>What it does</th><th>Default</th></tr></thead><tbody>
-          <tr data-feature-row><td>Keep page header visible</td><td>Use a narrow sticky-header rule on supported JW.org articles only.</td><td><span class="state off">Off</span></td></tr>
-          <tr data-feature-row><td>Wider reading column</td><td>Use more of the viewport for supported article text without touching dialogs.</td><td><span class="state off">Off</span></td></tr>
-          <tr data-feature-row><td>Clearer tables</td><td>Add bounded row separation to tables inside the supported article root.</td><td><span class="state off">Off</span></td></tr>
-        </tbody></table></section>
+    <section class="section" id="install"><div class="container"><div class="section-head"><p class="eyebrow">Installation</p><h2>From download to working extension</h2><p>No repository, terminal, build tools, or commands are required.</p></div><div class="install-layout">
+      <ol class="install-steps"><li><strong>Download the ZIP</strong><span>Press the button and save the archive.</span></li><li><strong>Unzip it</strong><span>Open the downloaded file once. A <code>studynav-1.5.0</code> folder appears.</span></li><li><strong>Open <code>chrome://extensions</code></strong><span>Paste that address into the browser address bar.</span></li><li><strong>Turn on Developer mode</strong><span>Use the switch in the upper-right corner.</span></li><li><strong>Press Load unpacked</strong><span>Choose the unzipped folder. Then pin StudyNav from the puzzle-piece menu.</span></li></ol>
+      <div class="install-preview" aria-label="Illustration of the Chromium extensions page"><div class="extensions-toolbar"><strong>Extensions</strong><label>Developer mode <span class="switch on"></span></label></div><button type="button" tabindex="-1">Load unpacked</button><div class="extension-card"><span class="demo-logo">SN</span><div><strong>StudyNav</strong><small>Enabled</small></div><span class="switch on"></span></div><a class="button install-download" href="downloads/studynav-1.5.0.zip" download>Download StudyNav 1.5</a></div>
+    </div><p class="install-note"><strong>Important:</strong> Chromium does not install an ordinary ZIP by dropping it onto this page. Unzip first, then select the folder with <em>Load unpacked</em>. After an update, replace the folder, press Reload on the StudyNav card, and refresh open JW.org tabs.</p></div></section>
 
-        <section class="feature-group" aria-labelledby="media-heading"><h3 id="media-heading">Video & audio <span>7 settings</span></h3><table class="feature-table"><thead><tr><th>Feature</th><th>What it does</th><th>Default</th></tr></thead><tbody>
-          <tr data-feature-row><td>Dim player controls</td><td>Reduce player chrome until hover or keyboard focus.</td><td><span class="state">On</span></td></tr>
-          <tr data-feature-row><td>Larger subtitles</td><td>Increase subtitle size and background contrast.</td><td><span class="state">On</span></td></tr>
-          <tr data-feature-row><td>Media keyboard shortcuts</td><td>Use Space/K, J/L, F, and M without hijacking editable controls.</td><td><span class="state">On</span></td></tr>
-          <tr data-feature-row><td>Copy time link</td><td>Copy the current media URL with its playback time, or the unchanged page URL if no video is present.</td><td><span class="state">On</span></td></tr>
-          <tr data-feature-row><td>Continue watching</td><td>Store bounded progress locally and seek only after an explicit Resume click—never autoplay.</td><td><span class="state">On</span></td></tr>
-          <tr data-feature-row><td>Open second display</td><td>Open the current media source in a separate 960×540 popup window.</td><td><span class="state">On</span></td></tr>
-          <tr data-feature-row><td>Search video transcript</td><td>Open, search, and download transcript text already available on the current page.</td><td><span class="state">On</span></td></tr>
-        </tbody></table></section>
-      </div>
-    </section>
+    <section class="section soft" id="privacy"><div class="container"><div class="section-head"><p class="eyebrow">Data</p><h2>What stays local—and what opens externally</h2></div><div class="privacy-grid"><article class="card"><h3>Stored in the browser</h3><ul><li>Highlights, selected quotes, notes, and tags</li><li>Saved page, paragraph, verse, and range links</li><li>Bounded media progress</li><li>Versioned JSON backup</li></ul></article><article class="card"><h3>Requested only after an action</h3><ul><li>JW public timing metadata and media for the chosen segment</li><li>An article image after Download image</li><li>Google image search after you submit a query</li><li>No account, analytics, or remote note sync</li></ul></article></div></div></section>
 
-    <section class="section" id="screenshots">
-      <div class="container">
-        <div class="section-head"><p class="eyebrow">Interface tour</p><h2>Small surfaces, anchored to the task</h2><p>StudyNav overlays are fixed to the viewport and its highlights do not wrap or rewrite source text nodes.</p></div>
-        <div class="gallery">
-          <figure class="hero-shot"><img src="assets/screenshots/04-study-panel.png" width="1440" height="900" alt="Study library with searchable local notes on a synthetic article"><figcaption>Study library: notes and saved places share search, backup, and clear source links.</figcaption></figure>
-          <div class="gallery-stack">
-            <figure class="hero-shot"><img src="assets/screenshots/03-note-editor.png" width="1440" height="900" alt="Local highlight editor with four colors, note, and tags"><figcaption>Highlight editor: four colors, note, and tags.</figcaption></figure>
-            <figure class="hero-shot"><img src="assets/screenshots/05-qr-overlay.png" width="1440" height="900" alt="Local QR overlay displaying its exact target URL"><figcaption>QR overlay: target stays visible before copying.</figcaption></figure>
-          </div>
-        </div>
-      </div>
-    </section>
+    <section class="section" id="faq"><div class="container faq-layout"><div class="section-head"><p class="eyebrow">Questions</p><h2>Before you install or share it</h2><p>Short answers to the questions that are likely to come up.</p></div><div class="faq-list">
+      <details><summary>Which browsers are supported?</summary><p>Current Chromium browsers: Google Chrome, Microsoft Edge, and compatible Chromium builds. Firefox and Safari are not packaged or tested.</p></details>
+      <details><summary>Should this go into the Chrome Web Store?</summary><p>Start with a small friends-only or unlisted beta. Fix compatibility reports, prepare a privacy policy, and ask JW.org support whether the name and public distribution create concerns before a broad store launch. StudyNav must never imply official endorsement.</p></details>
+      <details><summary>Is the publication search powered by AI?</summary><p>No. It expands known publication codes and document IDs into the existing JW.org/WOL searches. Adding Gemini would require sending queries to another service, managing credentials and privacy, and still would not guarantee better results.</p></details>
+      <details><summary>How do I link verses 3 through 5?</summary><p>Click verse 3, then Shift-click verse 5. StudyNav selects the consecutive range; Copy gives clean verse text, and Link gives one address ending in <code>#v…-v…</code>.</p></details>
+      <details><summary>What does “clean text” remove?</summary><p>Verse numbers, reference letters, footnote links, and StudyNav labels or buttons. It keeps the actual words of the selected verse or paragraph.</p></details>
+      <details><summary>Why can a selection contain up to 10,000 characters?</summary><p>The earlier 2,000-character cap was unnecessarily restrictive. The 10,000-character bound supports longer excerpts while still preventing accidental whole-page capture and oversized local records.</p></details>
+      <details><summary>Why do some options show no change on the homepage?</summary><p>Article image buttons, the sticky article header, wider reading pane, and clearer tables require a detected article structure. The JW.org homepage does not use that structure. WOL intentionally receives notes and study tools but not layout overrides.</p></details>
+      <details><summary>Why is the captions button sometimes absent?</summary><p>StudyNav only shows it when the page exposes caption tracks or transcript text. It does not invent a transcript and does not send audio to a transcription service.</p></details>
+      <details><summary>Does one-verse audio work in Russian and Ukrainian?</summary><p>Yes, for supported Bible chapter pages using the confirmed JW language codes. If the page has not loaded chapter media yet, start Play Audio once and try again.</p></details>
+      <details><summary>Why are clips WAV and WebM?</summary><p>The browser can create both formats locally without adding a large codec. Audio is limited to two minutes in WAV; video is recorded in real time for up to one minute in WebM. The source must be a JW CDN media file.</p></details>
+      <details><summary>Why was Download article images still on in my profile?</summary><p>Older saved settings can outlive new defaults. New installs start with it off. Press <strong>Reset recommended defaults</strong> in the popup to apply the current defaults to an existing profile.</p></details>
+      <details><summary>Can notes synchronize between devices?</summary><p>There is no remote sync. Export the Study library JSON from one browser profile and import it into another. Import merges valid records and does not delete existing ones.</p></details>
+      <details><summary>Why not use screenshots from real publications everywhere?</summary><p>A private demonstration can show the live site while explaining the extension. A public guide is more cautious: JW.org’s terms restrict republishing its artwork, publications, and media. The guide therefore demonstrates extension behavior without bundling official publication content.</p></details>
+    </div></div></section>
 
-    <section class="section soft" id="privacy">
-      <div class="container">
-        <div class="section-head"><p class="eyebrow">Data boundary</p><h2>Local by design, with explicit limits</h2><p>StudyNav does not create an account, backend, telemetry stream, or remote study-data sync. Browser extension storage is still part of the local browser profile—not an encrypted vault.</p></div>
-        <div class="privacy-grid">
-          <article class="card"><h3>Stays in local extension storage</h3><ul class="privacy-list"><li>Highlights, selected quotes, notes, and tags</li><li>Saved page, paragraph, and verse links</li><li>Bounded continue-watching progress</li><li>Versioned JSON backup data</li></ul></article>
-          <article class="card"><h3>Fetched only when requested</h3><ul class="privacy-list"><li>Official public verse timing metadata</li><li>Official public chapter audio for local clipping</li><li>Page-owned images when you press Download</li><li>No arbitrary URL proxy or remote code</li></ul></article>
-          <article class="card"><h3>Uninstall and backup</h3><p>Uninstalling an extension normally removes its local storage. Use <strong>Export JSON</strong> before reinstalling or moving profiles. Import is merge-only and never deletes existing valid records.</p></article>
-          <article class="card"><h3>Page compatibility</h3><p>JW.org DOM and media APIs can change. StudyNav fails closed on unsupported routes and error pages, removes its own UI when disabled, and preserves WOL’s native layout.</p></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="research">
-      <div class="container">
-        <div class="section-head"><p class="eyebrow">Product research</p><h2>What we borrowed—and what we deliberately left out</h2><p>The 1.4 decision compared official JW Library workflows, the JW Web Add-on/JWPUBS toolbox, focused media extensions, and community scripts. Only a clear gap with a local, low-noise browser workflow was accepted.</p></div>
-        <div class="research-grid">
-          <article class="card decision"><h3>Added: Saved places</h3><p>JW Library bookmarks can target an article or chapter, a paragraph, or a Bible verse. StudyNav now mirrors that useful mental model on supported web pages while keeping records local and searchable.</p></article>
-          <article class="card decision"><h3>Already covered</h3><p>Highlights, notes, tags, backup, precise links, media shortcuts, time links, transcripts, second display, and explicit resume already cover the strongest recurring study and playback needs.</p></article>
-          <article class="card decision no"><h3>Not added: passive history</h3><p>A visit log would collect more browsing behavior than needed. Explicit saved places are clearer, smaller, and user-controlled.</p></article>
-          <article class="card decision no"><h3>Not added: AI, feeds, or bulk download</h3><p>They expand permissions, privacy questions, content handling, and maintenance without strengthening the focused in-page study workflow.</p></article>
-          <article class="card decision no"><h3>Not added: playlists or general trimming</h3><p>JW Library already provides mature playlist and trim workflows. StudyNav keeps the narrower one-verse clip that is directly useful while reading.</p></article>
-          <article class="card decision no"><h3>Not added: remote/community notes</h3><p>Accounts, moderation, sync conflicts, and a backend would undermine the local-first boundary. Notes and tags remain private to the browser profile.</p></article>
-        </div>
-        <h3 style="margin-top:34px">Research sources</h3>
-        <ul class="source-list">
-          <li><a href="https://www.jw.org/en/online-help/jw-library/features/">Official JW Library feature overview</a></li>
-          <li><a href="https://www.jw.org/en/online-help/jw-library/windows/bookmarks/">Official bookmark workflow: chapter, article, paragraph, and verse</a></li>
-          <li><a href="https://www.jw.org/en/privacy-policy/global-policy-personal-data/how-jw-library-uses-data/">Official JW Library personal-data explanation</a></li>
-          <li><a href="https://www.jw.org/en/online-help/jw-library/use-playlists/">Official playlists and trimming help</a></li>
-          <li><a href="https://www.jwpubs.org/addon/#addon-feature-guide">JW Web Add-on feature guide</a> and <a href="https://www.jwpubs.org/tools">JWPUBS Toolbox</a></li>
-          <li><a href="https://chromewebstore.google.com/detail/jw-video-player/llcdnhpkicpaohifijppfflfbkcblkib">Focused JW video-player extension</a>, <a href="https://v.jw-net.work/">multilingual video-player utility</a>, and <a href="https://greasyfork.org/scripts/572424-wol-jw-personal-mod">community WOL notes userscript</a></li>
-        </ul>
-      </div>
-    </section>
-
-    <section class="section soft" id="install">
-      <div class="container">
-        <div class="section-head"><p class="eyebrow">Owner-controlled install</p><h2>Build and load the unpacked extension</h2><p>There is no store auto-update channel in this workflow. Review, build, and reload on your schedule.</p></div>
-        <div class="install-grid">
-          <article class="card"><ol class="install-steps"><li>Clone with the pinned InkShade submodule and install dependencies.</li><li>Run the full build and verification gate.</li><li>Open <code>brave://extensions</code> or <code>chrome://extensions</code>.</li><li>Enable Developer mode and choose <strong>Load unpacked</strong>.</li><li>Select <code>packages/studynav/dist</code>. After future builds, press Reload on the same card and refresh open pages.</li></ol></article>
-          <article class="card"><h3>Commands</h3><code class="command">git clone --recurse-submodules https://github.com/kiku-jw/nick-extensions.git
-cd nick-extensions
-bun install --frozen-lockfile
-bun run bootstrap:inkshade
-bun run verify</code><p>Focused StudyNav build: <code>bun scripts/build-extension.mjs studynav</code></p><p><a href="https://github.com/kiku-jw/nick-extensions">Browse the source on GitHub</a></p></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="faq">
-      <div class="container"><div class="section-head"><p class="eyebrow">FAQ</p><h2>Important boundaries</h2></div>
-        <details><summary>Why WAV instead of MP3 for one-verse audio?</summary><p>The browser can decode official chapter audio and create a deterministic PCM WAV locally. MP3 encoding would add a much larger encoder and maintenance surface for little benefit.</p></details>
-        <details><summary>Does Russian browser language translate the whole extension?</summary><p>Yes. Version 1.4 localizes manifest identity, popup, injected controls, study panels, dialogs, messages, errors, and accessibility labels. Page content itself remains whatever language the website provides.</p></details>
-        <details><summary>Can I synchronize notes between devices?</summary><p>No remote sync is included. Export JSON on one profile and import it on another. Import is bounded and merge-only.</p></details>
-        <details><summary>Why are layout controls off by default?</summary><p>They change the visual geometry of the source page. Keeping them opt-in lowers compatibility risk, and StudyNav suppresses them entirely on WOL.</p></details>
-      </div>
-    </section>
+    <section class="section soft" id="research"><div class="container"><div class="section-head"><p class="eyebrow">Product choices</p><h2>Added where the browser has a clear gap</h2><p>StudyNav borrows useful ideas from JW Library—bookmarks, colored highlights, notes, and trimming—without adding accounts, passive history, feeds, or an AI service.</p></div><div class="research-grid"><article class="card decision"><h3>Added</h3><p>Six-color notes rail, exact saved places, verse ranges, one-verse audio, time-bounded audio and video clips, player shading removal, reliable focused-player keys, and an explicit image-search shortcut.</p></article><article class="card decision no"><h3>Not added</h3><p>Remote/community notes, passive browsing history, feeds, bulk media download, AI search, and a general video editor. They add permissions or data handling without a strong in-page study benefit.</p></article></div><h3 class="source-heading">Primary references</h3><ul class="source-list"><li><a href="https://www.jw.org/en/online-help/jw-library/features/">JW Library features</a></li><li><a href="https://www.jw.org/en/online-help/jw-library/windows/bookmarks/">JW Library bookmarks</a></li><li><a href="https://www.jw.org/en/online-help/jw-library/use-playlists/">JW Library playlists and trimming</a></li><li><a href="https://www.jw.org/en/online-help/jw-library/player-shortcuts/">JW Library player shortcuts</a></li><li><a href="https://www.jwpubs.org/addon/#addon-feature-guide">JW Web Add-on guide</a> and <a href="https://www.jwpubs.org/tools">JWPUBS tools</a></li></ul></div></section>
   </main>
 
-  <footer class="site-footer"><div class="container footer-grid"><p><strong>StudyNav — Unofficial Study Tools.</strong> Independent open-source project; not affiliated with or endorsed by Jehovah’s Witnesses. JW.org and JW Library are referenced only to describe compatibility and research context.</p><p><a href="https://github.com/kiku-jw/nick-extensions">Source</a> · <a href="https://github.com/kiku-jw/nick-extensions/issues">Issues</a> · <a href="ru/">Русский</a></p></div></footer>
+  <footer class="site-footer"><div class="container footer-grid"><p><strong>StudyNav is an independent, unofficial open-source project.</strong> It is not produced, endorsed, or maintained by Jehovah’s Witnesses. JW.org and JW Library are named only to explain compatibility.</p><p><a href="https://github.com/kiku-jw/nick-extensions">Source</a> · <a href="https://github.com/kiku-jw/nick-extensions/issues">Report a problem</a> · <a href="ru/">Русский</a></p></div></footer>
 </body>
 </html>

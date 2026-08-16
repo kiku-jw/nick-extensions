@@ -33,6 +33,7 @@ import { paragraphNodes, qs, toast } from './util';
 const SELECTION_TOOLS_ID = 'studynav-selection-tools';
 const EDITOR_ID = 'studynav-note-editor';
 const PANEL_ID = 'studynav-study-panel';
+const NOTE_RAIL_ID = 'studynav-note-rail';
 const HIGHLIGHT_PREFIX = 'studynav-';
 
 type SelectionCandidate = {
@@ -55,6 +56,7 @@ let pendingReattachId: string | null = null;
 let selectionTimer: number | null = null;
 let renderGeneration = 0;
 let storageListening = false;
+let railResizeListening = false;
 let panelScope: 'page' | 'all' = 'page';
 let panelView: 'notes' | 'bookmarks' = 'notes';
 let panelReturnFocus: HTMLElement | null = null;
@@ -586,11 +588,73 @@ async function renderStudyState(dataValue?: StudyDataV2) {
     }
     unresolvedIds = nextUnresolved;
     resolvedElements = nextElements;
+    renderPageNoteRail(data);
     if (document.getElementById(PANEL_ID)) await renderStudyPanel(data);
     if (recovered.length) await persistRecoveredTargets(recovered);
   } catch (error) {
     storageFailure(error);
   }
+}
+
+function positionPageNoteRail() {
+  const rail = document.getElementById(NOTE_RAIL_ID);
+  if (!rail) return;
+  const rightEdge = Math.max(0, ...activeParagraphRoots().map((root) => root.getBoundingClientRect().right));
+  const fitsWithoutTextOverlap = window.innerWidth >= 980 && window.innerWidth - rightEdge >= 356;
+  rail.dataset.mode = fitsWithoutTextOverlap ? 'rail' : 'button';
+}
+
+function renderPageNoteRail(data: StudyDataV2) {
+  const pageUrl = currentPageUrl();
+  const notes = annotationsEnabled
+    ? data.annotations
+      .filter((annotation) => annotation.pageUrl === pageUrl && !!annotation.note.trim())
+      .sort((a, b) => b.updatedAt - a.updatedAt)
+    : [];
+  if (!notes.length) {
+    document.getElementById(NOTE_RAIL_ID)?.remove();
+    return;
+  }
+
+  let rail = document.getElementById(NOTE_RAIL_ID);
+  if (!rail) {
+    rail = document.createElement('aside');
+    rail.id = NOTE_RAIL_ID;
+    rail.className = 'studynav-note-rail';
+    rail.setAttribute('data-studynav-owned', '1');
+    rail.setAttribute('aria-label', t('page_notes'));
+    document.documentElement.appendChild(rail);
+  }
+  rail.replaceChildren();
+
+  const open = panelButton(t('page_notes'), () => { void openStudyPanel(); });
+  open.className = 'studynav-note-rail-open';
+  const count = document.createElement('span');
+  count.textContent = String(notes.length);
+  open.appendChild(count);
+  rail.appendChild(open);
+
+  const list = document.createElement('div');
+  list.className = 'studynav-note-rail-list';
+  for (const annotation of notes.slice(0, 12)) {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'studynav-note-rail-item';
+    item.addEventListener('click', () => openAnnotationSource(annotation));
+    const swatch = document.createElement('span');
+    swatch.className = 'studynav-note-swatch';
+    swatch.dataset.color = annotation.color;
+    const copy = document.createElement('span');
+    const quote = document.createElement('strong');
+    quote.textContent = annotation.selector.exact;
+    const note = document.createElement('span');
+    note.textContent = annotation.note;
+    copy.append(quote, note);
+    item.append(swatch, copy);
+    list.appendChild(item);
+  }
+  rail.appendChild(list);
+  positionPageNoteRail();
 }
 
 function closeStudyPanel() {
@@ -1030,6 +1094,10 @@ export function applyStudyRuntime(
     storageListening = true;
     chrome.storage.onChanged.addListener(localStorageChangeHandler);
   }
+  if (!railResizeListening) {
+    railResizeListening = true;
+    window.addEventListener('resize', positionPageNoteRail);
+  }
   void renderStudyState();
 }
 
@@ -1048,9 +1116,14 @@ export function teardownStudyRuntime() {
     storageListening = false;
     chrome.storage.onChanged.removeListener(localStorageChangeHandler);
   }
+  if (railResizeListening) {
+    railResizeListening = false;
+    window.removeEventListener('resize', positionPageNoteRail);
+  }
   hideSelectionTools();
   closeEditor();
   closeStudyPanel();
+  document.getElementById(NOTE_RAIL_ID)?.remove();
   clearHighlightRegistry();
   unresolvedIds = new Set();
   resolvedElements = new Map();
@@ -1062,6 +1135,7 @@ export function studyRuntimeStatus() {
     annotationsEnabled,
     bookmarksEnabled,
     panelOpen: !!document.getElementById(PANEL_ID),
+    noteRailOpen: !!document.getElementById(NOTE_RAIL_ID),
     selectionToolsOpen: !!document.getElementById(SELECTION_TOOLS_ID),
     unresolvedCount: unresolvedIds.size,
   };

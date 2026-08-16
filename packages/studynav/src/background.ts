@@ -1,6 +1,9 @@
 import { DEFAULT_FLAGS, migrateFlagsForInstall, type FeatureFlags } from './features';
 import { t } from './i18n';
-import { validateVerseAudioRequest } from './verse-audio';
+import {
+  validateMediaAudioClipRequest,
+  validateVerseAudioRequest,
+} from './verse-audio';
 
 const OFFSCREEN_URL = 'offscreen.html';
 let creatingOffscreen: Promise<void> | null = null;
@@ -37,12 +40,39 @@ async function ensureOffscreenDocument() {
     creatingOffscreen = chrome.offscreen.createDocument({
       url: OFFSCREEN_URL,
       reasons: [chrome.offscreen.Reason.BLOBS],
-      justification: 'Decode official chapter audio and create a local selected-verse WAV clip.',
+      justification: 'Decode official JW media and create a local user-selected WAV clip.',
     }).finally(() => {
       creatingOffscreen = null;
     });
   }
   await creatingOffscreen;
+}
+
+async function processMediaAudioClip(message: unknown, senderUrl: string) {
+  const request = validateMediaAudioClipRequest(message, senderUrl);
+  if (!request) return { ok: false, error: t('clip_request_rejected') };
+  if (audioJob) return { ok: false, error: t('verse_job_busy') };
+
+  audioJob = (async () => {
+    await ensureOffscreenDocument();
+    return chrome.runtime.sendMessage({
+      target: 'studynav-offscreen',
+      type: 'PROCESS_MEDIA_AUDIO_CLIP',
+      request,
+      senderUrl,
+    });
+  })();
+
+  try {
+    return await audioJob;
+  } finally {
+    audioJob = null;
+    try {
+      await chrome.offscreen.closeDocument();
+    } catch {
+      // The browser may already have reclaimed the document.
+    }
+  }
 }
 
 async function processVerseAudio(message: unknown, senderUrl: string) {
@@ -101,6 +131,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }
     if (msg?.type === 'DOWNLOAD_VERSE_AUDIO') {
       sendResponse(await processVerseAudio(msg, sender.tab?.url || ''));
+      return;
+    }
+    if (msg?.type === 'DOWNLOAD_MEDIA_AUDIO_CLIP') {
+      sendResponse(await processMediaAudioClip(msg, sender.tab?.url || ''));
+      return;
     }
   })().catch((error: unknown) => {
     const text = error instanceof Error ? error.message : t('verse_processing_failed');

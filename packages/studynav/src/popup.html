@@ -39,8 +39,13 @@
         <button type="button" id="save-place" data-feature="bookmarks" data-i18n="save_place">Save place</button>
         <button type="button" id="copy-citation" data-feature="citations" data-i18n="copy_citation">Copy citation</button>
         <button type="button" id="show-qr" data-feature="qrShare" data-i18n="show_qr">Show QR</button>
-        <button type="button" id="open-official" data-feature="officialOpen" data-i18n="open_official_link">Open official JW link</button>
+        <button type="button" id="open-official" data-feature="officialOpen" data-i18n="open_official_link">Open stable publication link</button>
       </div>
+      <form id="image-search" class="image-search">
+        <label for="image-search-query" data-i18n="image_search">Search JW images with Google</label>
+        <div><input id="image-search-query" type="search" maxlength="200" data-i18n-placeholder="image_search_placeholder" placeholder="What picture do you need?" required /><button type="submit" data-i18n="image_search">Search JW images with Google</button></div>
+        <small data-i18n="image_search_external">Opens an external Google search</small>
+      </form>
     </section>
 
     <section class="guide" aria-labelledby="guide-title">
@@ -58,6 +63,7 @@
       </summary>
       <div class="toolbar">
         <input id="filter" type="search" aria-label="Filter features" data-i18n-aria-label="filter_features" placeholder="Find a setting…" data-i18n-placeholder="find_setting" />
+        <button type="button" id="reset-defaults" data-i18n="reset_defaults">Reset recommended defaults</button>
       </div>
       <div id="list" class="list"></div>
     </details>

@@ -43,6 +43,7 @@ const LOCALE_PATH_RE = /^\/([a-z]{2}(?:-[a-z]+)?)(\/|$)/i;
 const JW_LIBRARY_PATH_RE = /^\/[a-z]{2}(?:-[a-z]+)?\/(?:library|biblioteka|biblioteca|bibliothek|bibliotheque|bibliotek|finder)(?:\/|$)/i;
 const JW_CYRILLIC_LIBRARY_PATH_RE = /^\/(?:ru\/библиотека|uk\/бібліотека)(?:\/|$)/iu;
 const JW_SEARCH_PATH_RE = /^\/[a-z]{2}(?:-[a-z]+)?\/search(?:\/|$)/i;
+const JW_NON_ARTICLE_PATH_RE = /^\/[a-z]{2}(?:-[a-z]+)?\/(?:search|choose-language|login)(?:\/|$)/i;
 const WOL_PATH_RE = /^\/[a-z]{2}(?:-[a-z]+)?\/wol(?:\/|$)/i;
 
 function isJwLibraryPath(pathname: string): boolean {
@@ -68,6 +69,7 @@ export const ARTICLE_ROOT_SELECTORS = [
 
 export const MEDIA_SURFACE_SELECTORS = [
   'video',
+  'audio',
   '.video-js',
   '.jwplayer',
   '[class*="mediaPlayer"]',
@@ -190,6 +192,14 @@ export function detectSupport(probe: SupportProbe): SupportState {
   const isStream = hostname === 'stream.jw.org';
   const isJw = /(^|\.)jw\.org$/.test(hostname) && !isWol && !isStream;
   const isLibrary = isJwLibraryPath(pathname);
+  const decodedSegments = (() => {
+    try {
+      return decodeURIComponent(pathname).split('/').filter(Boolean);
+    } catch {
+      return pathname.split('/').filter(Boolean);
+    }
+  })();
+  const isJwArticlePath = isJw && decodedSegments.length >= 3 && !JW_NON_ARTICLE_PATH_RE.test(pathname);
 
   const palette = Boolean(
     (isJw && (isLibrary || JW_SEARCH_PATH_RE.test(pathname))) ||
@@ -198,12 +208,12 @@ export function detectSupport(probe: SupportProbe): SupportState {
   );
   const article = Boolean(
     probe.articleRootCount > 0 &&
-    ((isJw && isLibrary) || (isWol && WOL_PATH_RE.test(pathname))),
+    ((isJw && (isLibrary || isJwArticlePath)) || (isWol && WOL_PATH_RE.test(pathname))),
   );
   const language = article && isJw;
   const media = Boolean(
     probe.mediaRootCount > 0 &&
-    (isStream || ((isJw || isWol) && (isLibrary || WOL_PATH_RE.test(pathname)))),
+    (isStream || (isJw && (isLibrary || isJwArticlePath)) || (isWol && WOL_PATH_RE.test(pathname))),
   );
 
   return {
@@ -296,7 +306,18 @@ export function normalizeStudyNavText(text: string): string {
 
 export function textForCopy(el: HTMLElement): string {
   const clone = el.cloneNode(true) as HTMLElement;
-  clone.querySelectorAll('[data-studynav-owned], [class^="studynav-"], [class*=" studynav-"], [id^="studynav-"]').forEach((node) => {
+  clone.querySelectorAll([
+    '[data-studynav-owned]',
+    '[class^="studynav-"]',
+    '[class*=" studynav-"]',
+    '[id^="studynav-"]',
+    '.verseNum',
+    '.chapterNum',
+    'a.xrefLink',
+    'a.footnoteLink',
+    'a[href="#xref"]',
+    'a[href="#footnote"]',
+  ].join(',')).forEach((node) => {
     node.remove();
   });
   return normalizeStudyNavText(clone.innerText || clone.textContent || '');

@@ -22,8 +22,11 @@ import {
   parseBibleChapterFromPath,
   parseBibleVerseId,
   parseMediaClock,
+  parseUserMediaTime,
   safeFilenamePart,
   selectVerseClipSource,
+  validateMediaAudioClipRequest,
+  validateMediaVideoClipRequest,
   validateVerseAudioRequest,
 } from '../packages/studynav/src/verse-audio.ts';
 
@@ -148,17 +151,17 @@ describe('StudyNav support gate', () => {
     });
   });
 
-  test('fails closed on unsupported jw.org surfaces', () => {
+  test('supports real nested JW article routes but fails closed on error pages', () => {
     expect(detectSupport({
       hostname: 'www.jw.org',
       pathname: '/en/news/region/article/',
       articleRootCount: 1,
       mediaRootCount: 0,
     })).toEqual({
-      supported: false,
+      supported: true,
       palette: false,
-      article: false,
-      language: false,
+      article: true,
+      language: true,
       media: false,
     });
 
@@ -255,6 +258,7 @@ describe('StudyNav feature planning', () => {
     expect(DEFAULT_FLAGS.continueWatching).toBe(true);
     expect(DEFAULT_FLAGS.qrShare).toBe(true);
     expect(DEFAULT_FLAGS.officialOpen).toBe(true);
+    expect(DEFAULT_FLAGS.mediaClip).toBe(true);
   });
 
   test('migrates legacy 1.2.3 layout defaults off once while preserving later opt-ins', () => {
@@ -626,6 +630,47 @@ describe('StudyNav verse audio boundaries', () => {
 
     const bytes = Uint8Array.from([0, 1, 2, 127, 128, 254, 255]);
     expect([...base64ToBytes(bytesToBase64(bytes))]).toEqual([...bytes]);
+  });
+});
+
+describe('StudyNav manual media clips', () => {
+  test('parses short timestamps and rejects ambiguous or excessive values', () => {
+    expect(parseUserMediaTime('1:05')).toBe(65);
+    expect(parseUserMediaTime('1:02:03.5')).toBe(3723.5);
+    expect(parseUserMediaTime('90')).toBe(90);
+    expect(parseUserMediaTime('1:60')).toBeNull();
+    expect(parseUserMediaTime('-1')).toBeNull();
+  });
+
+  test('accepts only bounded JW CDN clips requested from HTTPS JW pages', () => {
+    const request = {
+      type: 'DOWNLOAD_MEDIA_AUDIO_CLIP',
+      mediaUrl: 'https://cfp2.jw-cdn.org/a/example/1/o/sample.mp4',
+      startSeconds: 12,
+      endSeconds: 42,
+      label: 'Sample video',
+    };
+    const page = 'https://www.jw.org/ru/biblioteka/video/sample/';
+    expect(validateMediaAudioClipRequest(request, page)).toMatchObject({
+      startSeconds: 12,
+      endSeconds: 42,
+      filename: 'Sample video_0012-0042.wav',
+    });
+    expect(validateMediaAudioClipRequest({ ...request, endSeconds: 132 }, page)).not.toBeNull();
+    expect(validateMediaAudioClipRequest({ ...request, endSeconds: 132.1 }, page)).toBeNull();
+    expect(validateMediaAudioClipRequest({ ...request, mediaUrl: 'https://example.com/video.mp4' }, page)).toBeNull();
+    expect(validateMediaAudioClipRequest(request, 'http://www.jw.org/ru/biblioteka/video/sample/')).toBeNull();
+
+    const videoRequest = { ...request, type: 'DOWNLOAD_MEDIA_VIDEO_CLIP', endSeconds: 60 };
+    expect(validateMediaVideoClipRequest(videoRequest, page)).toMatchObject({
+      startSeconds: 12,
+      endSeconds: 60,
+      filename: 'Sample video_0012-0060.webm',
+    });
+    expect(validateMediaVideoClipRequest({ ...videoRequest, endSeconds: 72 }, page)).not.toBeNull();
+    expect(validateMediaVideoClipRequest({ ...videoRequest, endSeconds: 72.1 }, page)).toBeNull();
+    expect(validateMediaVideoClipRequest({ ...videoRequest, mediaUrl: 'https://example.com/video.mp4' }, page)).toBeNull();
+    expect(validateMediaVideoClipRequest(videoRequest, 'http://www.jw.org/ru/biblioteka/video/sample/')).toBeNull();
   });
 });
 

@@ -160,23 +160,34 @@ function seekWithoutAutoplay(video: HTMLVideoElement, record: MediaProgressRecor
 
 async function refreshResumeControl() {
   const generation = ++refreshGeneration;
-  removeResumeButton();
-  if (!enabled || !toolbar?.isConnected) return;
+  if (!enabled || !toolbar?.isConnected) {
+    removeResumeButton();
+    return;
+  }
   const video = activeTrackedVideo();
   const id = video ? progressIdForVideo(video) : null;
-  if (!video || !id) return;
+  if (!video || !id) {
+    removeResumeButton();
+    return;
+  }
   try {
     const data = await loadStudyData();
     if (!enabled || generation !== refreshGeneration || !toolbar?.isConnected) return;
     const record = pruneMediaProgress(data.mediaProgress, Date.now()).find((item) => item.id === id);
-    if (!record) return;
-    const button = document.createElement('button');
-    button.id = RESUME_BUTTON_ID;
-    button.type = 'button';
+    if (!record) {
+      removeResumeButton();
+      return;
+    }
+    let button = document.getElementById(RESUME_BUTTON_ID) as HTMLButtonElement | null;
+    if (!button) {
+      button = document.createElement('button');
+      button.id = RESUME_BUTTON_ID;
+      button.type = 'button';
+      toolbar.prepend(button);
+    }
     button.textContent = t('resume_at', formatMediaTime(record.currentTime));
     button.title = t('resume_title');
-    button.addEventListener('click', () => seekWithoutAutoplay(video, record));
-    toolbar.prepend(button);
+    button.onclick = () => seekWithoutAutoplay(video, record);
   } catch (error) {
     reportStorageFailure(error);
   }

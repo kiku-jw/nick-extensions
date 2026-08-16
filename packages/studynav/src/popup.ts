@@ -6,6 +6,7 @@ import {
   type FeatureId,
 } from './features';
 import { featureBlurbKey, featureNameKey, localizeDocument, t, type MessageKey } from './i18n';
+import { buildImageSearchUrl } from './document-actions';
 
 const list = document.getElementById('list')!;
 const filterEl = document.getElementById('filter') as HTMLInputElement;
@@ -81,6 +82,7 @@ type PageStatus = {
   kind?: unknown;
   masterEnabled?: unknown;
   selectedVerse?: unknown;
+  selectedVerseRange?: unknown;
   supported?: unknown;
   officialOpenAvailable?: unknown;
   bookmarkAvailable?: unknown;
@@ -118,8 +120,16 @@ async function renderPageStatus() {
   statusEl.dataset.state = 'ready';
   if (status.kind === 'bible') {
     const selected = status.selectedVerse;
+    const selectedRange = status.selectedVerseRange;
     statusTitleEl.textContent = t('status_bible_title');
-    statusHintEl.textContent = selected && typeof selected === 'object' &&
+    statusHintEl.textContent = selectedRange && typeof selectedRange === 'object' &&
+      'chapter' in selectedRange && 'startVerse' in selectedRange && 'endVerse' in selectedRange
+      ? t('status_bible_range', [
+          String(selectedRange.chapter),
+          String(selectedRange.startVerse),
+          String(selectedRange.endVerse),
+        ])
+      : selected && typeof selected === 'object' &&
       'chapter' in selected && 'verse' in selected
       ? t('status_bible_selected', [String(selected.chapter), String(selected.verse)])
       : t('status_bible_hint');
@@ -210,6 +220,24 @@ async function runPageAction(button: HTMLButtonElement) {
   }
   filterEl.addEventListener('input', applyFilter);
   actionButtons.forEach((button) => button.addEventListener('click', () => void runPageAction(button)));
+  document.getElementById('image-search')?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const input = document.getElementById('image-search-query') as HTMLInputElement | null;
+    const url = input ? buildImageSearchUrl(input.value) : null;
+    if (url) void chrome.tabs.create({ url });
+  });
+  document.getElementById('reset-defaults')?.addEventListener('click', async () => {
+    await chrome.runtime.sendMessage({ type: 'SET_FLAGS', flags: DEFAULT_FLAGS });
+    currentFlags = { ...DEFAULT_FLAGS };
+    masterEl.checked = true;
+    list.querySelectorAll<HTMLInputElement>('input[data-id]').forEach((input) => {
+      input.checked = !!currentFlags[input.dataset.id as FeatureId];
+    });
+    actionFeedbackEl.textContent = t('defaults_restored');
+    updateEnabledCount();
+    await renderPageStatus();
+    window.setTimeout(() => { actionFeedbackEl.textContent = ''; }, 1_600);
+  });
   updateEnabledCount();
   await renderPageStatus();
 })();

@@ -188,7 +188,7 @@ for (const name of pkgs) {
     const studyStorageSource = readFileSync(join(root, 'packages/studynav/src/study-storage.ts'), 'utf8');
     const featureIds = [...featureDefaultsSource.matchAll(/\{ id: '([^']+)'/g)].map((match) => match[1]);
     const hosts = manifest.host_permissions || [];
-    ok(manifest.version === '1.4.0', `${name}: expected 1.4.0 release version`);
+    ok(manifest.version === '1.5.0', `${name}: expected 1.5.0 release version`);
     ok(
       hosts.length === 3 &&
         hosts.includes('*://*.jw.org/*') &&
@@ -225,9 +225,9 @@ for (const name of pkgs) {
       `${name}: image helper bundles a semantic icon instead of the textual img label`,
     );
     ok(
-      featureIds.length === 22 && new Set(featureIds).size === 22 &&
-        ['annotations', 'bookmarks', 'citations', 'continueWatching', 'qrShare', 'officialOpen'].every((id) => featureIds.includes(id)),
-      `${name}: exactly 22 independently identified feature settings`,
+      featureIds.length === 23 && new Set(featureIds).size === 23 &&
+        ['annotations', 'bookmarks', 'citations', 'continueWatching', 'mediaClip', 'qrShare', 'officialOpen'].every((id) => featureIds.includes(id)),
+      `${name}: exactly 23 independently identified feature settings`,
     );
     ok(
       ['open-notes', 'save-place', 'copy-citation', 'show-qr', 'open-official'].every((id) => popupHtml.includes(`id="${id}"`)),
@@ -294,9 +294,13 @@ for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
   const htmlPath = join(root, relativeHtml);
   const html = readFileSync(htmlPath, 'utf8');
   const htmlDir = dirname(htmlPath);
-  ok((html.match(/data-feature-row/g) || []).length === 22, `${relativeHtml}: documents all 22 settings`);
-  ok((html.match(/data-seek=/g) || []).length === 22, `${relativeHtml}: exposes all 22 tutorial chapters`);
-  ok(/synthetic fixture|синтетическ(?:ий|ом) макет/i.test(html), `${relativeHtml}: labels synthetic public evidence`);
+  ok((html.match(/data-feature-row/g) || []).length === 23, `${relativeHtml}: documents all 23 settings`);
+  ok((html.match(/data-scene=/g) || []).length === 23, `${relativeHtml}: exposes all 23 tutorial chapters`);
+  ok(
+    html.includes('data-demo-root') &&
+      !/<(?:img|video|source)[^>]+(?:jw\.org|jw-cdn\.org)/i.test(html),
+    `${relativeHtml}: uses a self-contained interactive extension demo`,
+  );
   ok(/not produced, endorsed|не выпускается, не поддерживается и не одобряется/i.test(html), `${relativeHtml}: clear non-affiliation statement`);
   ok(!/3-minute|3-минут/i.test(html), `${relativeHtml}: tutorial duration copy is current`);
 
@@ -311,7 +315,7 @@ for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
 for (const language of ['en', 'ru']) {
   const video = join(root, 'site', 'assets', 'video', `studynav-guide-${language}.mp4`);
   const poster = join(root, 'site', 'assets', 'screenshots', `tutorial-poster-${language}.jpg`);
-  ok(nonEmpty(video) && statSync(video).size > 500_000 && statSync(video).size < 25_000_000,
+  ok(nonEmpty(video) && statSync(video).size > 500_000 && statSync(video).size < 65_000_000,
     `StudyNav ${language}: bounded non-empty tutorial MP4`);
   ok(nonEmpty(poster) && statSync(poster).size > 10_000,
     `StudyNav ${language}: non-empty tutorial poster`);
@@ -322,8 +326,9 @@ for (const language of ['en', 'ru']) {
 }
 
 const tutorialManifest = JSON.parse(readFileSync(join(root, 'scripts', 'studynav-tutorial-scenes.json'), 'utf8'));
-ok(tutorialManifest.features?.length === 22 && new Set(tutorialManifest.features.map((item) => item.id)).size === 22,
-  'StudyNav tutorial manifest has 22 unique feature chapters');
+ok(tutorialManifest.features?.length === 23 && new Set(tutorialManifest.features.map((item) => item.id)).size === 23 &&
+  tutorialManifest.size?.[0] === 2560 && tutorialManifest.size?.[1] === 1440 && tutorialManifest.fps === 60,
+  'StudyNav tutorial manifest has 23 unique high-resolution feature chapters');
 
 console.log('\n' + (failed ? `FAILED (${failed})` : 'ALL CHECKS PASSED'));
 process.exit(failed ? 1 : 0);
