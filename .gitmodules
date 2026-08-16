@@ -1,0 +1,3 @@
+[submodule "packages/inkshade/upstream"]
+	path = packages/inkshade/upstream
+	url = https://github.com/darkreader/darkreader.git

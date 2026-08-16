@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>StudyNav — Unofficial Study Tools</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <img src="icons/icon32.png" width="24" height="24" alt="" />
+    <div class="grow">
+      <strong data-i18n="popup_header_title">StudyNav</strong>
+      <div class="muted" data-i18n="popup_header_subtitle">Unofficial · local processing · supported pages only</div>
+    </div>
+    <label class="master-control" title="Enable or disable all StudyNav tools" data-i18n-title="tools_title">
+      <span data-i18n="tools">Tools</span>
+      <span class="switch">
+        <input type="checkbox" id="master" aria-label="Enable all StudyNav tools" data-i18n-aria-label="tools_aria" checked />
+        <span></span>
+      </span>
+    </label>
+  </header>
+  <main>
+    <section id="page-status" class="page-status" aria-live="polite">
+      <div class="status-title">
+        <span class="status-dot" aria-hidden="true"></span>
+        <strong id="status-title" data-i18n="checking_page">Checking this page…</strong>
+      </div>
+      <p id="status-hint" data-i18n="open_supported_page">Open a supported JW.org page to use study tools.</p>
+    </section>
+
+    <section class="quick-actions" aria-labelledby="quick-actions-title">
+      <div class="section-heading">
+        <h2 id="quick-actions-title" data-i18n="page_tools">Page tools</h2>
+        <span id="action-feedback" class="muted" aria-live="polite"></span>
+      </div>
+      <div class="action-grid">
+        <button type="button" id="open-notes" data-any-feature="annotations,bookmarks" data-i18n="study_library">Study library</button>
+        <button type="button" id="save-place" data-feature="bookmarks" data-i18n="save_place">Save place</button>
+        <button type="button" id="copy-citation" data-feature="citations" data-i18n="copy_citation">Copy citation</button>
+        <button type="button" id="show-qr" data-feature="qrShare" data-i18n="show_qr">Show QR</button>
+        <button type="button" id="open-official" data-feature="officialOpen" data-i18n="open_official_link">Open official JW link</button>
+      </div>
+    </section>
+
+    <section class="guide" aria-labelledby="guide-title">
+      <h2 id="guide-title" data-i18n="what_it_gives_you">What it gives you</h2>
+      <p><strong data-i18n="guide_bible_label">Bible:</strong> <span data-i18n="guide_bible_text">select one verse number, then choose Download audio.</span></p>
+      <p><strong data-i18n="guide_study_label">Study:</strong> <span data-i18n="guide_study_text">select text to highlight it, add a note, or save an exact place.</span></p>
+      <p><strong data-i18n="guide_articles_label">Articles:</strong> <span data-i18n="guide_articles_text">hover or focus text for Copy, Link, and Mark actions.</span></p>
+      <p><strong data-i18n="guide_media_label">Media:</strong> <span data-i18n="guide_media_text">use the floating controls for time links, resume, and transcripts.</span></p>
+    </section>
+
+    <details id="settings">
+      <summary>
+        <span data-i18n="feature_settings">Feature settings</span>
+        <span id="enabled-count" class="muted"></span>
+      </summary>
+      <div class="toolbar">
+        <input id="filter" type="search" aria-label="Filter features" data-i18n-aria-label="filter_features" placeholder="Find a setting…" data-i18n-placeholder="find_setting" />
+      </div>
+      <div id="list" class="list"></div>
+    </details>
+  </main>
+  <footer>
+    <span data-i18n="footer_quick_search">Quick search: Ctrl/Cmd+Shift+K</span>
+    <span class="muted" data-i18n="footer_privacy">No telemetry · no uploads</span>
+  </footer>
+  <script src="popup.js"></script>
+</body>
+</html>

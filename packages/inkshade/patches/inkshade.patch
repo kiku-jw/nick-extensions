@@ -1,0 +1,2918 @@
+diff --git a/package-lock.json b/package-lock.json
+index cf1345f..89ca5da 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -43,7 +43,7 @@
+         "karma-rollup-preprocessor": "7.0.8",
+         "karma-safari-launcher": "1.0.0",
+         "karma-spec-reporter": "0.0.36",
+-        "less": "4.6.4",
++        "less": "^4.9.0",
+         "prettier": "3.8.3",
+         "puppeteer-core": "25.1.0",
+         "rollup": "4.60.4",
+@@ -74,27 +74,14 @@
+         "node": ">=0.10.0"
+       }
+     },
+-    "node_modules/@ampproject/remapping": {
+-      "version": "2.3.0",
+-      "resolved": "https://registry.npmjs.org/@ampproject/remapping/-/remapping-2.3.0.tgz",
+-      "integrity": "sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==",
+-      "dev": true,
+-      "dependencies": {
+-        "@jridgewell/gen-mapping": "^0.3.5",
+-        "@jridgewell/trace-mapping": "^0.3.24"
+-      },
+-      "engines": {
+-        "node": ">=6.0.0"
+-      }
+-    },
+     "node_modules/@babel/code-frame": {
+-      "version": "7.27.1",
+-      "resolved": "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.27.1.tgz",
+-      "integrity": "sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==",
++      "version": "7.29.7",
++      "resolved": "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.29.7.tgz",
++      "integrity": "sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+-        "@babel/helper-validator-identifier": "^7.27.1",
++        "@babel/helper-validator-identifier": "^7.29.7",
+         "js-tokens": "^4.0.0",
+         "picocolors": "^1.1.1"
+       },
+@@ -103,9 +90,9 @@
+       }
+     },
+     "node_modules/@babel/compat-data": {
+-      "version": "7.27.5",
+-      "resolved": "https://registry.npmjs.org/@babel/compat-data/-/compat-data-7.27.5.tgz",
+-      "integrity": "sha512-KiRAp/VoJaWkkte84TvUd9qjdbZAdiqyvMxrGl1N6vzFogKmaLgoM3L1kgtLicp2HP5fBJS8JrZKLVIZGVJAVg==",
++      "version": "7.29.7",
++      "resolved": "https://registry.npmjs.org/@babel/compat-data/-/compat-data-7.29.7.tgz",
++      "integrity": "sha512-locTkQyKvwIEgBzVrn8693ebc97F2U8ZHjbXwDXJ5Fn2TCpNwTlKcaKLkdHop5c/icOFE7qt7Q9JC5hnKNa6Gg==",
+       "dev": true,
+       "license": "MIT",
+       "engines": {
+@@ -113,22 +100,22 @@
+       }
+     },
+     "node_modules/@babel/core": {
+-      "version": "7.27.4",
+-      "resolved": "https://registry.npmjs.org/@babel/core/-/core-7.27.4.tgz",
+-      "integrity": "sha512-bXYxrXFubeYdvB0NhD/NBB3Qi6aZeV20GOWVI47t2dkecCEoneR4NPVcb7abpXDEvejgrUfFtG6vG/zxAKmg+g==",
++      "version": "7.29.7",
++      "resolved": "https://registry.npmjs.org/@babel/core/-/core-7.29.7.tgz",
++      "integrity": "sha512-RgHBCvtjbOK2gXSNBNIkNoEc9qoVEtau3hj8gEqKQuL3HZAibKarWFEI3Lfm6EYKkLalOh8eSrj9b+ch9H/VBA==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+-        "@ampproject/remapping": "^2.2.0",
+-        "@babel/code-frame": "^7.27.1",
+-        "@babel/generator": "^7.27.3",
+-        "@babel/helper-compilation-targets": "^7.27.2",
+-        "@babel/helper-module-transforms": "^7.27.3",
+-        "@babel/helpers": "^7.27.4",
+-        "@babel/parser": "^7.27.4",
+-        "@babel/template": "^7.27.2",
+-        "@babel/traverse": "^7.27.4",
+-        "@babel/types": "^7.27.3",
++        "@babel/code-frame": "^7.29.7",
++        "@babel/generator": "^7.29.7",
++        "@babel/helper-compilation-targets": "^7.29.7",
++        "@babel/helper-module-transforms": "^7.29.7",
++        "@babel/helpers": "^7.29.7",
++        "@babel/parser": "^7.29.7",
++        "@babel/template": "^7.29.7",
++        "@babel/traverse": "^7.29.7",
++        "@babel/types": "^7.29.7",
++        "@jridgewell/remapping": "^2.3.5",
+         "convert-source-map": "^2.0.0",
+         "debug": "^4.1.0",
+         "gensync": "^1.0.0-beta.2",
+@@ -153,16 +140,16 @@
+       }
+     },
+     "node_modules/@babel/generator": {
+-      "version": "7.27.5",
+-      "resolved": "https://registry.npmjs.org/@babel/generator/-/generator-7.27.5.tgz",
+-      "integrity": "sha512-ZGhA37l0e/g2s1Cnzdix0O3aLYm66eF8aufiVteOgnwxgnRP8GoyMj7VWsgWnQbVKXyge7hqrFh2K2TQM6t1Hw==",
++      "version": "7.29.8",
++      "resolved": "https://registry.npmjs.org/@babel/generator/-/generator-7.29.8.tgz",
++      "integrity": "sha512-gZbepsdh3WDtgZKWL+vTPh71LSBrm/Y4/QDZBVCcYfmeTEEuoOYwlSy+G1StfJg+/Zy550u/3TATbm7qDbbMtg==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+-        "@babel/parser": "^7.27.5",
+-        "@babel/types": "^7.27.3",
+-        "@jridgewell/gen-mapping": "^0.3.5",
+-        "@jridgewell/trace-mapping": "^0.3.25",
++        "@babel/parser": "^7.29.8",
++        "@babel/types": "^7.29.8",
++        "@jridgewell/gen-mapping": "^0.3.12",
++        "@jridgewell/trace-mapping": "^0.3.28",
+         "jsesc": "^3.0.2"
+       },
+       "engines": {
+@@ -170,14 +157,14 @@
+       }
+     },
+     "node_modules/@babel/helper-compilation-targets": {
+-      "version": "7.27.2",
+-      "resolved": "https://registry.npmjs.org/@babel/helper-compilation-targets/-/helper-compilation-targets-7.27.2.tgz",
+-      "integrity": "sha512-2+1thGUUWWjLTYTHZWK1n8Yga0ijBz1XAhUXcKy81rd5g6yh7hGqMp45v7cadSbEHc9G3OTv45SyneRN3ps4DQ==",
++      "version": "7.29.7",
++      "resolved": "https://registry.npmjs.org/@babel/helper-compilation-targets/-/helper-compilation-targets-7.29.7.tgz",
++      "integrity": "sha512-wem6WaBj4NaVYVdNhLPPVacES6ZJ+KBBfSkTMD3YZxbP3rm3Di85tJU5ljaUNhaOynt+Aj0xruhYuzQBt8n71g==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+-        "@babel/compat-data": "^7.27.2",
+-        "@babel/helper-validator-option": "^7.27.1",
++        "@babel/compat-data": "^7.29.7",
++        "@babel/helper-validator-option": "^7.29.7",
+         "browserslist": "^4.24.0",
+         "lru-cache": "^5.1.1",
+         "semver": "^6.3.1"
+@@ -196,30 +183,40 @@
+         "semver": "bin/semver.js"
+       }
+     },
++    "node_modules/@babel/helper-globals": {
++      "version": "7.29.7",
++      "resolved": "https://registry.npmjs.org/@babel/helper-globals/-/helper-globals-7.29.7.tgz",
++      "integrity": "sha512-3nQVUAtvkKH9zahfWgw96Jc/uFOmjACE1kQz82E2lqWmHBgjzbNlsC22nuQTfahmWeQtTq5nQ/4Nnd2A1wj4zA==",
++      "dev": true,
++      "license": "MIT",
++      "engines": {
++        "node": ">=6.9.0"
++      }
++    },
+     "node_modules/@babel/helper-module-imports": {
+-      "version": "7.27.1",
+-      "resolved": "https://registry.npmjs.org/@babel/helper-module-imports/-/helper-module-imports-7.27.1.tgz",
+-      "integrity": "sha512-0gSFWUPNXNopqtIPQvlD5WgXYI5GY2kP2cCvoT8kczjbfcfuIljTbcWrulD1CIPIX2gt1wghbDy08yE1p+/r3w==",
++      "version": "7.29.7",
++      "resolved": "https://registry.npmjs.org/@babel/helper-module-imports/-/helper-module-imports-7.29.7.tgz",
++      "integrity": "sha512-ejHwrQQYcm9xnTivShn2IDOlIzInN34AXskvq9QicvCtEzq1Vzclu/tKF8Jq1Cg8JG2GL6/EmjgsCT7lXepE3g==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+-        "@babel/traverse": "^7.27.1",
+-        "@babel/types": "^7.27.1"
++        "@babel/traverse": "^7.29.7",
++        "@babel/types": "^7.29.7"
+       },
+       "engines": {
+         "node": ">=6.9.0"
+       }
+     },
+     "node_modules/@babel/helper-module-transforms": {
+-      "version": "7.27.3",
+-      "resolved": "https://registry.npmjs.org/@babel/helper-module-transforms/-/helper-module-transforms-7.27.3.tgz",
+-      "integrity": "sha512-dSOvYwvyLsWBeIRyOeHXp5vPj5l1I011r52FM1+r1jCERv+aFXYk4whgQccYEGYxK2H3ZAIA8nuPkQ0HaUo3qg==",
++      "version": "7.29.7",
++      "resolved": "https://registry.npmjs.org/@babel/helper-module-transforms/-/helper-module-transforms-7.29.7.tgz",
++      "integrity": "sha512-UPUVSyXbOh627KiCIGQSgwWzGeBKLkaJ9PJEdrngIwMSzxLR4jS4+f1f1jb7VzBbg8nFLaYotvVPFCTqdrmTAg==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+-        "@babel/helper-module-imports": "^7.27.1",
+-        "@babel/helper-validator-identifier": "^7.27.1",
+-        "@babel/traverse": "^7.27.3"
++        "@babel/helper-module-imports": "^7.29.7",
++        "@babel/helper-validator-identifier": "^7.29.7",
++        "@babel/traverse": "^7.29.7"
+       },
+       "engines": {
+         "node": ">=6.9.0"
+@@ -239,9 +236,9 @@
+       }
+     },
+     "node_modules/@babel/helper-string-parser": {
+-      "version": "7.27.1",
+-      "resolved": "https://registry.npmjs.org/@babel/helper-string-parser/-/helper-string-parser-7.27.1.tgz",
+-      "integrity": "sha512-qMlSxKbpRlAridDExk92nSobyDdpPijUq2DW6oDnUqd0iOGxmQjyqhMIihI9+zv4LPyZdRje2cavWPbCbWm3eA==",
++      "version": "7.29.7",
++      "resolved": "https://registry.npmjs.org/@babel/helper-string-parser/-/helper-string-parser-7.29.7.tgz",
++      "integrity": "sha512-Pb5ijPrZ89GDH8223L4UP8i6QApWxs04RbPQJTeWDV0/keR2E36MeKnyr6LYmUUvqRRI+Iv87SuF1W6ErINzYw==",
+       "dev": true,
+       "license": "MIT",
+       "engines": {
+@@ -249,9 +246,9 @@
+       }
+     },
+     "node_modules/@babel/helper-validator-identifier": {
+-      "version": "7.27.1",
+-      "resolved": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.27.1.tgz",
+-      "integrity": "sha512-D2hP9eA+Sqx1kBZgzxZh0y1trbuU+JoDkiEwqhQ36nodYqJwyEIhPSdMNd7lOm/4io72luTPWH20Yda0xOuUow==",
++      "version": "7.29.7",
++      "resolved": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.29.7.tgz",
++      "integrity": "sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg==",
+       "dev": true,
+       "license": "MIT",
+       "engines": {
+@@ -259,9 +256,9 @@
+       }
+     },
+     "node_modules/@babel/helper-validator-option": {
+-      "version": "7.27.1",
+-      "resolved": "https://registry.npmjs.org/@babel/helper-validator-option/-/helper-validator-option-7.27.1.tgz",
+-      "integrity": "sha512-YvjJow9FxbhFFKDSuFnVCe2WxXk1zWc22fFePVNEaWJEu8IrZVlda6N0uHwzZrUM1il7NC9Mlp4MaJYbYd9JSg==",
++      "version": "7.29.7",
++      "resolved": "https://registry.npmjs.org/@babel/helper-validator-option/-/helper-validator-option-7.29.7.tgz",
++      "integrity": "sha512-N9ZErrD+yW5geCDtBqnOoxmR8+tNKiGuxKlDpuJxfsqpa2dFcexaziGAE/qoHLiDDreVNMupxGmSoNlyvsA3gw==",
+       "dev": true,
+       "license": "MIT",
+       "engines": {
+@@ -269,27 +266,27 @@
+       }
+     },
+     "node_modules/@babel/helpers": {
+-      "version": "7.27.6",
+-      "resolved": "https://registry.npmjs.org/@babel/helpers/-/helpers-7.27.6.tgz",
+-      "integrity": "sha512-muE8Tt8M22638HU31A3CgfSUciwz1fhATfoVai05aPXGor//CdWDCbnlY1yvBPo07njuVOCNGCSp/GTt12lIug==",
++      "version": "7.29.7",
++      "resolved": "https://registry.npmjs.org/@babel/helpers/-/helpers-7.29.7.tgz",
++      "integrity": "sha512-1k2lAGRMfHTcwuNYcCNUmaUffmQv8KWMfh2iJUUeRlwlwH4FdNG7mfPI10NPfLHJFThE4Tyr4mv7kTNZOiPuBg==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+-        "@babel/template": "^7.27.2",
+-        "@babel/types": "^7.27.6"
++        "@babel/template": "^7.29.7",
++        "@babel/types": "^7.29.7"
+       },
+       "engines": {
+         "node": ">=6.9.0"
+       }
+     },
+     "node_modules/@babel/parser": {
+-      "version": "7.27.5",
+-      "resolved": "https://registry.npmjs.org/@babel/parser/-/parser-7.27.5.tgz",
+-      "integrity": "sha512-OsQd175SxWkGlzbny8J3K8TnnDD0N3lrIUtB92xwyRpzaenGZhxDvxN/JgU00U3CDZNj9tPuDJ5H0WS4Nt3vKg==",
++      "version": "7.29.8",
++      "resolved": "https://registry.npmjs.org/@babel/parser/-/parser-7.29.8.tgz",
++      "integrity": "sha512-E8lTAYNB1KW+FH+VGJuZM1ioAx2E6oVlvQFRrf5P8ZZmsiJXYAD9vTFV7yyEURNzgh1dFqMZuO6tUwcARbqFCA==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+-        "@babel/types": "^7.27.3"
++        "@babel/types": "^7.29.8"
+       },
+       "bin": {
+         "parser": "bin/babel-parser.js"
+@@ -538,58 +535,48 @@
+       }
+     },
+     "node_modules/@babel/template": {
+-      "version": "7.27.2",
+-      "resolved": "https://registry.npmjs.org/@babel/template/-/template-7.27.2.tgz",
+-      "integrity": "sha512-LPDZ85aEJyYSd18/DkjNh4/y1ntkE5KwUHWTiqgRxruuZL2F1yuHligVHLvcHY2vMHXttKFpJn6LwfI7cw7ODw==",
++      "version": "7.29.7",
++      "resolved": "https://registry.npmjs.org/@babel/template/-/template-7.29.7.tgz",
++      "integrity": "sha512-puq+Gf35oI24FeN11LkoUQFqv9uwNeWpxXZi/Ji3rRIoKAzKnxRaZ+Gkj0vKS9ZCiTESfng1N9LyOyXvo+m+Gg==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+-        "@babel/code-frame": "^7.27.1",
+-        "@babel/parser": "^7.27.2",
+-        "@babel/types": "^7.27.1"
++        "@babel/code-frame": "^7.29.7",
++        "@babel/parser": "^7.29.7",
++        "@babel/types": "^7.29.7"
+       },
+       "engines": {
+         "node": ">=6.9.0"
+       }
+     },
+     "node_modules/@babel/traverse": {
+-      "version": "7.27.4",
+-      "resolved": "https://registry.npmjs.org/@babel/traverse/-/traverse-7.27.4.tgz",
+-      "integrity": "sha512-oNcu2QbHqts9BtOWJosOVJapWjBDSxGCpFvikNR5TGDYDQf3JwpIoMzIKrvfoti93cLfPJEG4tH9SPVeyCGgdA==",
++      "version": "7.29.8",
++      "resolved": "https://registry.npmjs.org/@babel/traverse/-/traverse-7.29.8.tgz",
++      "integrity": "sha512-I5z7H3bf/41ktsNVLtpN0wAa336HkqIHQ5BuPLEhTkt1jVSyZpeNKIzTgEWmlxjdg81R0IgUCcaE+Ok3NvrfZg==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+-        "@babel/code-frame": "^7.27.1",
+-        "@babel/generator": "^7.27.3",
+-        "@babel/parser": "^7.27.4",
+-        "@babel/template": "^7.27.2",
+-        "@babel/types": "^7.27.3",
+-        "debug": "^4.3.1",
+-        "globals": "^11.1.0"
++        "@babel/code-frame": "^7.29.7",
++        "@babel/generator": "^7.29.8",
++        "@babel/helper-globals": "^7.29.7",
++        "@babel/parser": "^7.29.8",
++        "@babel/template": "^7.29.7",
++        "@babel/types": "^7.29.8",
++        "debug": "^4.3.1"
+       },
+       "engines": {
+         "node": ">=6.9.0"
+       }
+     },
+-    "node_modules/@babel/traverse/node_modules/globals": {
+-      "version": "11.12.0",
+-      "resolved": "https://registry.npmjs.org/globals/-/globals-11.12.0.tgz",
+-      "integrity": "sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==",
+-      "dev": true,
+-      "license": "MIT",
+-      "engines": {
+-        "node": ">=4"
+-      }
+-    },
+     "node_modules/@babel/types": {
+-      "version": "7.28.4",
+-      "resolved": "https://registry.npmjs.org/@babel/types/-/types-7.28.4.tgz",
+-      "integrity": "sha512-bkFqkLhh3pMBUQQkpVgWDWq/lqzc2678eUyDlTBhRqhCHFguYYGM0Efga7tYk4TogG/3x0EEl66/OQ+WGbWB/Q==",
++      "version": "7.29.8",
++      "resolved": "https://registry.npmjs.org/@babel/types/-/types-7.29.8.tgz",
++      "integrity": "sha512-Vj1jF3cPfxg7OAfoI7QnVKLoILlm2JF9pnVHrX8qx7AHMiYWT+NDAA7jChlNgRS4WTLc/fD1lXLmPixluj+3Gg==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+-        "@babel/helper-string-parser": "^7.27.1",
+-        "@babel/helper-validator-identifier": "^7.27.1"
++        "@babel/helper-string-parser": "^7.29.7",
++        "@babel/helper-validator-identifier": "^7.29.7"
+       },
+       "engines": {
+         "node": ">=6.9.0"
+@@ -1041,9 +1028,9 @@
+       }
+     },
+     "node_modules/@istanbuljs/load-nyc-config/node_modules/js-yaml": {
+-      "version": "3.14.2",
+-      "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-3.14.2.tgz",
+-      "integrity": "sha512-PMSmkqxr106Xa156c2M265Z+FTrPl+oxd/rgOQy2tijQeK5TxQ43psO1ZCwhVOSdnn+RzkzlRz/eY4BgJBYVpg==",
++      "version": "3.15.1",
++      "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-3.15.1.tgz",
++      "integrity": "sha512-S99WuO3HlhO3XN41EtYUNl9zzXjoJx7QvmipxsJVxtCBT0YHEFy+iOJhjSvrmV12nYhWpZaM8lPHkJm0yUMbag==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+@@ -1356,9 +1343,9 @@
+       }
+     },
+     "node_modules/@jest/reporters/node_modules/brace-expansion": {
+-      "version": "2.1.1",
+-      "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-2.1.1.tgz",
+-      "integrity": "sha512-WR1cURNjuvBLMZBMbqM0UoE+WAfdUcEV1ccD8PVBVOI+Z3ND4+SZbN8RsfT2bMuG1qwz5RFvPukSZm5fF2D5eA==",
++      "version": "2.1.4",
++      "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-2.1.4.tgz",
++      "integrity": "sha512-hGfVzPxthbf3+2yjg/RBs60cB0FhqBS/zvdV/4wn4/BmN0bNMMHPc4V/BbFieqf1TKAGGAHnY4eSjajCl0f2Xg==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+@@ -1570,17 +1557,25 @@
+       }
+     },
+     "node_modules/@jridgewell/gen-mapping": {
+-      "version": "0.3.5",
+-      "resolved": "https://registry.npmjs.org/@jridgewell/gen-mapping/-/gen-mapping-0.3.5.tgz",
+-      "integrity": "sha512-IzL8ZoEDIBRWEzlCcRhOaCupYyN5gdIK+Q6fbFdPDg6HqX6jpkItn7DFIpW9LQzXG6Df9sA7+OKnq0qlz/GaQg==",
++      "version": "0.3.13",
++      "resolved": "https://registry.npmjs.org/@jridgewell/gen-mapping/-/gen-mapping-0.3.13.tgz",
++      "integrity": "sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==",
+       "dev": true,
++      "license": "MIT",
+       "dependencies": {
+-        "@jridgewell/set-array": "^1.2.1",
+-        "@jridgewell/sourcemap-codec": "^1.4.10",
++        "@jridgewell/sourcemap-codec": "^1.5.0",
++        "@jridgewell/trace-mapping": "^0.3.24"
++      }
++    },
++    "node_modules/@jridgewell/remapping": {
++      "version": "2.3.5",
++      "resolved": "https://registry.npmjs.org/@jridgewell/remapping/-/remapping-2.3.5.tgz",
++      "integrity": "sha512-LI9u/+laYG4Ds1TDKSJW2YPrIlcVYOwi2fUC6xB43lueCjgxV4lffOCZCtYFiH6TNOX+tQKXx97T4IKHbhyHEQ==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "@jridgewell/gen-mapping": "^0.3.5",
+         "@jridgewell/trace-mapping": "^0.3.24"
+-      },
+-      "engines": {
+-        "node": ">=6.0.0"
+       }
+     },
+     "node_modules/@jridgewell/resolve-uri": {
+@@ -1592,26 +1587,19 @@
+         "node": ">=6.0.0"
+       }
+     },
+-    "node_modules/@jridgewell/set-array": {
+-      "version": "1.2.1",
+-      "resolved": "https://registry.npmjs.org/@jridgewell/set-array/-/set-array-1.2.1.tgz",
+-      "integrity": "sha512-R8gLRTZeyp03ymzP/6Lil/28tGeGEzhx1q2k703KGWRAI1VdvPIXdG70VJc2pAMw3NA6JKL5hhFu1sJX0Mnn/A==",
+-      "dev": true,
+-      "engines": {
+-        "node": ">=6.0.0"
+-      }
+-    },
+     "node_modules/@jridgewell/sourcemap-codec": {
+-      "version": "1.4.15",
+-      "resolved": "https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.4.15.tgz",
+-      "integrity": "sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==",
+-      "dev": true
++      "version": "1.5.5",
++      "resolved": "https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.5.5.tgz",
++      "integrity": "sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==",
++      "dev": true,
++      "license": "MIT"
+     },
+     "node_modules/@jridgewell/trace-mapping": {
+-      "version": "0.3.25",
+-      "resolved": "https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.25.tgz",
+-      "integrity": "sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==",
++      "version": "0.3.31",
++      "resolved": "https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.31.tgz",
++      "integrity": "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==",
+       "dev": true,
++      "license": "MIT",
+       "dependencies": {
+         "@jridgewell/resolve-uri": "^3.1.0",
+         "@jridgewell/sourcemap-codec": "^1.4.14"
+@@ -2768,16 +2756,16 @@
+       }
+     },
+     "node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion": {
+-      "version": "5.0.6",
+-      "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-5.0.6.tgz",
+-      "integrity": "sha512-kLpxurY4Z4r9sgMsyG0Z9uzsBlgiU/EFKhj/h91/8yHu0edo7XuixOIH3VcJ8kkxs6/jPzoI6U9Vj3WqbMQ94g==",
++      "version": "5.0.9",
++      "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-5.0.9.tgz",
++      "integrity": "sha512-ScQ4IuvIEF1TMlP7Zt+vjJ//9zlPb2SDcxWxM3bk8s6t6GGdJ7KO1dCcTidOPJKePW30LE/2cT7wCyPho9/Wxg==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "balanced-match": "^4.0.2"
+       },
+       "engines": {
+-        "node": "18 || 20 || >=22"
++        "node": "20 || >=22"
+       }
+     },
+     "node_modules/@typescript-eslint/typescript-estree/node_modules/debug": {
+@@ -3596,9 +3584,9 @@
+       }
+     },
+     "node_modules/body-parser": {
+-      "version": "1.20.5",
+-      "resolved": "https://registry.npmjs.org/body-parser/-/body-parser-1.20.5.tgz",
+-      "integrity": "sha512-3grm+/2tUOvu2cjJkvsIxrv/wVpfXQW4PsQHYm7yk4vfpu7Ekl6nEsYBoJUL6qDwZUx8wUhQ8tR2qz+ad9c9OA==",
++      "version": "1.20.6",
++      "resolved": "https://registry.npmjs.org/body-parser/-/body-parser-1.20.6.tgz",
++      "integrity": "sha512-p5tAzS57i5MV9fZFDj9LeIiTZEufbSe2eDozP+ElheSUq1m74CRq1jI4mYNDdVs9vQztXFLuk/Gd6BWTdwRJ5g==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+@@ -3636,9 +3624,9 @@
+       "dev": true
+     },
+     "node_modules/brace-expansion": {
+-      "version": "1.1.13",
+-      "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-1.1.13.tgz",
+-      "integrity": "sha512-9ZLprWS6EENmhEOpjCYW2c8VkmOvckIJZfkr7rBW6dObmfgJ/L1GpSYW5Hpo9lDz4D1+n0Ckz8rU7FwHDQiG/w==",
++      "version": "1.1.18",
++      "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-1.1.18.tgz",
++      "integrity": "sha512-Edep/X9fGqVNmzKBVsDYIOtD+z1tuezV70LBjdCst9Tqu76lsnvRiZ6oTic1n+/BIwX6QDGAO94PN4N2SADvtw==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+@@ -4345,9 +4333,9 @@
+       }
+     },
+     "node_modules/engine.io": {
+-      "version": "6.6.8",
+-      "resolved": "https://registry.npmjs.org/engine.io/-/engine.io-6.6.8.tgz",
+-      "integrity": "sha512-2agL3ueZhqxoVrfmntO8yuVj+uNSlIOnhykYHk3Cq0ShYPdUjjUiSJrQvXjq01I9jAuI0Zl2YO8Evv5Mqytm5g==",
++      "version": "6.6.9",
++      "resolved": "https://registry.npmjs.org/engine.io/-/engine.io-6.6.9.tgz",
++      "integrity": "sha512-clKkw4C7nJ22mGgoVcCg6V/W/TxdNyIOTr89k2ONZu81qqkddPFDF0LXcbAwhzPD8DjkiRCjzuiO6Y+fkpD4vg==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+@@ -4360,7 +4348,7 @@
+         "cors": "~2.8.5",
+         "debug": "~4.4.1",
+         "engine.io-parser": "~5.2.1",
+-        "ws": "~8.20.1"
++        "ws": "~8.21.0"
+       },
+       "engines": {
+         "node": ">=10.2.0"
+@@ -4393,28 +4381,6 @@
+         }
+       }
+     },
+-    "node_modules/engine.io/node_modules/ws": {
+-      "version": "8.20.1",
+-      "resolved": "https://registry.npmjs.org/ws/-/ws-8.20.1.tgz",
+-      "integrity": "sha512-It4dO0K5v//JtTXuPkfEOaI3uUN87iYPnqo/ZzqCoG3g8uhA66QUMs/SrM0YK7/NAu+r4LMh/9dq2A7k+rHs+w==",
+-      "dev": true,
+-      "license": "MIT",
+-      "engines": {
+-        "node": ">=10.0.0"
+-      },
+-      "peerDependencies": {
+-        "bufferutil": "^4.0.1",
+-        "utf-8-validate": ">=5.0.2"
+-      },
+-      "peerDependenciesMeta": {
+-        "bufferutil": {
+-          "optional": true
+-        },
+-        "utf-8-validate": {
+-          "optional": true
+-        }
+-      }
+-    },
+     "node_modules/ent": {
+       "version": "2.2.0",
+       "resolved": "https://registry.npmjs.org/ent/-/ent-2.2.0.tgz",
+@@ -5768,19 +5734,6 @@
+         "node": ">= 4"
+       }
+     },
+-    "node_modules/image-size": {
+-      "version": "0.5.5",
+-      "resolved": "https://registry.npmjs.org/image-size/-/image-size-0.5.5.tgz",
+-      "integrity": "sha512-6TDAlDPZxUFCv+fuOkIoXT/V/f3Qbq8e37p+YOiYrUv3v9cc3/6x78VdfPgFVaB9dZYeLUfKgHRebpkm/oP2VQ==",
+-      "dev": true,
+-      "optional": true,
+-      "bin": {
+-        "image-size": "bin/image-size.js"
+-      },
+-      "engines": {
+-        "node": ">=0.10.0"
+-      }
+-    },
+     "node_modules/import-fresh": {
+       "version": "3.3.0",
+       "resolved": "https://registry.npmjs.org/import-fresh/-/import-fresh-3.3.0.tgz",
+@@ -6631,9 +6584,9 @@
+       }
+     },
+     "node_modules/jest-config/node_modules/brace-expansion": {
+-      "version": "2.1.1",
+-      "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-2.1.1.tgz",
+-      "integrity": "sha512-WR1cURNjuvBLMZBMbqM0UoE+WAfdUcEV1ccD8PVBVOI+Z3ND4+SZbN8RsfT2bMuG1qwz5RFvPukSZm5fF2D5eA==",
++      "version": "2.1.4",
++      "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-2.1.4.tgz",
++      "integrity": "sha512-hGfVzPxthbf3+2yjg/RBs60cB0FhqBS/zvdV/4wn4/BmN0bNMMHPc4V/BbFieqf1TKAGGAHnY4eSjajCl0f2Xg==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+@@ -7047,9 +7000,9 @@
+       }
+     },
+     "node_modules/jest-runtime/node_modules/brace-expansion": {
+-      "version": "2.1.1",
+-      "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-2.1.1.tgz",
+-      "integrity": "sha512-WR1cURNjuvBLMZBMbqM0UoE+WAfdUcEV1ccD8PVBVOI+Z3ND4+SZbN8RsfT2bMuG1qwz5RFvPukSZm5fF2D5eA==",
++      "version": "2.1.4",
++      "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-2.1.4.tgz",
++      "integrity": "sha512-hGfVzPxthbf3+2yjg/RBs60cB0FhqBS/zvdV/4wn4/BmN0bNMMHPc4V/BbFieqf1TKAGGAHnY4eSjajCl0f2Xg==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+@@ -7260,10 +7213,20 @@
+       "license": "MIT"
+     },
+     "node_modules/js-yaml": {
+-      "version": "4.1.1",
+-      "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-4.1.1.tgz",
+-      "integrity": "sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==",
++      "version": "4.3.1",
++      "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-4.3.1.tgz",
++      "integrity": "sha512-CY6crGq313MX8GkwvB7tzgp99vjQxY1++5y10/BKN/GUfHqWaOGQMNZkBvqSzsZKWk/ijwHlWzzkLulsGHhjWQ==",
+       "dev": true,
++      "funding": [
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/puzrin"
++        },
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/nodeca"
++        }
++      ],
+       "license": "MIT",
+       "dependencies": {
+         "argparse": "^2.0.1"
+@@ -7631,9 +7594,9 @@
+       }
+     },
+     "node_modules/less": {
+-      "version": "4.6.4",
+-      "resolved": "https://registry.npmjs.org/less/-/less-4.6.4.tgz",
+-      "integrity": "sha512-OJmO5+HxZLLw0RLzkqaNHzcgEAQG7C0y3aMbwtCzIUFZsLMNNq/1IdAdHEycQ58CwUO3jPTHmoN+tE5I7FQxNg==",
++      "version": "4.9.0",
++      "resolved": "https://registry.npmjs.org/less/-/less-4.9.0.tgz",
++      "integrity": "sha512-umRhrCH7fCi8Uj2RcwKjJdvUORTjeWqkdKx0LbcZvjIwsAVsnIAGcxHaqowPeBFBjQuWOeC/bve0AlpFzF/+SQ==",
+       "dev": true,
+       "license": "Apache-2.0",
+       "dependencies": {
+@@ -7649,25 +7612,25 @@
+       "optionalDependencies": {
+         "errno": "^0.1.1",
+         "graceful-fs": "^4.1.2",
+-        "image-size": "~0.5.0",
+-        "make-dir": "^2.1.0",
++        "make-dir": "^5.1.0",
+         "mime": "^1.4.1",
+         "needle": "^3.1.0",
++        "probe-image-size": "^7.2.3",
+         "source-map": "~0.6.0"
+       }
+     },
+     "node_modules/less/node_modules/make-dir": {
+-      "version": "2.1.0",
+-      "resolved": "https://registry.npmjs.org/make-dir/-/make-dir-2.1.0.tgz",
+-      "integrity": "sha512-LS9X+dc8KLxXCb8dni79fLIIUA5VyZoyjSMCwTluaXA0o27cCK0bhXkpgw+sTXVpPy/lSO57ilRixqk0vDmtRA==",
++      "version": "5.1.0",
++      "resolved": "https://registry.npmjs.org/make-dir/-/make-dir-5.1.0.tgz",
++      "integrity": "sha512-IfpFq6UM39dUNiphpA6uDezNx/AvWyhwfICWPR3t1VspkgkMZrL+Rk1RbN1bx+aeNYwOrqGJgEgV3yotk+ZUVw==",
+       "dev": true,
++      "license": "MIT",
+       "optional": true,
+-      "dependencies": {
+-        "pify": "^4.0.1",
+-        "semver": "^5.6.0"
+-      },
+       "engines": {
+-        "node": ">=6"
++        "node": ">=18"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/sindresorhus"
+       }
+     },
+     "node_modules/less/node_modules/mime": {
+@@ -7683,16 +7646,6 @@
+         "node": ">=4"
+       }
+     },
+-    "node_modules/less/node_modules/semver": {
+-      "version": "5.7.2",
+-      "resolved": "https://registry.npmjs.org/semver/-/semver-5.7.2.tgz",
+-      "integrity": "sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==",
+-      "dev": true,
+-      "optional": true,
+-      "bin": {
+-        "semver": "bin/semver"
+-      }
+-    },
+     "node_modules/leven": {
+       "version": "3.1.0",
+       "resolved": "https://registry.npmjs.org/leven/-/leven-3.1.0.tgz",
+@@ -7756,8 +7709,7 @@
+       "version": "4.6.2",
+       "resolved": "https://registry.npmjs.org/lodash.merge/-/lodash.merge-4.6.2.tgz",
+       "integrity": "sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==",
+-      "dev": true,
+-      "peer": true
++      "dev": true
+     },
+     "node_modules/log4js": {
+       "version": "6.9.1",
+@@ -8446,16 +8398,6 @@
+         "url": "https://github.com/sponsors/jonschlinkert"
+       }
+     },
+-    "node_modules/pify": {
+-      "version": "4.0.1",
+-      "resolved": "https://registry.npmjs.org/pify/-/pify-4.0.1.tgz",
+-      "integrity": "sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==",
+-      "dev": true,
+-      "optional": true,
+-      "engines": {
+-        "node": ">=6"
+-      }
+-    },
+     "node_modules/pirates": {
+       "version": "4.0.7",
+       "resolved": "https://registry.npmjs.org/pirates/-/pirates-4.0.7.tgz",
+@@ -8600,6 +8542,59 @@
+         "url": "https://github.com/chalk/ansi-styles?sponsor=1"
+       }
+     },
++    "node_modules/probe-image-size": {
++      "version": "7.3.0",
++      "resolved": "https://registry.npmjs.org/probe-image-size/-/probe-image-size-7.3.0.tgz",
++      "integrity": "sha512-7CaDeBwiAbh6ohXsvLbAZhO7wzsZAmaevfxe39qvCwRh8LyaZfDlBGGLU1CCTgrTLtCOdwBBhjOrIHaIIimHfQ==",
++      "dev": true,
++      "funding": [
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/puzrin"
++        },
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/nodeca"
++        }
++      ],
++      "license": "MIT",
++      "optional": true,
++      "dependencies": {
++        "lodash.merge": "^4.6.2",
++        "needle": "^2.5.2",
++        "stream-parser": "~0.3.1"
++      }
++    },
++    "node_modules/probe-image-size/node_modules/debug": {
++      "version": "3.2.7",
++      "resolved": "https://registry.npmjs.org/debug/-/debug-3.2.7.tgz",
++      "integrity": "sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==",
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "dependencies": {
++        "ms": "^2.1.1"
++      }
++    },
++    "node_modules/probe-image-size/node_modules/needle": {
++      "version": "2.9.1",
++      "resolved": "https://registry.npmjs.org/needle/-/needle-2.9.1.tgz",
++      "integrity": "sha512-6R9fqJ5Zcmf+uYaFgdIHmLwNldn5HbK8L5ybn7Uz+ylX/rnOsSp1AHcvQSrCaFN+qNM1wpymHqD7mVasEOlHGQ==",
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "dependencies": {
++        "debug": "^3.2.6",
++        "iconv-lite": "^0.4.4",
++        "sax": "^1.2.4"
++      },
++      "bin": {
++        "needle": "bin/needle"
++      },
++      "engines": {
++        "node": ">= 4.4.x"
++      }
++    },
+     "node_modules/prr": {
+       "version": "1.0.1",
+       "resolved": "https://registry.npmjs.org/prr/-/prr-1.0.1.tgz",
+@@ -9247,14 +9242,14 @@
+       }
+     },
+     "node_modules/socket.io-adapter": {
+-      "version": "2.5.7",
+-      "resolved": "https://registry.npmjs.org/socket.io-adapter/-/socket.io-adapter-2.5.7.tgz",
+-      "integrity": "sha512-e0LyK91f3cUxTmv95/KzoLg47+zF+s/sbxRGDNsyG4dmIP8ZSX8ax6byOxfJXeNNtS/8AZlfD+uP7gBeR7DLlg==",
++      "version": "2.5.8",
++      "resolved": "https://registry.npmjs.org/socket.io-adapter/-/socket.io-adapter-2.5.8.tgz",
++      "integrity": "sha512-6Oy52pbg+kvdCVvjcN+FnY7BvxZ7cIHNScbvztT/It5d0vbwoJoVZmF2gjJmnV0/4WlXRfG15zc45ySk9Ah8bw==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "debug": "~4.4.1",
+-        "ws": "~8.20.1"
++        "ws": "~8.21.0"
+       }
+     },
+     "node_modules/socket.io-adapter/node_modules/debug": {
+@@ -9275,32 +9270,10 @@
+         }
+       }
+     },
+-    "node_modules/socket.io-adapter/node_modules/ws": {
+-      "version": "8.20.1",
+-      "resolved": "https://registry.npmjs.org/ws/-/ws-8.20.1.tgz",
+-      "integrity": "sha512-It4dO0K5v//JtTXuPkfEOaI3uUN87iYPnqo/ZzqCoG3g8uhA66QUMs/SrM0YK7/NAu+r4LMh/9dq2A7k+rHs+w==",
+-      "dev": true,
+-      "license": "MIT",
+-      "engines": {
+-        "node": ">=10.0.0"
+-      },
+-      "peerDependencies": {
+-        "bufferutil": "^4.0.1",
+-        "utf-8-validate": ">=5.0.2"
+-      },
+-      "peerDependenciesMeta": {
+-        "bufferutil": {
+-          "optional": true
+-        },
+-        "utf-8-validate": {
+-          "optional": true
+-        }
+-      }
+-    },
+     "node_modules/socket.io-parser": {
+-      "version": "4.2.6",
+-      "resolved": "https://registry.npmjs.org/socket.io-parser/-/socket.io-parser-4.2.6.tgz",
+-      "integrity": "sha512-asJqbVBDsBCJx0pTqw3WfesSY0iRX+2xzWEWzrpcH7L6fLzrhyF8WPI8UaeM4YCuDfpwA/cgsdugMsmtz8EJeg==",
++      "version": "4.2.7",
++      "resolved": "https://registry.npmjs.org/socket.io-parser/-/socket.io-parser-4.2.7.tgz",
++      "integrity": "sha512-IH/iSeO9T6gz1KkFleGDWkG9N3dl4jXVYUtMhIqH10Md0ttMer8nUNWiP1DKuNrybD2xBrixLJdCC9J6ECoYkg==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+@@ -9402,6 +9375,36 @@
+         "node": ">= 0.4"
+       }
+     },
++    "node_modules/stream-parser": {
++      "version": "0.3.1",
++      "resolved": "https://registry.npmjs.org/stream-parser/-/stream-parser-0.3.1.tgz",
++      "integrity": "sha512-bJ/HgKq41nlKvlhccD5kaCr/P+Hu0wPNKPJOH7en+YrJu/9EgqUF+88w5Jb6KNcjOFMhfX4B2asfeAtIGuHObQ==",
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "dependencies": {
++        "debug": "2"
++      }
++    },
++    "node_modules/stream-parser/node_modules/debug": {
++      "version": "2.6.9",
++      "resolved": "https://registry.npmjs.org/debug/-/debug-2.6.9.tgz",
++      "integrity": "sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==",
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "dependencies": {
++        "ms": "2.0.0"
++      }
++    },
++    "node_modules/stream-parser/node_modules/ms": {
++      "version": "2.0.0",
++      "resolved": "https://registry.npmjs.org/ms/-/ms-2.0.0.tgz",
++      "integrity": "sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==",
++      "dev": true,
++      "license": "MIT",
++      "optional": true
++    },
+     "node_modules/streamroller": {
+       "version": "3.1.5",
+       "resolved": "https://registry.npmjs.org/streamroller/-/streamroller-3.1.5.tgz",
+diff --git a/package.json b/package.json
+index 3d461c9..e7fa7d7 100644
+--- a/package.json
++++ b/package.json
+@@ -98,7 +98,7 @@
+     "karma-rollup-preprocessor": "7.0.8",
+     "karma-safari-launcher": "1.0.0",
+     "karma-spec-reporter": "0.0.36",
+-    "less": "4.6.4",
++    "less": "^4.9.0",
+     "prettier": "3.8.3",
+     "puppeteer-core": "25.1.0",
+     "rollup": "4.60.4",
+diff --git a/src/_locales/en.config b/src/_locales/en.config
+index 164a12d..9508c8e 100644
+--- a/src/_locales/en.config
++++ b/src/_locales/en.config
+@@ -1,5 +1,5 @@
+ @extension_description
+-Dark mode for every website. Take care of your eyes, use dark theme for night and daily browsing.
++Adaptive dark themes for websites with local settings, no ads, and no telemetry.
+ 
+ @loading_please_wait
+ Loading, please wait
+@@ -155,11 +155,11 @@ Help
+ Donate
+ 
+ @we_celebrate_10_years
+-Dark Reader celebrates 10 years.
+-Please support our work.
++InkShade is local-first.
++No ads, telemetry, news feed, or remote configuration.
+ 
+ @pay_for_using
+-Pay for using Dark Reader
++About InkShade
+ 
+ @news
+ News
+@@ -241,15 +241,15 @@ Website toggle keyboard shortcut
+ Support our work
+ 
+ @mobile_link
+-Mobile Dark Reader is available. Learn more
++InkShade keeps website theming local.
+ 
+ @store_listing
+-This eye-care extension enables night mode by creating dark themes for websites on the fly. Dark Reader inverts bright colors, making them high contrast and easy to read at night.
++InkShade creates adaptive dark themes for websites while preserving layouts, media, forms, CSS variables, dynamic content, and shadow DOM.
+ 
+-You can adjust the brightness, contrast, sepia filter, dark mode, font settings, and the ignore list.
++Adjust brightness, contrast, sepia, fonts, automation, and per-site behavior. Detect already-dark websites and leave them unchanged.
+ 
+-We may ask you to support the app's development with a donation. You may see news about Dark Reader in the settings popup. There are Developer Tools for experienced users.
++InkShade has no ads, telemetry, news feed, premium upsell, or remote configuration. Settings remain local unless you explicitly export them.
+ 
+-Dark Reader doesn't show ads or send users' data anywhere. It's fully open source: https://github.com/darkreader/darkreader
++The dynamic theme engine is derived from the MIT-licensed Dark Reader project. InkShade is independently developed and is not affiliated with or endorsed by Dark Reader Ltd.
+ 
+-Before you install it, disable similar extensions. Enjoy watching!
++Disable other dark-mode extensions on the same pages to avoid conflicts.
+diff --git a/src/_locales/ru.config b/src/_locales/ru.config
+index 0ea137c..ca6b395 100644
+--- a/src/_locales/ru.config
++++ b/src/_locales/ru.config
+@@ -1,5 +1,5 @@
+ @extension_description
+-Тёмная тема для каждого сайта. Берегите зрение, используйте Дарк Ридер для ночного или ежедневного просмотра веб-страниц.
++Адаптивная тёмная тема для каждого сайта без рекламы, телеметрии и удалённой конфигурации.
+ 
+ @loading_please_wait
+ Идёт загрузка, подождите
+@@ -155,11 +155,11 @@ a bug in your browser
+ Поддержка
+ 
+ @we_celebrate_10_years
+-Dark Reader отмечает 10-летие.
+-Пожалуйста, поддержите нашу работу.
++InkShade работает локально.
++Без рекламы, телеметрии, новостей и удалённой конфигурации.
+ 
+ @pay_for_using
+-Оплатите использование Dark Reader
++Об InkShade
+ 
+ @news
+ Новости
+@@ -241,15 +241,15 @@ Dark Reader отмечает 10-летие.
+ Поддержите нашу работу
+ 
+ @mobile_link
+-Доступен мобильный Dark Reader. Узнать больше
++InkShade обрабатывает темы сайтов локально.
+ 
+ @store_listing
+-Это расширение переводит браузер в ночной режим. Дарк Ридер заменяет светлый фон тёмным, что снижает усталость глаз при долгой работе за компьютером либо при просмотре веб-страниц ночью.
++InkShade создаёт адаптивные тёмные темы для сайтов, сохраняя разметку, изображения, формы, CSS-переменные, динамический контент и Shadow DOM.
+ 
+-Имеется возможность настраивать яркость, контрастность, шрифт, режим инверсии, режим наложения жёлтого фильтра (сепия).
++Настраивайте яркость, контрастность, сепию, шрифты, автоматизацию и поведение для отдельных сайтов. Уже тёмные сайты можно оставлять без изменений.
+ 
+-Мы можем попросить вас поддержать разработку приложения пожертвованием. Вы можете увидеть новости о Dark Reader во всплывающем окне настроек. Есть инструменты разработчика для опытных пользователей.
++В InkShade нет рекламы, телеметрии, новостной ленты, платных функций и удалённой конфигурации. Настройки остаются локальными, пока вы сами их не экспортируете.
+ 
+-Дарк Ридер не встраивает рекламу и не собирает пользовательские данные. Весь исходный код открыт https://github.com/darkreader/darkreader
++Динамический движок основан на MIT-лицензированном проекте Dark Reader. InkShade разрабатывается независимо и не связан с Dark Reader Ltd.
+ 
+-Перед установкой отключите подобные расширения. Приятного просмотра!
++Отключите другие расширения тёмной темы на тех же страницах, чтобы избежать конфликтов.
+diff --git a/src/_locales/store/store.en.config b/src/_locales/store/store.en.config
+index 259f7fb..d564425 100644
+--- a/src/_locales/store/store.en.config
++++ b/src/_locales/store/store.en.config
+@@ -1,12 +1,12 @@
+ @store_listing
+-This eye-care extension enables night mode by creating dark themes for websites on the fly. Dark Reader inverts bright colors to make web pages high contrast and easier to read.
++InkShade creates adaptive dark themes for websites while preserving layouts, media, forms, CSS variables, dynamic content, and shadow DOM.
+ 
+-Adjust brightness, contrast, the sepia filter, font preferences. Enable dark mode on every web page or give websites a sepia tone. Enable or disable Dark Reader for specific websites, automatically sync with system dark mode, or detect already dark websites and leave them unchanged.
++Adjust brightness, contrast, sepia, fonts, automation, and per-site behavior. Detect already-dark websites and leave them unchanged.
+ 
+-Dark Reader Plus unlocks a premium user interface with customizable color themes for a fee.
++InkShade has no ads, telemetry, news feed, premium upsell, or remote configuration. Settings remain local unless you explicitly export them.
+ 
+-This is the original Dark Reader extension. Since 2014, we continuously evolve alongside modern web technologies to deliver fast and reliable dark mode support for people sensitive to bright light.
++The dynamic theme engine is derived from the MIT-licensed Dark Reader project. InkShade is independently developed and is not affiliated with or endorsed by Dark Reader Ltd.
+ 
+-By installing the extension you agree to these terms of use https://darkreader.org/terms/
++Privacy details are included with the source distribution.
+ 
+-Please disable similar extensions to avoid conflicts. Enjoy browsing!
++Disable other dark-mode extensions on the same pages to avoid conflicts.
+diff --git a/src/_locales/store/store.ru.config b/src/_locales/store/store.ru.config
+index 20b5e93..460bf80 100644
+--- a/src/_locales/store/store.ru.config
++++ b/src/_locales/store/store.ru.config
+@@ -1,12 +1,12 @@
+ @store_listing
+-Это расширение переводит браузер в ночной режим. Дарк Ридер заменяет светлый фон тёмным, что снижает усталость глаз при долгой работе за компьютером либо при просмотре веб-страниц ночью.
++InkShade создаёт адаптивные тёмные темы для сайтов, сохраняя разметку, изображения, формы, CSS-переменные, динамический контент и Shadow DOM.
+ 
+-Имеется возможность настраивать яркость, контрастность, шрифт, режим инверсии, режим наложения жёлтого фильтра (сепия).
++Настраивайте яркость, контрастность, сепию, шрифты, автоматизацию и поведение для отдельных сайтов. Уже тёмные сайты можно оставлять без изменений.
+ 
+-Dark Reader Plus предоставляет доступ к платным премиум функциям с возможностью настройки цветовых тем.
++В InkShade нет рекламы, телеметрии, новостной ленты, платных функций и удалённой конфигурации. Настройки остаются локальными, пока вы сами их не экспортируете.
+ 
+-Это оригинальное расширение Dark Reader. С 2014 года мы идем в ногу с современными веб-технологиями, чтобы обеспечить быструю и надежную поддержку темного режима для людей, чувствительных к яркому свету.
++Динамический движок основан на MIT-лицензированном проекте Dark Reader. InkShade разрабатывается независимо и не связан с Dark Reader Ltd.
+ 
+-Установив расширение, вы соглашаетесь с условиями использования https://darkreader.org/terms/
++Сведения о конфиденциальности включены в исходный дистрибутив.
+ 
+-Пожалуйста, отключите подобные расширения, чтобы избежать конфликтов. Приятного просмотра!
++Отключите другие расширения тёмной темы на тех же страницах, чтобы избежать конфликтов.
+diff --git a/src/_locales/store/store.uk.config b/src/_locales/store/store.uk.config
+index 64596d1..97f1914 100644
+--- a/src/_locales/store/store.uk.config
++++ b/src/_locales/store/store.uk.config
+@@ -1,12 +1,12 @@
+ @store_listing
+-Це розширення для догляду за очима дозволяє створювати темні вигляди для мережевих сайтів. Dark Reader інвертує яскраві барви, роблячи їх контрастними і такими що легко читаються вночі.
++InkShade створює адаптивні темні теми для сайтів, зберігаючи розмітку, зображення, форми, CSS-змінні, динамічний вміст і Shadow DOM.
+ 
+-Ви можете налаштувати яскравість, контраст, сепію, темний вигляд, налаштування вигляду тексту та список нехтування.
++Налаштовуйте яскравість, контраст, сепію, шрифти, автоматизацію та поведінку для окремих сайтів. Уже темні сайти можна залишати без змін.
+ 
+-Dark Reader Plus розблоковує преміум-інтерфейс користувача з налаштовуваними кольоровими темами за певну плату.
++В InkShade немає реклами, телеметрії, стрічки новин, платних функцій або віддаленої конфігурації. Налаштування залишаються локальними, доки ви самі їх не експортуєте.
+ 
+-Це оригінальне розширення Dark Reader. З 2014 року ми постійно розвиваємося разом із сучасними веб-технологіями, щоб забезпечити швидку та надійну підтримку темного режиму для людей, чутливих до яскравого світла.
++Динамічний рушій походить від MIT-ліцензованого проєкту Dark Reader. InkShade розробляється незалежно й не пов’язаний із Dark Reader Ltd.
+ 
+-Встановлюючи розширення, ви погоджуєтеся з умовами використання https://darkreader.org/terms/
++Відомості про конфіденційність включено до вихідного дистрибутива.
+ 
+-Будь ласка, вимкніть схожі розширення, щоб уникнути конфліктів. Насолоджуйтесь переглядом!
++Вимкніть інші розширення темної теми на тих самих сторінках, щоб уникнути конфліктів.
+diff --git a/src/_locales/uk.config b/src/_locales/uk.config
+index 90ce301..d3091ba 100644
+--- a/src/_locales/uk.config
++++ b/src/_locales/uk.config
+@@ -1,5 +1,5 @@
+ @extension_description
+-Темний вигляд для кожного мережевого сайту. Піклуйтеся про свої очі, використовуйте темний вид для нічного та щоденного перегляду.
++Адаптивні темні теми для сайтів із локальними налаштуваннями, без реклами й телеметрії.
+ 
+ @loading_please_wait
+ Завантаження, будь ласка зачекайте...
+@@ -155,11 +155,11 @@ a bug in your browser
+ Пожертвувати
+ 
+ @we_celebrate_10_years
+-Dark Reader святкує 10-річчя
+-від початку розробки.
++InkShade працює локально.
++Без реклами, телеметрії, новин і віддаленої конфігурації.
+ 
+ @pay_for_using
+-Бажаємо виконання всіх мрій!
++Про InkShade
+ 
+ @news
+ Новини
+@@ -241,15 +241,15 @@ Dark Reader святкує 10-річчя
+ Підтримайте нашу роботу
+ 
+ @mobile_link
+-Доступний Mobile Dark Reader. Вивчайте більше
++InkShade обробляє теми сайтів локально.
+ 
+ @store_listing
+-Це розширення для догляду за очима дозволяє створювати темні вигляди для мережевих сайтів. Dark Reader інвертує яскраві барви, роблячи їх контрастними і такими що легко читаються вночі.
++InkShade створює адаптивні темні теми для сайтів, зберігаючи розмітку, зображення, форми, CSS-змінні, динамічний вміст і Shadow DOM.
+ 
+-Ви можете налаштувати яскравість, контраст, сепію, темний вигляд, налаштування вигляду тексту та список нехтування.
++Налаштовуйте яскравість, контраст, сепію, шрифти, автоматизацію та поведінку для окремих сайтів. Уже темні сайти можна залишати без змін.
+ 
+-Ми можемо попросити вас підтримати розробку програми пожертвуванням. Ви можете побачити новини про Dark Reader у спливаючому вікні налаштувань. Є інструменти розробника для досвідчених користувачів.
++В InkShade немає реклами, телеметрії, стрічки новин, платних функцій або віддаленої конфігурації. Налаштування залишаються локальними, доки ви самі їх не експортуєте.
+ 
+-Dark Reader не містить рекламу і не надсилає дані користувача нікуди. Це розширення з відкритим кодом https://github.com/darkreader/darkreader
++Динамічний рушій походить від MIT-ліцензованого проєкту Dark Reader. InkShade розробляється незалежно й не пов’язаний із Dark Reader Ltd.
+ 
+-Перед встановленням відімкніть подібні розширення. Насолоджуйтесь переглядом!
++Вимкніть інші розширення темної теми на тих самих сторінках, щоб уникнути конфліктів.
+diff --git a/src/background/config-manager.ts b/src/background/config-manager.ts
+index 94b0119..97890d2 100644
+--- a/src/background/config-manager.ts
++++ b/src/background/config-manager.ts
+@@ -3,9 +3,7 @@ import {indexSitesFixesConfig} from '../generators/utils/parse';
+ import type {SiteFixesIndex} from '../generators/utils/parse';
+ import type {ParsedColorSchemeConfig} from '../utils/colorscheme-parser';
+ import {parseColorSchemeConfig} from '../utils/colorscheme-parser';
+-import {CONFIG_URL_BASE} from '../utils/links';
+ import {parseArray} from '../utils/text';
+-import {getDuration} from '../utils/time';
+ import {indexURLTemplateList, isURLInIndexedList} from '../utils/url';
+ import type {URLTemplateIndex} from '../utils/url';
+ import UserStorage from './user-storage';
+@@ -14,33 +12,31 @@ import {readText} from './utils/network';
+ 
+ const CONFIG_URLs = {
+     darkSites: {
+-        remote: `${CONFIG_URL_BASE}/dark-sites.config`,
++        remote: '../config/dark-sites.config',
+         local: '../config/dark-sites.config',
+     },
+     dynamicThemeFixes: {
+-        remote: `${CONFIG_URL_BASE}/dynamic-theme-fixes.config`,
++        remote: '../config/dynamic-theme-fixes.config',
+         local: '../config/dynamic-theme-fixes.config',
+     },
+     inversionFixes: {
+-        remote: `${CONFIG_URL_BASE}/inversion-fixes.config`,
++        remote: '../config/inversion-fixes.config',
+         local: '../config/inversion-fixes.config',
+     },
+     staticThemes: {
+-        remote: `${CONFIG_URL_BASE}/static-themes.config`,
++        remote: '../config/static-themes.config',
+         local: '../config/static-themes.config',
+     },
+     colorSchemes: {
+-        remote: `${CONFIG_URL_BASE}/color-schemes.drconf`,
++        remote: '../config/color-schemes.drconf',
+         local: '../config/color-schemes.drconf',
+     },
+     detectorHints: {
+-        remote: `${CONFIG_URL_BASE}/detector-hints.config`,
++        remote: '../config/detector-hints.config',
+         local: '../config/detector-hints.config',
+     },
+ };
+ 
+-const REMOTE_TIMEOUT_MS = getDuration({seconds: 10});
+-
+ interface LocalConfig {
+     local: boolean;
+ }
+@@ -81,28 +77,8 @@ export default class ConfigManager {
+         staticThemes: null as string | null,
+     };
+ 
+-    private static async loadConfig({
+-        name,
+-        local,
+-        localURL,
+-        remoteURL,
+-    }: Config) {
+-        let $config: string;
+-        const loadLocal = async () => await readText({url: localURL});
+-        if (local) {
+-            $config = await loadLocal();
+-        } else {
+-            try {
+-                $config = await readText({
+-                    url: `${remoteURL}?nocache=${Date.now()}`,
+-                    timeout: REMOTE_TIMEOUT_MS,
+-                });
+-            } catch (err) {
+-                console.error(`${name} remote load error`, err);
+-                $config = await loadLocal();
+-            }
+-        }
+-        return $config;
++    private static async loadConfig({localURL}: Config) {
++        return await readText({url: localURL});
+     }
+ 
+     private static async loadColorSchemes({local}: LocalConfig) {
+diff --git a/src/background/extension.ts b/src/background/extension.ts
+index c1c90fa..3074884 100644
+--- a/src/background/extension.ts
++++ b/src/background/extension.ts
+@@ -21,7 +21,6 @@ import DevTools from './devtools';
+ import IconManager from './icon-manager';
+ import type {ExtensionAdapter} from './messenger';
+ import Messenger from './messenger';
+-import Newsmaker from './newsmaker';
+ import TabManager from './tab-manager';
+ import UIHighlights from './ui-highlights';
+ import UserStorage from './user-storage';
+@@ -247,9 +246,6 @@ export class Extension {
+                 }
+             });
+         }
+-        if (UserStorage.settings.syncSitesFixes) {
+-            await ConfigManager.load({local: false});
+-        }
+         Extension.updateAutoState();
+         Extension.runWakeDetector();
+         Extension.onAppToggle();
+@@ -261,7 +257,6 @@ export class Extension {
+             TabManager.updateContentScript({runOnProtectedPages: UserStorage.settings.enableForProtectedPages});
+         }
+ 
+-        UserStorage.settings.fetchNews && Newsmaker.subscribe();
+         Extension.startBarrier!.resolve();
+     }
+ 
+@@ -276,9 +271,9 @@ export class Extension {
+             changeSettings: Extension.changeSettings,
+             setTheme: Extension.setTheme,
+             toggleActiveTab: Extension.toggleActiveTab,
+-            markNewsAsRead: Newsmaker.markAsRead,
+-            markNewsAsDisplayed: Newsmaker.markAsDisplayed,
+-            loadConfig: ConfigManager.load,
++            markNewsAsRead: async () => {},
++            markNewsAsDisplayed: async () => {},
++            loadConfig: async () => ConfigManager.load({local: true}),
+             applyDevFixes: DevTools.applyFixes,
+             resetDevFixes: DevTools.resetFixes,
+             startActivation: Extension.startActivation,
+@@ -358,8 +353,8 @@ export class Extension {
+         chrome.contextMenus.removeAll(() => {
+             Extension.registeredContextMenus = false;
+             chrome.contextMenus.create({
+-                id: 'DarkReader-top',
+-                title: 'Dark Reader',
++                id: 'InkShade-top',
++                title: 'InkShade',
+             }, () => {
+                 if (chrome.runtime.lastError) {
+                     // Failed to create the context menu
+@@ -370,17 +365,17 @@ export class Extension {
+                 const msgSwitchEngine = chrome.i18n.getMessage('theme_generation_mode');
+                 chrome.contextMenus.create({
+                     id: 'toggle',
+-                    parentId: 'DarkReader-top',
++                    parentId: 'InkShade-top',
+                     title: msgToggle || 'Toggle everywhere',
+                 });
+                 chrome.contextMenus.create({
+                     id: 'addSite',
+-                    parentId: 'DarkReader-top',
++                    parentId: 'InkShade-top',
+                     title: msgAddSite || 'Toggle for current site',
+                 });
+                 chrome.contextMenus.create({
+                     id: 'switchEngine',
+-                    parentId: 'DarkReader-top',
++                    parentId: 'InkShade-top',
+                     title: msgSwitchEngine || 'Switch engine',
+                 });
+                 Extension.registeredContextMenus = true;
+@@ -396,13 +391,11 @@ export class Extension {
+     static async collectData(): Promise<ExtensionData> {
+         await Extension.loadData();
+         const [
+-            news,
+             shortcuts,
+             activeTab,
+             isAllowedFileSchemeAccess,
+             uiHighlights,
+         ] = await Promise.all([
+-            Newsmaker.getLatest(),
+             Extension.getShortcuts(),
+             Extension.getActiveTabInfo(),
+             new Promise<boolean>((r) => chrome.extension.isAllowedFileSchemeAccess(r)),
+@@ -413,7 +406,7 @@ export class Extension {
+             isReady: true,
+             isAllowedFileSchemeAccess,
+             settings: UserStorage.settings,
+-            news,
++            news: [],
+             shortcuts,
+             colorScheme: ConfigManager.COLOR_SCHEMES_RAW!,
+             forcedScheme: Extension.autoState === 'scheme-dark' ? 'dark' : Extension.autoState === 'scheme-light' ? 'light' : null,
+@@ -540,10 +533,6 @@ export class Extension {
+                 resetWindowTheme();
+             }
+         }
+-        if (prev.fetchNews !== UserStorage.settings.fetchNews) {
+-            UserStorage.settings.fetchNews ? Newsmaker.subscribe() : Newsmaker.unSubscribe();
+-        }
+-
+         if (prev.enableContextMenus !== UserStorage.settings.enableContextMenus) {
+             if (UserStorage.settings.enableContextMenus) {
+                 Extension.registerContextMenus();
+diff --git a/src/background/icon-manager.ts b/src/background/icon-manager.ts
+index 405a620..351c185 100644
+--- a/src/background/icon-manager.ts
++++ b/src/background/icon-manager.ts
+@@ -16,12 +16,12 @@ interface IconOptions {
+ export default class IconManager {
+     private static readonly ICON_PATHS = {
+         activeDark: {
+-            19: '../icons/dr_active_19.png',
+-            38: '../icons/dr_active_38.png',
++            16: '../icons/icon16.png',
++            32: '../icons/icon32.png',
+         },
+         activeLight: {
+-            19: '../icons/dr_active_light_19.png',
+-            38: '../icons/dr_active_light_38.png',
++            16: '../icons/icon16.png',
++            32: '../icons/icon32.png',
+         },
+         // Temporary disable the gray icon
+         /*
+diff --git a/src/background/index.ts b/src/background/index.ts
+index e151e96..015aa8a 100644
+--- a/src/background/index.ts
++++ b/src/background/index.ts
+@@ -1,13 +1,11 @@
+ import {canInjectScript, keepListeningToEvents} from '../background/utils/extension-api';
+ import type {ColorScheme, DebugMessageBGtoCS, DebugMessageBGtoUI, DebugMessageCStoBG, ExtensionData, News, UserSettings} from '../definitions';
+-import {getHelpURL, UNINSTALL_URL} from '../utils/links';
+ import {emulateColorScheme, isSystemDarkModeEnabled} from '../utils/media-query';
+ import {DebugMessageTypeBGtoCS, DebugMessageTypeBGtoUI, DebugMessageTypeCStoBG} from '../utils/message';
+ import {isFirefox} from '../utils/platform';
+ 
+ import {Extension} from './extension';
+ import {makeChromiumHappy} from './make-chromium-happy';
+-import {setNewsForTesting} from './newsmaker';
+ import {ASSERT} from './utils/log';
+ import {sendLog} from './utils/sendLog';
+ 
+@@ -52,11 +50,7 @@ type TestMessage = {
+ // Start extension
+ const extension = Extension.start();
+ 
+-const welcome = `  /''''\\
+- (0)==(0)
+-/__||||__\\
+-Welcome to Dark Reader!`;
+-console.log(welcome);
++console.log('InkShade background ready');
+ 
+ declare const __DEBUG__: boolean;
+ declare const __WATCH__: boolean;
+@@ -126,14 +120,6 @@ if (__WATCH__) {
+     };
+ 
+     listen();
+-} else if (!__DEBUG__ && !__TEST__) {
+-    chrome.runtime.onInstalled.addListener(({reason}) => {
+-        if (reason === 'install') {
+-            chrome.tabs.create({url: getHelpURL()});
+-        }
+-    });
+-
+-    chrome.runtime.setUninstallURL(UNINSTALL_URL);
+ }
+ 
+ if (__TEST__) {
+@@ -187,7 +173,6 @@ if (__TEST__) {
+                     break;
+                 }
+                 case 'setNews':
+-                    setNewsForTesting(message.data);
+                     respond();
+                     break;
+                 case 'firefox-getColorScheme': {
+diff --git a/src/background/tab-manager.ts b/src/background/tab-manager.ts
+index eee3741..da879bf 100644
+--- a/src/background/tab-manager.ts
++++ b/src/background/tab-manager.ts
+@@ -266,7 +266,7 @@ export default class TabManager {
+             if (themeMessageTypes.includes(message.type)) {
+                 IconManager.setIcon({tabId, isActive: true, colorScheme: message.data?.theme?.mode ? 'dark' : 'light'});
+             } else if (message.type === MessageTypeBGtoCS.CLEAN_UP) {
+-                const isActive = TabManager.tabs[tabId]?.[0]?.url?.startsWith('https://darkreader.org/');
++                const isActive = TabManager.tabs[tabId]?.[0]?.url?.startsWith('https://kikuai.dev/');
+                 IconManager.setIcon({tabId, isActive});
+             }
+         }
+diff --git a/src/config/dynamic-theme-fixes.config b/src/config/dynamic-theme-fixes.config
+index 17ac959..2740a59 100644
+--- a/src/config/dynamic-theme-fixes.config
++++ b/src/config/dynamic-theme-fixes.config
+@@ -1784,6 +1784,7 @@ about.gitlab.com
+ 
+ INVERT
+ div.customer-logos__companies a
++.homepage-hero-v2__customer-logos img.logo
+ 
+ CSS
+ .progressbar {
+@@ -32598,6 +32599,15 @@ INVERT
+ 
+ ================================
+ 
++sqlite.org
++
++INVERT
++img[alt="Bloomberg"]
++img[alt="Expensify"]
++img[alt="NDS"]
++
++================================
++
+ squareup.com
+ 
+ INVERT
+diff --git a/src/defaults.ts b/src/defaults.ts
+index 7e73c07..6dc7d6f 100644
+--- a/src/defaults.ts
++++ b/src/defaults.ts
+@@ -71,7 +71,7 @@ const filterModeSites = [
+ export const DEFAULT_SETTINGS: UserSettings = {
+     schemeVersion: 0,
+     enabled: true,
+-    fetchNews: true,
++    fetchNews: false,
+     theme: DEFAULT_THEME,
+     presets: [],
+     customThemes: filterModeSites.map((url) => {
+@@ -86,7 +86,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
+     enabledFor: [],
+     disabledFor: [],
+     changeBrowserTheme: false,
+-    syncSettings: true,
++    syncSettings: false,
+     syncSitesFixes: false,
+     automation: {
+         enabled: isEdge && isMobile ? true : false,
+@@ -101,7 +101,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
+         latitude: null,
+         longitude: null,
+     },
+-    previewNewDesign: false,
++    previewNewDesign: true,
+     previewNewestDesign: false,
+     enableForPDF: true,
+     enableForProtectedPages: false,
+diff --git a/src/inject/color-scheme-watcher.ts b/src/inject/color-scheme-watcher.ts
+index f77eb78..fc8c4b3 100644
+--- a/src/inject/color-scheme-watcher.ts
++++ b/src/inject/color-scheme-watcher.ts
+@@ -31,10 +31,10 @@ function sendMessage(message: MessageCStoBG): void {
+          * Regular message passing errors are returned via rejected promise or runtime.lastError.
+          */
+         if ((error as Error).message === 'Extension context invalidated.') {
+-            console.log('Dark Reader: instance of old CS detected, cleaning up.');
++            console.log('InkShade: instance of old content script detected, cleaning up.');
+             cleanup();
+         } else {
+-            console.log('Dark Reader: unexpected error during message passing.');
++            console.log('InkShade: unexpected error during message passing.');
+         }
+     }
+ }
+diff --git a/src/inject/detector.ts b/src/inject/detector.ts
+index 8253625..2606fed 100644
+--- a/src/inject/detector.ts
++++ b/src/inject/detector.ts
+@@ -1,113 +1,242 @@
+ import type {DetectorHint} from '../definitions';
+ import {getSRGBLightness, parseColorWithCache} from '../utils/color';
+-import {isSystemDarkModeEnabled} from '../utils/media-query';
+ 
+ const COLOR_SCHEME_META_SELECTOR = 'meta[name="color-scheme"]';
++const DETECTOR_MAX_DURATION = 6000;
++const DETECTOR_MAX_CHECKS = 8;
++const DETECTOR_DEBOUNCE = 120;
++const DARK_SAMPLE_THRESHOLD = 0.45;
++const LIGHT_SAMPLE_THRESHOLD = 0.65;
++const DOCUMENT_SAMPLE_COLUMNS = 3;
++const DOCUMENT_SAMPLE_ROWS = 4;
++const DOCUMENT_SAMPLE_MIN_HEIGHT_RATIO = 1.5;
++const DOCUMENT_SAMPLE_VISIT_LIMIT = 1500;
+ 
+-function hasBuiltInDarkTheme() {
+-    const rootStyle = getComputedStyle(document.documentElement);
+-    if (rootStyle.filter.includes('invert(1)') || rootStyle.colorScheme === 'dark') {
+-        return true;
+-    }
++interface DetectorRun {
++    callback: (hasDarkTheme: boolean) => void;
++}
+ 
+-    const CELL_SIZE = 256;
+-    const MAX_ROW_COUNT = 4;
+-    const winWidth = innerWidth;
+-    const winHeight = innerHeight;
+-    const stepX = Math.floor(winWidth / Math.min(MAX_ROW_COUNT, Math.ceil(winWidth / CELL_SIZE)));
+-    const stepY = Math.floor(winHeight / Math.min(MAX_ROW_COUNT, Math.ceil(winHeight / CELL_SIZE)));
++let activeRun: DetectorRun | null = null;
++let observer: MutationObserver | null = null;
++let readyStateListener: (() => void) | null = null;
++let checkTimer: number | null = null;
++let deadlineTimer: number | null = null;
++let hintTargetObserver: MutationObserver | null = null;
++let hintMatchObservers: MutationObserver[] = [];
+ 
+-    const processedElements = new Set<Element>();
++function getColorAlpha(color: {a?: number}): number {
++    return color.a == null ? 1 : color.a;
++}
+ 
+-    for (let y = Math.floor(stepY / 2); y < winHeight; y += stepY) {
+-        for (let x = Math.floor(stepX / 2); x < winWidth; x += stepX) {
+-            const element = document.elementFromPoint(x, y);
+-            if (!element || processedElements.has(element) || element.tagName.toLocaleLowerCase() === 'img') {
+-                continue;
+-            }
+-            processedElements.add(element);
+-            const style = element === document.documentElement ? rootStyle : getComputedStyle(element);
+-            const bgColor = parseColorWithCache(style.backgroundColor);
+-            if (!bgColor) {
+-                return false;
+-            }
+-            if (bgColor.r === 24 && bgColor.g === 26 && bgColor.b === 27) {
+-                // For some websites changes to CSSStyleSheet.disabled and HTMLStyleElement.textContent
+-                // are not being applied synchronously. For example https://zorin.com/
+-                // Probably a browser bug. Treat as not having a dark theme.
+-                return false;
+-            }
+-            if (bgColor.a === 1) {
+-                const bgLightness = getSRGBLightness(bgColor.r, bgColor.g, bgColor.b);
+-                if (bgLightness > 0.6) {
+-                    return false;
+-                }
+-            } else {
+-                const textColor = parseColorWithCache(style.color);
+-                if (!textColor) {
+-                    return false;
+-                }
+-                const textLightness = getSRGBLightness(textColor.r, textColor.g, textColor.b);
+-                if (textLightness < 0.4) {
+-                    return false;
+-                }
+-            }
++function compositeColors(top: {r: number; g: number; b: number; a?: number}, bottom: {r: number; g: number; b: number; a?: number}) {
++    const topAlpha = getColorAlpha(top);
++    const bottomAlpha = getColorAlpha(bottom);
++    const alpha = topAlpha + bottomAlpha * (1 - topAlpha);
++    if (alpha === 0) {
++        return {r: 0, g: 0, b: 0, a: 0};
++    }
++    return {
++        r: (top.r * topAlpha + bottom.r * bottomAlpha * (1 - topAlpha)) / alpha,
++        g: (top.g * topAlpha + bottom.g * bottomAlpha * (1 - topAlpha)) / alpha,
++        b: (top.b * topAlpha + bottom.b * bottomAlpha * (1 - topAlpha)) / alpha,
++        a: alpha,
++    };
++}
++
++function getFullInvertCount(filter: string): number {
++    return filter.match(/invert\(\s*(?:1(?:\.0*)?|100%)\s*\)/gi)?.length || 0;
++}
++
++function getEffectiveBackground(element: Element, defaultColor: {r: number; g: number; b: number}) {
++    const layers: Array<{r: number; g: number; b: number; a?: number}> = [];
++    let fullInvertCount = 0;
++    let current: Element | null = element;
++    while (current) {
++        const style = getComputedStyle(current);
++        const background = parseColorWithCache(style.backgroundColor);
++        if (background) {
++            layers.push(background);
+         }
++        fullInvertCount += getFullInvertCount(style.filter);
++        current = current.parentElement;
+     }
+ 
+-    const rootColor = parseColorWithCache(rootStyle.backgroundColor);
+-    if (!rootColor) {
+-        return false;
++    let result: {r: number; g: number; b: number; a?: number} = {...defaultColor, a: 1};
++    for (let i = layers.length - 1; i >= 0; i--) {
++        result = compositeColors(layers[i], result);
++    }
++    if (fullInvertCount % 2 === 1) {
++        result = {...result, r: 255 - result.r, g: 255 - result.g, b: 255 - result.b};
+     }
++    return result;
++}
+ 
+-    const bodyColor = document.body ? parseColorWithCache(getComputedStyle(document.body).backgroundColor) : {r: 0, g: 0, b: 0, a: 0};
+-    if (!bodyColor) {
++function isDarkPalette(darkSamples: number, lightSamples: number): boolean {
++    const usableSamples = darkSamples + lightSamples;
++    if (usableSamples === 0) {
+         return false;
+     }
++    return darkSamples > 0 && darkSamples / usableSamples >= 0.65 && lightSamples / usableSamples <= 0.25;
++}
+ 
+-    if (rootColor.a === 0 && bodyColor.a === 0) {
+-        const rootTextColor = parseColorWithCache(rootStyle.color);
+-        if (rootTextColor) {
+-            const textLightness = getSRGBLightness(rootTextColor.r, rootTextColor.g, rootTextColor.b);
+-            return textLightness > 0.5;
++function getElementAtDocumentPoint(x: number, y: number): Element {
++    let best: Element = document.documentElement;
++    let bestDepth = 0;
++    let visits = 0;
++    const stack: Array<{element: Element; depth: number}> = [{element: document.documentElement, depth: 0}];
++    while (stack.length > 0 && visits < DOCUMENT_SAMPLE_VISIT_LIMIT) {
++        const next = stack.pop();
++        if (!next) {
++            break;
++        }
++        const {element, depth} = next;
++        for (const child of element.children) {
++            visits++;
++            const rect = child.getBoundingClientRect();
++            const left = rect.left + scrollX;
++            const top = rect.top + scrollY;
++            if (rect.width > 0 && rect.height > 0 && x >= left && x < left + rect.width && y >= top && y < top + rect.height) {
++                if (depth + 1 >= bestDepth) {
++                    best = child;
++                    bestDepth = depth + 1;
++                }
++                stack.push({element: child, depth: depth + 1});
++            }
++            if (visits >= DOCUMENT_SAMPLE_VISIT_LIMIT) {
++                break;
++            }
+         }
+     }
++    return best;
++}
+ 
+-    const rootLightness = (1 - rootColor.a!) + rootColor.a! * getSRGBLightness(rootColor.r, rootColor.g, rootColor.b);
+-    const finalLightness = (1 - bodyColor.a!) * rootLightness + bodyColor.a! * getSRGBLightness(bodyColor.r, bodyColor.g, bodyColor.b);
++function hasDarkDocumentPalette(defaultColor: {r: number; g: number; b: number}, viewportHeight: number): boolean {
++    const root = document.documentElement;
++    const documentHeight = Math.max(root.scrollHeight, document.body?.scrollHeight || 0);
++    if (documentHeight <= viewportHeight * DOCUMENT_SAMPLE_MIN_HEIGHT_RATIO) {
++        return true;
++    }
+ 
+-    return finalLightness < 0.5;
++    const documentWidth = Math.max(1, root.clientWidth);
++    let darkSamples = 0;
++    let lightSamples = 0;
++    for (let row = 0; row < DOCUMENT_SAMPLE_ROWS; row++) {
++        for (let column = 0; column < DOCUMENT_SAMPLE_COLUMNS; column++) {
++            const x = (column + 0.5) * documentWidth / DOCUMENT_SAMPLE_COLUMNS;
++            const y = (row + 0.5) * documentHeight / DOCUMENT_SAMPLE_ROWS;
++            const element = getElementAtDocumentPoint(x, y);
++            const color = getEffectiveBackground(element, defaultColor);
++            const lightness = getSRGBLightness(color.r, color.g, color.b);
++            if (lightness <= DARK_SAMPLE_THRESHOLD) {
++                darkSamples++;
++            } else if (lightness >= LIGHT_SAMPLE_THRESHOLD) {
++                lightSamples++;
++            }
++        }
++    }
++    return isDarkPalette(darkSamples, lightSamples);
+ }
+ 
+-function runCheck(callback: (hasDarkTheme: boolean) => void) {
+-    const colorSchemeMeta = document.querySelector(COLOR_SCHEME_META_SELECTOR) as HTMLMetaElement;
+-    if (colorSchemeMeta) {
+-        const isMetaDark = colorSchemeMeta.content === 'dark' || (colorSchemeMeta.content.includes('dark') && isSystemDarkModeEnabled());
+-        callback(isMetaDark);
+-        return;
++function hasBuiltInDarkTheme(hasNativeDarkSignal: boolean): boolean {
++    const rootStyle = getComputedStyle(document.documentElement);
++    const defaultColor = {r: 255, g: 255, b: 255};
++    const darkSamples: Element[] = [];
++    const lightSamples: Element[] = [];
++    const winWidth = Math.max(1, innerWidth);
++    const winHeight = Math.max(1, innerHeight);
++    const columnCount = Math.max(1, Math.min(5, Math.ceil(winWidth / 256)));
++    const rowCount = Math.max(1, Math.min(5, Math.ceil(winHeight / 256)));
++    const stepX = winWidth / columnCount;
++    const stepY = winHeight / rowCount;
++    const processedElements = new Set<Element>();
++
++    for (let y = stepY / 2; y < winHeight; y += stepY) {
++        for (let x = stepX / 2; x < winWidth; x += stepX) {
++            const element = document.elementFromPoint(x, y);
++            if (!element || processedElements.has(element)) {
++                continue;
++            }
++            processedElements.add(element);
++            const tagName = element.tagName.toLocaleLowerCase();
++            if (tagName === 'img' || tagName === 'video' || tagName === 'canvas' || tagName === 'svg' || element.closest('.darkreader')) {
++                continue;
++            }
++            const color = getEffectiveBackground(element, defaultColor);
++            const lightness = getSRGBLightness(color.r, color.g, color.b);
++            if (lightness <= DARK_SAMPLE_THRESHOLD) {
++                darkSamples.push(element);
++            } else if (lightness >= LIGHT_SAMPLE_THRESHOLD) {
++                lightSamples.push(element);
++            }
++        }
+     }
+ 
+-    if (
+-        document.documentElement.classList.contains('dark') ||
+-        document.body?.classList.contains('dark') ||
+-        document.documentElement.dataset.theme?.toLocaleLowerCase() === 'dark'
+-    ) {
+-        callback(true);
+-        return;
++    const usableSamples = darkSamples.length + lightSamples.length;
++    if (usableSamples === 0) {
++        // A declaration is not proof of a rendered palette. It is only useful
++        // here as a tie-breaker for a deliberately empty native-dark shell.
++        if (hasNativeDarkSignal && rootStyle.colorScheme.toLocaleLowerCase().includes('dark')) {
++            const rootColor = parseColorWithCache(rootStyle.color);
++            return rootColor != null && getSRGBLightness(rootColor.r, rootColor.g, rootColor.b) > 0.5;
++        }
++        return false;
+     }
+ 
+-    const drSheets = Array.from(document.styleSheets).filter((s) => (s.ownerNode as HTMLElement)?.classList.contains('darkreader'))
++    return isDarkPalette(darkSamples.length, lightSamples.length) && hasDarkDocumentPalette(defaultColor, winHeight);
++}
++
++function hasNativeDarkSignal(): boolean {
++    const meta = document.querySelector(COLOR_SCHEME_META_SELECTOR) as HTMLMetaElement | null;
++    const metaTokens = meta?.content.toLocaleLowerCase().split(/\s+/).filter(Boolean) || [];
++    const root = document.documentElement;
++    const body = document.body;
++    const rootColorScheme = getComputedStyle(root).colorScheme.toLocaleLowerCase();
++    const theme = (root.dataset.theme || body?.dataset.theme || root.dataset.mode || body?.dataset.mode)?.toLocaleLowerCase();
++    const colorScheme = (root.dataset.colorScheme || body?.dataset.colorScheme)?.toLocaleLowerCase();
++    return metaTokens.includes('dark') ||
++        root.classList.contains('dark') ||
++        body?.classList.contains('dark') === true ||
++        theme === 'dark' ||
++        colorScheme === 'dark' ||
++        rootColorScheme.includes('dark');
++}
++
++function runCheck(): boolean {
++    // Meta tags and theme classes are intentionally only evidence. The final
++    // decision is based on the rendered viewport after InkShade sheets are
++    // disabled below.
++    const darkSignal = hasNativeDarkSignal();
++    const drSheets = Array.from(document.styleSheets)
++        .filter((s) => (s.ownerNode as HTMLElement)?.classList.contains('darkreader'))
+         .concat(
+             Array.isArray(document.adoptedStyleSheets) ? Array.from(document.adoptedStyleSheets).filter(
+                 (s) => (s.cssRules?.[0] as CSSStyleRule)?.selectorText?.startsWith('#__darkreader')
+             ) : [],
+         );
+-    drSheets.forEach((sheet) => sheet.disabled = true);
+-
+-    const darkThemeDetected = hasBuiltInDarkTheme();
+-
+-    drSheets.forEach((sheet) => sheet.disabled = false);
+-    callback(darkThemeDetected);
++    const sheetStates = drSheets.map((sheet) => ({sheet, disabled: sheet.disabled}));
++    try {
++        for (const {sheet} of sheetStates) {
++            try {
++                sheet.disabled = true;
++            } catch {
++                // A cross-origin or browser-owned sheet may reject this write.
++            }
++        }
++        // Force the browser to apply the CSSStyleSheet.disabled changes before
++        // sampling. Some Chromium builds otherwise expose the previous
++        // InkShade-computed palette for the rest of this task.
++        void document.documentElement.offsetHeight;
++        void getComputedStyle(document.documentElement).backgroundColor;
++        return hasBuiltInDarkTheme(darkSignal);
++    } finally {
++        for (const {sheet, disabled} of sheetStates) {
++            try {
++                sheet.disabled = disabled;
++            } catch {
++                // Keep cleanup best-effort without breaking detection.
++            }
++        }
++    }
+ }
+ 
+ function hasSomeStyle() {
+@@ -125,9 +254,6 @@ function hasSomeStyle() {
+     return false;
+ }
+ 
+-let observer: MutationObserver | null;
+-let readyStateListener: (() => void) | null;
+-
+ function canCheckForStyle() {
+     if (!(
+         document.body &&
+@@ -146,40 +272,50 @@ function canCheckForStyle() {
+     return false;
+ }
+ 
+-export function runDarkThemeDetector(callback: (hasDarkTheme: boolean) => void, hints: DetectorHint[]): void {
+-    stopDarkThemeDetector();
+-    if (hints && hints.length > 0) {
+-        const hint = hints[0];
+-        if (hint.noDarkTheme) {
+-            callback(false);
++function isActive(run: DetectorRun): boolean {
++    return activeRun === run;
++}
++
++function scheduleCheck(run: DetectorRun, finish: (hasDarkTheme: boolean) => void, checks: {count: number}, delay = 0): void {
++    if (!isActive(run)) {
++        return;
++    }
++    if (checkTimer != null) {
++        window.clearTimeout(checkTimer);
++    }
++    checkTimer = window.setTimeout(() => {
++        checkTimer = null;
++        if (!isActive(run)) {
+             return;
+         }
+-        if (hint.systemTheme && isSystemDarkModeEnabled()) {
+-            callback(true);
++        if (!canCheckForStyle()) {
++            scheduleCheck(run, finish, checks, DETECTOR_DEBOUNCE);
+             return;
+         }
+-        detectUsingHint(hint, () => callback(true));
+-        return;
+-    }
+-
+-    if (canCheckForStyle()) {
+-        runCheck(callback);
+-        return;
+-    }
+-
+-    observer = new MutationObserver(() => {
+-        if (canCheckForStyle()) {
+-            stopDarkThemeDetector();
+-            runCheck(callback);
++        checks.count++;
++        if (runCheck()) {
++            finish(true);
++            return;
+         }
++        if (checks.count >= DETECTOR_MAX_CHECKS) {
++            finish(false);
++        }
++    }, delay);
++}
++
++function observeForDelayedTheme(run: DetectorRun, finish: (hasDarkTheme: boolean) => void, checks: {count: number}): void {
++    observer = new MutationObserver(() => scheduleCheck(run, finish, checks, DETECTOR_DEBOUNCE));
++    observer.observe(document.documentElement, {
++        childList: true,
++        subtree: true,
++        attributes: true,
++        attributeFilter: ['class', 'style', 'data-theme', 'data-color-scheme', 'data-theme-mode', 'data-color-mode'],
+     });
+-    observer.observe(document.documentElement, {childList: true});
+ 
+     if (document.readyState !== 'complete') {
+         readyStateListener = () => {
+-            if (document.readyState === 'complete') {
+-                stopDarkThemeDetector();
+-                runCheck(callback);
++            if (document.readyState === 'complete' && isActive(run)) {
++                scheduleCheck(run, finish, checks);
+             }
+         };
+         // readystatechange event is not cancellable and does not bubble
+@@ -187,7 +323,42 @@ export function runDarkThemeDetector(callback: (hasDarkTheme: boolean) => void,
+     }
+ }
+ 
++function completeRun(run: DetectorRun, hasDarkTheme: boolean): void {
++    if (!isActive(run)) {
++        return;
++    }
++    stopDarkThemeDetector();
++    run.callback(hasDarkTheme);
++}
++
++export function runDarkThemeDetector(callback: (hasDarkTheme: boolean) => void, hints: DetectorHint[]): void {
++    stopDarkThemeDetector();
++    const run: DetectorRun = {callback};
++    activeRun = run;
++    const finish = (hasDarkTheme: boolean) => completeRun(run, hasDarkTheme);
++    const checks = {count: 0};
++
++    if (hints && hints.length > 0) {
++        if (hints.some((hint) => hint.noDarkTheme)) {
++            finish(false);
++            return;
++        }
++        const matchHints = hints.filter((hint) => hint.target && hint.match?.length);
++        if (matchHints.length > 0) {
++            detectUsingHints(matchHints, () => finish(true), run);
++        }
++    }
++
++    // SYSTEM THEME is a preference hint, not proof that the rendered page is
++    // dark. Selector hints remain an additional positive signal, while the
++    // bounded visual detector always runs so stale hints cannot suppress it.
++    observeForDelayedTheme(run, finish, checks);
++    scheduleCheck(run, finish, checks);
++    deadlineTimer = window.setTimeout(() => finish(false), DETECTOR_MAX_DURATION);
++}
++
+ export function stopDarkThemeDetector(): void {
++    activeRun = null;
+     if (observer) {
+         observer.disconnect();
+         observer = null;
+@@ -196,55 +367,84 @@ export function stopDarkThemeDetector(): void {
+         document.removeEventListener('readystatechange', readyStateListener);
+         readyStateListener = null;
+     }
++    if (checkTimer != null) {
++        window.clearTimeout(checkTimer);
++        checkTimer = null;
++    }
++    if (deadlineTimer != null) {
++        window.clearTimeout(deadlineTimer);
++        deadlineTimer = null;
++    }
+     stopDetectingUsingHint();
+ }
+ 
+-let hintTargetObserver: MutationObserver;
+-let hintMatchObserver: MutationObserver;
+-
+-function detectUsingHint(hint: DetectorHint, success: () => void) {
++function detectUsingHints(hints: DetectorHint[], success: () => void, run: DetectorRun) {
+     stopDetectingUsingHint();
++    const targets = new Map<DetectorHint, Element>();
+ 
+-    const matchSelector = (hint.match || []).join(', ');
+-
+-    function checkMatch(target: Element) {
+-        if (target.matches?.(matchSelector)) {
+-            stopDetectingUsingHint();
+-            success();
+-            return true;
++    const checkMatch = (hint: DetectorHint, target: Element): boolean => {
++        try {
++            const matchSelector = hint.match.join(', ');
++            if (target.matches(matchSelector)) {
++                success();
++                return true;
++            }
++        } catch {
++            // Ignore malformed remote hints; visual detection remains available
++            // for sites without a usable curated selector.
+         }
+         return false;
+-    }
++    };
++
++    const setupMatchObserver = (hint: DetectorHint, target: Element) => {
++        if (!isActive(run)) {
++            return;
++        }
++        targets.set(hint, target);
++        if (checkMatch(hint, target)) {
++            return;
++        }
++        const matchObserver = new MutationObserver(() => checkMatch(hint, target));
++        matchObserver.observe(target, {attributes: true});
++        hintMatchObservers.push(matchObserver);
++    };
+ 
+-    function setupMatchObserver(target: Element) {
+-        hintMatchObserver?.disconnect();
+-        if (checkMatch(target)) {
++    for (const hint of hints) {
++        if (!isActive(run)) {
+             return;
+         }
+-        hintMatchObserver = new MutationObserver(() => checkMatch(target));
+-        hintMatchObserver.observe(target, {attributes: true});
++        let target: Element | null = null;
++        try {
++            target = document.querySelector(hint.target);
++        } catch {
++            continue;
++        }
++        if (target) {
++            setupMatchObserver(hint, target);
++        }
+     }
+ 
+-    const target = document.querySelector(hint.target);
+-    if (target) {
+-        setupMatchObserver(target);
+-    } else {
+-        hintTargetObserver = new MutationObserver((mutations) => {
+-            const handledTargets = new Set<Node>();
+-            for (const mutation of mutations) {
+-                if (handledTargets.has(mutation.target)) {
++    const unresolved = () => hints.filter((hint) => !targets.has(hint));
++    if (unresolved().length > 0) {
++        hintTargetObserver = new MutationObserver(() => {
++            if (!isActive(run)) {
++                return;
++            }
++            for (const hint of unresolved()) {
++                let target: Element | null = null;
++                try {
++                    target = document.querySelector(hint.target);
++                } catch {
+                     continue;
+                 }
+-                handledTargets.add(mutation.target);
+-                if (mutation.target instanceof Element) {
+-                    const target = mutation.target.querySelector(hint.target);
+-                    if (target) {
+-                        hintTargetObserver.disconnect();
+-                        setupMatchObserver(target);
+-                        break;
+-                    }
++                if (target) {
++                    setupMatchObserver(hint, target);
+                 }
+             }
++            if (unresolved().length === 0) {
++                hintTargetObserver?.disconnect();
++                hintTargetObserver = null;
++            }
+         });
+         hintTargetObserver.observe(document.documentElement, {childList: true, subtree: true});
+     }
+@@ -252,5 +452,7 @@ function detectUsingHint(hint: DetectorHint, success: () => void) {
+ 
+ function stopDetectingUsingHint() {
+     hintTargetObserver?.disconnect();
+-    hintMatchObserver?.disconnect();
++    hintTargetObserver = null;
++    hintMatchObservers.forEach((matchObserver) => matchObserver.disconnect());
++    hintMatchObservers = [];
+ }
+diff --git a/src/inject/index.ts b/src/inject/index.ts
+index 54c3d88..11217ad 100644
+--- a/src/inject/index.ts
++++ b/src/inject/index.ts
+@@ -76,10 +76,10 @@ function sendMessage(message: MessageCStoBG | MessageCStoUI): true | undefined {
+          * Regular message passing errors are returned via rejected promise or runtime.lastError.
+          */
+         if (error.message === 'Extension context invalidated.') {
+-            console.log('Dark Reader: instance of old CS detected, cleaning up.');
++            console.log('InkShade: instance of old content script detected, cleaning up.');
+             cleanup();
+         } else {
+-            console.log('Dark Reader: unexpected error during message passing.');
++            console.log('InkShade: unexpected error during message passing.');
+         }
+     }
+ }
+diff --git a/src/manifest-chrome-mv3.json b/src/manifest-chrome-mv3.json
+index 08dddaf..7241f3e 100644
+--- a/src/manifest-chrome-mv3.json
++++ b/src/manifest-chrome-mv3.json
+@@ -2,10 +2,10 @@
+     "manifest_version": 3,
+     "minimum_chrome_version": "106.0.0.0",
+     "action": {
+-        "default_title": "Dark Reader",
++        "default_title": "InkShade – Dark Mode for Every Site",
+         "default_icon": {
+-            "38": "icons/dr_active_38.png",
+-            "19": "icons/dr_active_19.png"
++            "16": "icons/icon16.png",
++            "32": "icons/icon32.png"
+         },
+         "default_popup": "ui/popup/index.html"
+     },
+@@ -16,7 +16,7 @@
+         "service_worker": "background/index.js"
+     },
+     "content_security_policy": {
+-        "extension_pages": "default-src 'none'; script-src 'self'; style-src 'self'; img-src * data:; connect-src *; navigate-to 'self' https://darkreader.org/* https://github.com/darkreader/darkreader/blob/main/CONTRIBUTING.md https://github.com/darkreader/darkreader https://twitter.com/darkreaderapp; media-src 'none'; child-src 'none'; worker-src 'none'; object-src 'none'"
++        "extension_pages": "default-src 'none'; script-src 'self'; style-src 'self'; img-src * data:; connect-src *; media-src 'none'; child-src 'none'; worker-src 'none'; object-src 'none'"
+     },
+     "content_scripts": [
+         {
+diff --git a/src/manifest.json b/src/manifest.json
+index 82400ba..1f61e07 100644
+--- a/src/manifest.json
++++ b/src/manifest.json
+@@ -1,22 +1,24 @@
+ {
+     "manifest_version": 2,
+-    "name": "Dark Reader",
+-    "version": "4.9.129",
+-    "author": "Alexander Shutau",
++    "name": "InkShade – Dark Mode for Every Site",
++    "short_name": "InkShade",
++    "version": "2.0.0",
++    "author": "KikuAI Lab",
+     "description": "__MSG_extension_description__",
+     "default_locale": "en",
+     "browser_action": {
+-        "default_title": "Dark Reader",
++        "default_title": "InkShade – Dark Mode for Every Site",
+         "default_icon": {
+-            "38": "icons/dr_active_38.png",
+-            "19": "icons/dr_active_19.png"
++            "16": "icons/icon16.png",
++            "32": "icons/icon32.png"
+         },
+         "default_popup": "ui/popup/index.html"
+     },
+     "icons": {
+-        "16": "icons/dr_16.png",
+-        "48": "icons/dr_48.png",
+-        "128": "icons/dr_128.png"
++        "16": "icons/icon16.png",
++        "32": "icons/icon32.png",
++        "48": "icons/icon48.png",
++        "128": "icons/icon128.png"
+     },
+     "background": {
+         "persistent": true,
+diff --git a/src/ui/devtools/components/body.tsx b/src/ui/devtools/components/body.tsx
+index d79d165..eac9eeb 100644
+--- a/src/ui/devtools/components/body.tsx
++++ b/src/ui/devtools/components/body.tsx
+@@ -48,7 +48,7 @@ export default function Body(props: DevtoolsProps): Malevic.Child {
+     return (
+         <body>
+             <header>
+-                <img id="logo" src="../assets/images/darkreader-type.svg" alt="Dark Reader" />
++                <strong id="logo">InkShade</strong>
+                 <h1 id="title">Developer Tools</h1>
+             </header>
+             <TabPanel activeTabId={store.activeTabId} onTabChange={onTabChange}>
+diff --git a/src/ui/devtools/components/config-editor.tsx b/src/ui/devtools/components/config-editor.tsx
+index fc7ebca..d7d5e8e 100644
+--- a/src/ui/devtools/components/config-editor.tsx
++++ b/src/ui/devtools/components/config-editor.tsx
+@@ -122,9 +122,8 @@ export function ConfigEditor(props: ConfigEditorProps): Malevic.Child {
+                 {props.apply ? <Button onclick={apply}>Apply</Button> : null}
+             </div>
+             <p class="description">
+-                Read about this tool <strong><a href={DEVTOOLS_DOCS_URL} target="_blank" rel="noopener noreferrer">here</a></strong>.
+-                If a <strong>popular</strong> website looks incorrect
+-                e-mail to <strong>support@darkreader.org</strong>
++                Read the upstream configuration format <strong><a href={DEVTOOLS_DOCS_URL} target="_blank" rel="noopener noreferrer">here</a></strong>.
++                Changes made in this editor stay in local extension storage.
+             </p>
+             {dialog}
+         </div>
+diff --git a/src/ui/options/about/about-tab.tsx b/src/ui/options/about/about-tab.tsx
+index 6566a88..78857d5 100644
+--- a/src/ui/options/about/about-tab.tsx
++++ b/src/ui/options/about/about-tab.tsx
+@@ -1,9 +1,6 @@
+ import {m} from 'malevic';
+ 
+ import type {ViewProps} from '../../../definitions';
+-import {DONATE_URL, HELP_URL, HOMEPAGE_URL, MOBILE_URL, PRIVACY_URL, getHelpURL} from '../../../utils/links';
+-import {getLocalMessage} from '../../../utils/locales';
+-import {isMobile} from '../../../utils/platform';
+ 
+ import {AppVersion} from './version';
+ 
+@@ -11,35 +8,18 @@ interface AboutTabProps {
+     plus?: boolean;
+ }
+ 
+-export function AboutTab(props: ViewProps & AboutTabProps): Malevic.Child {
++export function AboutTab(_props: ViewProps & AboutTabProps): Malevic.Child {
+     return <div class="settings-tab about-tab">
+         <AppVersion />
+-        <div>
+-            <a href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">
+-                Privacy Policy
++        <p>InkShade processes page colors and preferences locally. It has no telemetry, ads, news feed, or remote configuration.</p>
++        <p>
++            Dynamic theme engine derived from
++            {' '}
++            <a href="https://github.com/darkreader/darkreader" target="_blank" rel="noopener noreferrer">
++                Dark Reader
+             </a>
+-        </div>
+-        <div>
+-            <a href={`${HOMEPAGE_URL}/terms/`} target="_blank" rel="noopener noreferrer">
+-                Terms of Use
+-            </a>
+-        </div>
+-        {isMobile ? null : (
+-            <div>
+-                <a href={MOBILE_URL} target="_blank" rel="noopener noreferrer">{getLocalMessage('mobile')}</a>
+-            </div>
+-        )}
+-        <div>
+-            <a href={props.plus ? `${HELP_URL}/plus/` : getHelpURL()} target="_blank" rel="noopener noreferrer">{getLocalMessage('help')}</a>
+-        </div>
+-        {props.plus ? null : isMobile ? (
+-            <div>
+-                <a href={`${HOMEPAGE_URL}/plus/`} target="_blank" rel="noopener noreferrer">{getLocalMessage('pay_for_using')}</a>
+-            </div>
+-        ) : props.data.uiHighlights.includes('anniversary') ? (
+-            <div>
+-                <a href={DONATE_URL} target="_blank" rel="noopener noreferrer">{getLocalMessage('pay_for_using')}</a>
+-            </div>
+-        ) : null}
++            {' '}
++            under the MIT License.
++        </p>
+     </div>;
+ }
+diff --git a/src/ui/options/advanced/advanced-tab.tsx b/src/ui/options/advanced/advanced-tab.tsx
+index 4a6d92a..7920c81 100644
+--- a/src/ui/options/advanced/advanced-tab.tsx
++++ b/src/ui/options/advanced/advanced-tab.tsx
+@@ -8,13 +8,9 @@ import {EnableForProtectedPages} from './enable-for-protected-pages';
+ import {ExportSettings} from './export-settings';
+ import {ImportSettings} from './import-settings';
+ import {ResetSettings} from './reset-settings';
+-import {SyncConfig} from './sync-config';
+-import {SyncSettings} from './sync-settings';
+ 
+ export function AdvancedTab(props: ViewProps): Malevic.Child {
+     return <div class="settings-tab">
+-        <SyncSettings {...props} />
+-        <SyncConfig {...props} />
+         <EnableForProtectedPages {...props} />
+         <ContextMenus {...props} />
+         <ImportSettings {...props} />
+diff --git a/src/ui/options/body/body.tsx b/src/ui/options/body/body.tsx
+index 3ac024c..ea8c5dc 100644
+--- a/src/ui/options/body/body.tsx
++++ b/src/ui/options/body/body.tsx
+@@ -3,9 +3,8 @@ import {getContext} from 'malevic/dom';
+ 
+ import type {ViewProps} from '../../../definitions';
+ import {Overlay} from '../../controls';
+-import {AdvancedIcon, HelpIcon, KeyboardIcon, KeyIcon, ListIcon, SettingsIcon, WatchIcon} from '../../icons';
++import {AdvancedIcon, HelpIcon, KeyboardIcon, ListIcon, SettingsIcon, WatchIcon} from '../../icons';
+ import {AboutTab} from '../about/about-tab';
+-import {ActivationTab} from '../activation/activation-tab';
+ import {AdvancedTab} from '../advanced/advanced-tab';
+ import {AutomationTab} from '../automation/automation-tab';
+ import {GeneralTab} from '../general/general-tab';
+@@ -30,7 +29,7 @@ export default function Body(props: BodyProps): Malevic.Child {
+     return (
+         <body>
+             <header>
+-                <img id="logo" src="../assets/images/darkreader-type.svg" alt="Dark Reader" />
++                <strong id="logo">InkShade</strong>
+                 <h1 id="title">Settings</h1>
+             </header>
+             <TabPanel activeTabId={store.activeTabId} onTabChange={onSettingsTabChange}>
+@@ -46,9 +45,6 @@ export default function Body(props: BodyProps): Malevic.Child {
+                 <TabPanel.Tab id="hotkeys" label="Hotkeys" icon={<KeyboardIcon />} iconClass="settings-icon-hotkeys">
+                     <HotkeysTab {...props} />
+                 </TabPanel.Tab>
+-                <TabPanel.Tab id="activation" label="Activation" icon={<KeyIcon />} iconClass="settings-icon-activation">
+-                    <ActivationTab {...props} />
+-                </TabPanel.Tab>
+                 <TabPanel.Tab id="advanced" label="Advanced" icon={<AdvancedIcon />} iconClass="settings-icon-advanced">
+                     <AdvancedTab {...props} />
+                 </TabPanel.Tab>
+diff --git a/src/ui/popup/body/index.tsx b/src/ui/popup/body/index.tsx
+index 1fcb736..4eb3bd0 100644
+--- a/src/ui/popup/body/index.tsx
++++ b/src/ui/popup/body/index.tsx
+@@ -2,13 +2,10 @@ import {m} from 'malevic';
+ import {getContext} from 'malevic/dom';
+ 
+ import type {ViewProps} from '../../../definitions';
+-import {DONATE_URL, HOMEPAGE_URL} from '../../../utils/links';
+-import {getLocalMessage} from '../../../utils/locales';
+ import {isMobile} from '../../../utils/platform';
+ import {Overlay} from '../../controls';
+ import {openExtensionPage} from '../../utils';
+ import MainPage from '../main-page';
+-import NewsSection from '../news-section';
+ import {Page, PageViewer} from '../page-viewer';
+ import ThemePage from '../theme/page';
+ 
+@@ -17,16 +14,7 @@ interface IndexStore {
+ }
+ 
+ function Logo() {
+-    return (
+-        <a
+-            class="m-logo"
+-            href={HOMEPAGE_URL}
+-            target="_blank"
+-            rel="noopener noreferrer"
+-        >
+-            Dark Reader
+-        </a>
+-    );
++    return <div class="m-logo">InkShade</div>;
+ }
+ 
+ type PageId = (
+@@ -99,22 +87,6 @@ function Pages(props: ViewProps) {
+     );
+ }
+ 
+-function DonateGroup() {
+-    return (
+-        <div class="m-donate-group">
+-            <a class="m-donate-button" href={DONATE_URL} target="_blank" rel="noopener noreferrer">
+-                <span class="m-donate-button__icon"></span>
+-                <span class="m-donate-button__text">
+-                    {getLocalMessage('donate')}
+-                </span>
+-            </a>
+-            <label class="m-donate-description">
+-                This project is sponsored by you
+-            </label>
+-        </div>
+-    );
+-}
+-
+ export default function Body(props: ViewProps) {
+     const context = getContext();
+     context.onCreate(() => {
+@@ -134,10 +106,6 @@ export default function Body(props: ViewProps) {
+             <section class="m-section pages-section">
+                 <Pages {...props} />
+             </section>
+-            <section class="m-section">
+-                <DonateGroup />
+-            </section>
+-            <NewsSection {...props} />
+             <Overlay />
+         </body>
+     );
+diff --git a/src/ui/popup/body/style.less b/src/ui/popup/body/style.less
+index 2fa4761..a60d444 100644
+--- a/src/ui/popup/body/style.less
++++ b/src/ui/popup/body/style.less
+@@ -25,15 +25,15 @@
+     }
+ 
+     .m-logo {
+-        background-image: url('../assets/images/darkreader-type.svg');
+-        background-position: center;
+-        background-size: 100%;
+-        display: inline-block;
++        color: @color-fore;
++        display: block;
++        font-size: 2rem;
++        font-weight: 700;
+         grid-area: logo;
+-        height: @popup-content-width / 10;
++        height: auto;
+         margin: 0 auto;
+         outline: none;
+-        text-indent: -999rem;
++        text-align: center;
+         width: @popup-content-width;
+     }
+ 
+diff --git a/src/ui/popup/components/body.tsx b/src/ui/popup/components/body.tsx
+index cd5a50d..b293ac5 100644
+--- a/src/ui/popup/components/body.tsx
++++ b/src/ui/popup/components/body.tsx
+@@ -1,292 +1,18 @@
+ import {m} from 'malevic';
+-import {getContext} from 'malevic/dom';
+-import {withForms} from 'malevic/forms';
+-import {withState, useState} from 'malevic/state';
+ 
+-import type {ExtensionData, ExtensionActions, News as NewsObject} from '../../../definitions';
+-import {DONATE_URL, HOMEPAGE_URL, MOBILE_URL, getHelpURL} from '../../../utils/links';
+-import {getLocalMessage} from '../../../utils/locales';
+-import {isMobile} from '../../../utils/platform';
+-import {getDuration} from '../../../utils/time';
+-import {TabPanel} from '../../controls';
+-import {compose} from '../../utils';
++import type {ExtensionActions, ExtensionData} from '../../../definitions';
+ import NewBody from '../body';
+ 
+-import FilterSettings from './filter-settings';
+-import {Header, MoreSiteSettings, MoreToggleSettings} from './header';
+-import Loader from './loader';
+-import MoreSettings from './more-settings';
+-import {NewsGroup, NewsButton} from './news';
+-import {MobileLinks, MobileLinksButton} from './news/mobile-links';
+-import SiteListSettings from './site-list-settings';
+-
+-
+-import {PlusBody, activate} from '@plus/popup/plus-body';
+-
+-declare const __THUNDERBIRD__: boolean;
+-declare const __PLUS__: boolean;
+-
+ interface BodyProps {
+     data: ExtensionData;
+     actions: ExtensionActions;
++    fonts: string[];
++    installation: {
++        date: number;
++        version: string;
++    };
+ }
+ 
+-interface BodyState {
+-    activeTab: string;
+-    newsOpen: boolean;
+-    mobileLinksOpen: boolean;
+-    didNewsSlideIn: boolean;
+-    didMobileLinksSlideIn: boolean;
+-    moreSiteSettingsOpen: boolean;
+-    moreToggleSettingsOpen: boolean;
+-    newToggleMenusHighlightHidden: boolean;
+-}
+-
+-function Body(props: BodyProps & {fonts: string[]} & {installation: {date: number; version: string}}) {
+-    const context = getContext();
+-    const {state, setState} = useState<BodyState>({
+-        activeTab: 'Filter',
+-        newsOpen: false,
+-        mobileLinksOpen: false,
+-        didNewsSlideIn: false,
+-        didMobileLinksSlideIn: false,
+-        moreSiteSettingsOpen: false,
+-        moreToggleSettingsOpen: false,
+-        newToggleMenusHighlightHidden: false,
+-    });
+-
+-    if (!props.data.isReady) {
+-        return (
+-            <body>
+-                <Loader complete={false} />
+-            </body>
+-        );
+-    }
+-
+-    const v = props.installation?.version?.split('.').map((p) => parseInt(p));
+-    const n = v && v.length >= 3 ? (v[0] * 1e6 + v[1] * 1e3 + v[2]) : 0;
+-
+-    if (
+-        __PLUS__ && (
+-            props.data.settings.previewNewestDesign || (isMobile && n && n >= 4009093)
+-        )
+-    ) {
+-        return <PlusBody {...props} fonts={props.fonts} />;
+-    }
+-
+-    if (isMobile || props.data.settings.previewNewDesign) {
+-        return <NewBody {...props} fonts={props.fonts} />;
+-    }
+-
+-    const unreadNews = props.data.news.filter(({read}) => !read);
+-    const latestNews = props.data.news.length > 0 ? props.data.news[0] : null;
+-    const isFirstNewsUnread = latestNews && !latestNews.read;
+-    let newsWereLongTimeAgo = true;
+-    if (unreadNews.length > 0) {
+-        const latest = new Date(unreadNews[0].date);
+-        const today = new Date();
+-        newsWereLongTimeAgo = latest.getTime() < today.getTime() - getDuration({days: 30});
+-    }
+-    const displayedNewsCount = newsWereLongTimeAgo ? 0 : unreadNews.length;
+-
+-    context.onRender(() => {
+-        if (props.data.uiHighlights.includes('mobile-links') && !state.mobileLinksOpen && !state.didMobileLinksSlideIn) {
+-            setTimeout(toggleMobileLinks, 750);
+-        } else if (props.data.settings.fetchNews && isFirstNewsUnread && !state.newsOpen && !state.didNewsSlideIn && !newsWereLongTimeAgo) {
+-            setTimeout(toggleNews, 750);
+-        }
+-    });
+-
+-    function toggleNews() {
+-        if (state.newsOpen && unreadNews.length > 0) {
+-            props.actions.markNewsAsRead(unreadNews.map(({id}) => id));
+-        }
+-        setState({newsOpen: !state.newsOpen, mobileLinksOpen: false, didNewsSlideIn: state.didNewsSlideIn || !state.newsOpen});
+-    }
+-
+-    function toggleMobileLinks() {
+-        setState({mobileLinksOpen: !state.mobileLinksOpen, newsOpen: false, didMobileLinksSlideIn: state.didMobileLinksSlideIn || !state.mobileLinksOpen});
+-        if (state.mobileLinksOpen && props.data.uiHighlights.includes('mobile-links')) {
+-            disableMobileLinksSlideIn();
+-        }
+-    }
+-
+-    function disableMobileLinksSlideIn() {
+-        if (props.data.uiHighlights.includes('mobile-links')) {
+-            props.actions.hideHighlights(['mobile-links']);
+-        }
+-    }
+-
+-    function onNewsOpen(...news: NewsObject[]) {
+-        const unread = news.filter(({read}) => !read);
+-        if (unread.length > 0) {
+-            props.actions.markNewsAsRead(unread.map(({id}) => id));
+-        }
+-    }
+-
+-    function toggleMoreSiteSettings() {
+-        setState({moreSiteSettingsOpen: !state.moreSiteSettingsOpen, moreToggleSettingsOpen: false, newToggleMenusHighlightHidden: true});
+-        if (props.data.uiHighlights.includes('new-toggle-menus')) {
+-            props.actions.hideHighlights(['new-toggle-menus']);
+-        }
+-    }
+-
+-    function toggleMoreToggleSettings() {
+-        setState({moreToggleSettingsOpen: !state.moreToggleSettingsOpen, moreSiteSettingsOpen: false, newToggleMenusHighlightHidden: true});
+-        if (props.data.uiHighlights.includes('new-toggle-menus')) {
+-            props.actions.hideHighlights(['new-toggle-menus']);
+-        }
+-    }
+-
+-    const birthdayMessage = getLocalMessage('we_celebrate_10_years');
+-    let birthdayMessageSpec = <span>{birthdayMessage}</span>;
+-    try {
+-        const index10 = birthdayMessage.indexOf('10');
+-        const indexDot = birthdayMessage.indexOf('.', index10);
+-        if (index10 >= 0 && indexDot > index10) {
+-            birthdayMessageSpec = (
+-                <span>
+-                    {birthdayMessage.substring(0, index10)}
+-                    <a href={`${HOMEPAGE_URL}/timeline/`} target="_blank" rel="noopener noreferrer">
+-                        {birthdayMessage.substring(index10, indexDot)}
+-                    </a>
+-                    {birthdayMessage.substring(indexDot)}
+-                </span>
+-            );
+-        }
+-    } catch (err) {
+-        console.error(err);
+-    }
+-
+-    const filterTab = <FilterSettings data={props.data} actions={props.actions}>
+-        {__PLUS__ ? (
+-            props.data.uiHighlights.includes('anniversary') ? (
+-                <div class="ui-upgrade">
+-                    <i class="ui-upgrade__icon">
+-                    </i>
+-                    <span class="ui-upgrade__message">
+-                        Support the development and get access to the latest features
+-                    </span>
+-                    <a class="ui-upgrade__button" href={`${HOMEPAGE_URL}/plus/`} target="_blank" rel="noopener noreferrer">
+-                        <span class="ui-upgrade__button__text">
+-                            Upgrade
+-                        </span>
+-                    </a>
+-                </div>
+-            ) : (
+-                <div class="ui-upgrade">
+-                    <i class="ui-upgrade__icon">
+-                    </i>
+-                    <span class="ui-upgrade__message">
+-                        Activate the latest features
+-                    </span>
+-                    <a class="ui-upgrade__button" target="_blank" rel="noopener noreferrer" onclick={() => {
+-                        chrome.storage.local.get<Record<string, any>>({activationEmail: '', activationKey: ''}, async ({activationEmail, activationKey}) => {
+-                            const result = await activate(activationEmail, activationKey);
+-                            if (result) {
+-                                context.refresh();
+-                            } else {
+-                                props.actions.changeSettings({previewNewestDesign: true});
+-                            }
+-                        });
+-                    }}>
+-                        <span class="ui-upgrade__button__text">
+-                            Enable new design
+-                        </span>
+-                    </a>
+-                </div>
+-            )
+-        ) : props.data.uiHighlights.includes('anniversary') ? (
+-            <div class="birthday-container">
+-                <i class="birthday-icon">🎉</i>
+-                <span class="birthday-message">
+-                    {birthdayMessageSpec}
+-                </span>
+-                <a class="donate-link" href={DONATE_URL} target="_blank" rel="noopener noreferrer">
+-                    <span class="donate-link__text">{getLocalMessage('pay_for_using')}</span>
+-                </a>
+-            </div>
+-        ) : null}
+-    </FilterSettings>;
+-
+-    const moreTab = <MoreSettings data={props.data} actions={props.actions} fonts={props.fonts} />;
+-
+-    return (
+-        <body
+-            class={{
+-                'ext-disabled': !props.data.isEnabled,
+-                'ext-tall': __PLUS__ || props.data.uiHighlights.includes('anniversary'),
+-            }}
+-        >
+-            <Loader complete />
+-
+-            <Header
+-                data={props.data}
+-                actions={props.actions}
+-                onMoreSiteSettingsClick={toggleMoreSiteSettings}
+-                onMoreToggleSettingsClick={toggleMoreToggleSettings}
+-            />
+-
+-            <TabPanel
+-                activeTab={state.activeTab}
+-                onSwitchTab={(tab) => setState({activeTab: tab})}
+-                tabs={__THUNDERBIRD__ ? {
+-                    'Filter': filterTab,
+-                    'More': moreTab,
+-                } : {
+-                    'Filter': filterTab,
+-                    'Site list': (
+-                        <SiteListSettings data={props.data} actions={props.actions} isFocused={state.activeTab === 'Site list'} />
+-                    ),
+-                    'More': moreTab,
+-                }}
+-                tabLabels={{
+-                    'Filter': getLocalMessage('filter'),
+-                    'Site list': getLocalMessage('site_list'),
+-                    'More': getLocalMessage('more'),
+-                }}
+-            />
+-
+-            <div class="mobile-link-container">
+-                <a class="mobile-link" href={MOBILE_URL} target="_blank" rel="noopener noreferrer">
+-                    <span class="mobile-link__icon"></span>
+-                    <span class="mobile-link__text">
+-                        {getLocalMessage('mobile_link')}
+-                    </span>
+-                </a>
+-            </div>
+-            <footer>
+-                <div class="footer-buttons">
+-                    <a class="footer-help-link" href={getHelpURL()} target="_blank" rel="noopener noreferrer">{getLocalMessage('help')}</a>
+-                    <NewsButton active={state.newsOpen} count={displayedNewsCount} onClick={toggleNews} />
+-                    <MobileLinksButton active={state.mobileLinksOpen} onClick={toggleMobileLinks} />
+-                </div>
+-            </footer>
+-            <NewsGroup
+-                news={props.data.news}
+-                expanded={state.newsOpen}
+-                onNewsOpen={onNewsOpen}
+-                onClose={toggleNews}
+-            />
+-            <MobileLinks
+-                expanded={state.mobileLinksOpen}
+-                onLinkClick={disableMobileLinksSlideIn}
+-                onClose={toggleMobileLinks}
+-            />
+-            <MoreSiteSettings
+-                data={props.data}
+-                actions={props.actions}
+-                isExpanded={state.moreSiteSettingsOpen}
+-                onClose={toggleMoreSiteSettings}
+-            />
+-            <MoreToggleSettings
+-                data={props.data}
+-                actions={props.actions}
+-                isExpanded={state.moreToggleSettingsOpen}
+-                onClose={toggleMoreToggleSettings}
+-            />
+-        </body>
+-    );
++export default function Body({data, actions, fonts}: BodyProps) {
++    return <NewBody data={data} actions={actions} fonts={fonts} />;
+ }
+-
+-export default compose(Body as any, withState, withForms);
+diff --git a/src/ui/popup/components/header/index.tsx b/src/ui/popup/components/header/index.tsx
+index 20c9f82..a50af7c 100644
+--- a/src/ui/popup/components/header/index.tsx
++++ b/src/ui/popup/components/header/index.tsx
+@@ -89,7 +89,7 @@ function Header(props: HeaderProps) {
+     return (
+         <header class="header">
+             <a class="header__logo" href={HOMEPAGE_URL} target="_blank" rel="noopener noreferrer">
+-                Dark Reader
++                InkShade
+             </a>
+             <div class="header__control header__site-toggle">
+                 <SiteToggle
+diff --git a/src/ui/popup/components/header/style.less b/src/ui/popup/components/header/style.less
+index e4683be..32c8be8 100644
+--- a/src/ui/popup/components/header/style.less
++++ b/src/ui/popup/components/header/style.less
+@@ -12,12 +12,13 @@
+     width: 100%;
+ 
+     &__logo {
+-        background-image: url('../assets/images/darkreader-type.svg');
+-        background-size: 100%;
++        color: @color-fore;
++        font-size: 2rem;
++        font-weight: 700;
+         grid-area: logo;
+-        height: @popup-content-width / 10;
++        height: auto;
+         outline: none;
+-        text-indent: -999rem;
++        text-align: center;
+         width: @popup-content-width;
+ 
+         &:hover {
+diff --git a/src/ui/popup/main-page/site-toggle.tsx b/src/ui/popup/main-page/site-toggle.tsx
+index de476ce..41bafe9 100644
+--- a/src/ui/popup/main-page/site-toggle.tsx
++++ b/src/ui/popup/main-page/site-toggle.tsx
+@@ -3,7 +3,7 @@ import {m} from 'malevic';
+ import type {ViewProps} from '../../../definitions';
+ import {getLocalMessage} from '../../../utils/locales';
+ import {isChromium} from '../../../utils/platform';
+-import {isURLEnabled, isPDF, isLocalFile} from '../../../utils/url';
++import {isURLEnabled, isURLInList, isPDF, isLocalFile} from '../../../utils/url';
+ import {ControlGroup} from '../../controls';
+ import SiteToggle from '../components/site-toggle';
+ 
+@@ -12,20 +12,26 @@ export default function SiteToggleGroup(props: ViewProps) {
+     const isPageEnabled = isURLEnabled(tab.url, props.data.settings, tab, props.data.isAllowedFileSchemeAccess);
+     const isFile = isChromium && isLocalFile(tab.url);
+     const {isDarkThemeDetected, isProtected, isInDarkList} = tab;
++    const isExplicitlyEnabled = isURLInList(tab.url, props.data.settings.enabledFor);
++    const isManuallyDisabled = props.data.settings.enabledByDefault &&
++        !isExplicitlyEnabled &&
++        isURLInList(tab.url, props.data.settings.disabledFor);
+     let descriptionText = '';
+ 
+     if (isFile && !props.data.isAllowedFileSchemeAccess) {
+         descriptionText = getLocalMessage('local_files_forbidden');
+     } else if (isPDF(tab.url)) {
+         descriptionText = isPageEnabled ? 'Enabled for PDF files' : 'Disabled for PDF files';
+-    } else if (isDarkThemeDetected) {
+-        descriptionText = 'Dark theme detected on page';
+-    } else if (isPageEnabled) {
+-        descriptionText = 'Enabled for current website';
+     } else if (isProtected) {
+         descriptionText = getLocalMessage('page_protected');
++    } else if (isManuallyDisabled) {
++        descriptionText = `${getLocalMessage('off')} — ${getLocalMessage('site_list')}`;
+     } else if (isInDarkList) {
+         descriptionText = getLocalMessage('page_in_dark_list');
++    } else if (isDarkThemeDetected) {
++        descriptionText = getLocalMessage('dark_theme_detected');
++    } else if (isPageEnabled) {
++        descriptionText = 'Enabled for current website';
+     } else {
+         descriptionText = 'Disabled for current website';
+     }
+diff --git a/src/ui/stylesheet-editor/components/body.tsx b/src/ui/stylesheet-editor/components/body.tsx
+index 82c9d03..0907936 100644
+--- a/src/ui/stylesheet-editor/components/body.tsx
++++ b/src/ui/stylesheet-editor/components/body.tsx
+@@ -67,7 +67,7 @@ export default function Body({data, actions}: ExtWrapper) {
+     return (
+         <body>
+             <header>
+-                <img id="logo" src="../assets/images/darkreader-type.svg" alt="Dark Reader" />
++                <strong id="logo">InkShade</strong>
+                 <h1 id="title">CSS Editor</h1>
+             </header>
+             <h3 class="sub-title">{custom ? host : 'All websites'}</h3>
+diff --git a/src/utils/csp.ts b/src/utils/csp.ts
+index 6f477f6..0560676 100644
+--- a/src/utils/csp.ts
++++ b/src/utils/csp.ts
+@@ -1,20 +1,9 @@
+-import {HOMEPAGE_URL, BLOG_URL, DEVTOOLS_DOCS_URL, GITHUB_URL, PRIVACY_URL, TWITTER_URL, UNINSTALL_URL, HELP_URL} from './links';
+-
+ enum CSP {
+     NONE = "'none'",
+     SELF = "'self'"
+ }
+ 
+-function check() {
+-    const prefixed = [BLOG_URL, PRIVACY_URL, UNINSTALL_URL, HELP_URL];
+-    if (prefixed.some((url) => !url.startsWith(HOMEPAGE_URL))) {
+-        throw new Error('Some navigation URL is not within main site!');
+-    }
+-}
+-
+ export function prepareCSPMV3(): chrome.runtime.ManifestV3['content_security_policy'] {
+-    check();
+-
+     const result: any = {};
+     const policy: any = {
+         extension_pages: {
+@@ -26,13 +15,6 @@ export function prepareCSPMV3(): chrome.runtime.ManifestV3['content_security_pol
+                 'data:',
+             ],
+             'connect-src': ['*'],
+-            'navigate-to': [
+-                CSP.SELF,
+-                `${HOMEPAGE_URL}/*`,
+-                DEVTOOLS_DOCS_URL,
+-                GITHUB_URL,
+-                TWITTER_URL,
+-            ],
+             'media-src': [CSP.NONE],
+             'child-src': [CSP.NONE],
+             'worker-src': [CSP.NONE],
+diff --git a/src/utils/links.ts b/src/utils/links.ts
+index af27f44..2e60273 100644
+--- a/src/utils/links.ts
++++ b/src/utils/links.ts
+@@ -1,46 +1,21 @@
+-import {getUILanguage} from './locales';
+-import {isEdge, isMobile} from './platform';
+-
+-export const HOMEPAGE_URL = 'https://darkreader.org';
+-export const BLOG_URL = 'https://darkreader.org/blog/';
+-export const NEWS_URL = 'https://darkreader.org/blog/posts.json';
++export const HOMEPAGE_URL = 'https://kikuai.dev';
++export const BLOG_URL = HOMEPAGE_URL;
++export const NEWS_URL = 'data:application/json,[]';
+ export const DEVTOOLS_DOCS_URL = 'https://github.com/darkreader/darkreader/blob/main/CONTRIBUTING.md';
+-export const DONATE_URL = 'https://darkreader.org/support-us/';
++export const DONATE_URL = HOMEPAGE_URL;
+ export const GITHUB_URL = 'https://github.com/darkreader/darkreader';
+-export const MOBILE_URL = 'https://darkreader.org/tips/mobile/';
+-export const PRIVACY_URL = 'https://darkreader.org/privacy/';
+-export const TWITTER_URL = 'https://twitter.com/darkreaderapp';
+-export const UNINSTALL_URL = 'https://darkreader.org/goodluck/';
+-export const HELP_URL = 'https://darkreader.org/help';
+-export const CONFIG_URL_BASE = 'https://raw.githubusercontent.com/darkreader/darkreader/main/src/config';
+-
+-const helpLocales = [
+-    'be',
+-    'cs',
+-    'de',
+-    'en',
+-    'es',
+-    'fr',
+-    'it',
+-    'ja',
+-    'nl',
+-    'pt',
+-    'ru',
+-    'sr',
+-    'tr',
+-    'zh-CN',
+-    'zh-TW',
+-];
++export const MOBILE_URL = HOMEPAGE_URL;
++export const PRIVACY_URL = HOMEPAGE_URL;
++export const TWITTER_URL = HOMEPAGE_URL;
++export const UNINSTALL_URL = HOMEPAGE_URL;
++export const HELP_URL = HOMEPAGE_URL;
++export const CONFIG_URL_BASE = '';
+ 
+ export function getHelpURL(): string {
+-    if (isEdge && isMobile) {
+-        return `${HELP_URL}/mobile/`;
+-    }
+-    const locale = getUILanguage();
+-    const matchLocale = helpLocales.find((hl) => hl === locale) || helpLocales.find((hl) => locale.startsWith(hl)) || 'en';
+-    return `${HELP_URL}/${matchLocale}/`;
++    return HELP_URL;
+ }
+ 
+ export function getBlogPostURL(postId: string): string {
+-    return `${BLOG_URL}${postId}/`;
++    void postId;
++    return BLOG_URL;
+ }
+diff --git a/tasks/bundle-html.js b/tasks/bundle-html.js
+index cb369d0..3a3c2fa 100644
+--- a/tasks/bundle-html.js
++++ b/tasks/bundle-html.js
+@@ -20,7 +20,7 @@ function html(platform, title, hasLoader, hasStyleSheet, compatibility) {
+             '        <link rel="stylesheet" type="text/css" href="style.css" />',
+             '        <link',
+             '            rel="shortcut icon"',
+-            '            href="../assets/images/darkreader-icon-256x256.png"',
++            '            href="../../icons/icon32.png"',
+             '        />',
+         ] : null,
+         '        <script src="index.js" defer></script>',
+@@ -44,7 +44,7 @@ function html(platform, title, hasLoader, hasStyleSheet, compatibility) {
+ /** @type {HTMLEntry[]} */
+ const htmlEntries = [
+     {
+-        title: 'Dark Reader background',
++        title: 'InkShade background',
+         path: 'background/index.html',
+         hasLoader: false,
+         hasStyleSheet: false,
+@@ -53,7 +53,7 @@ const htmlEntries = [
+         platforms: [PLATFORM.CHROMIUM_MV2, PLATFORM.CHROMIUM_MV2_PLUS, PLATFORM.FIREFOX_MV2, PLATFORM.THUNDERBIRD],
+     },
+     {
+-        title: 'Dark Reader settings',
++        title: 'InkShade settings',
+         path: 'ui/popup/index.html',
+         hasLoader: true,
+         hasStyleSheet: true,
+@@ -61,7 +61,7 @@ const htmlEntries = [
+         reloadType: reload.UI,
+     },
+     {
+-        title: 'Dark Reader settings',
++        title: 'InkShade settings',
+         path: 'ui/options/index.html',
+         hasLoader: false,
+         hasStyleSheet: true,
+@@ -69,7 +69,7 @@ const htmlEntries = [
+         reloadType: reload.UI,
+     },
+     {
+-        title: 'Dark Reader developer tools',
++        title: 'InkShade developer tools',
+         path: 'ui/devtools/index.html',
+         hasLoader: false,
+         hasStyleSheet: true,
+@@ -77,7 +77,7 @@ const htmlEntries = [
+         reloadType: reload.UI,
+     },
+     {
+-        title: 'Dark Reader CSS editor',
++        title: 'InkShade CSS editor',
+         path: 'ui/stylesheet-editor/index.html',
+         hasLoader: false,
+         hasStyleSheet: true,
+diff --git a/tests/unit/config/config.tests.ts b/tests/unit/config/config.tests.ts
+index f2895c8..8b1a4e2 100644
+--- a/tests/unit/config/config.tests.ts
++++ b/tests/unit/config/config.tests.ts
+@@ -171,6 +171,15 @@ test('Dynamic Theme Fixes config', async () => {
+     // fixes are properly formatted
+     expect(throwIfDifferent(file, formatDynamicThemeFixes(fixes), 'Dynamic fixes format error')).not.toThrow();
+ 
++    // InkShade continuation regressions: keep exact transparent-logo repairs
++    // without broad image or alt-text heuristics.
++    expect(fixes.find(({url}) => url.includes('about.gitlab.com'))?.invert).toContain('.homepage-hero-v2__customer-logos img.logo');
++    expect(fixes.find(({url}) => url.includes('sqlite.org'))?.invert).toEqual([
++        'img[alt="Bloomberg"]',
++        'img[alt="Expensify"]',
++        'img[alt="NDS"]',
++    ]);
++
+     // should parse empty config
+     expect(parseDynamicThemeFixes('')).toEqual([]);
+ 

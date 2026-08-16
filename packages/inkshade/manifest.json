@@ -1,0 +1,77 @@
+{
+  "manifest_version": 3,
+  "name": "InkShade – Dark Mode for Every Site",
+  "short_name": "InkShade",
+  "version": "2.0.0",
+  "author": "KikuAI Lab",
+  "description": "__MSG_extension_description__",
+  "default_locale": "en",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "InkShade – Dark Mode for Every Site",
+    "default_popup": "ui/popup/index.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "background": {
+    "service_worker": "background/index.js"
+  },
+  "permissions": [
+    "alarms",
+    "fontSettings",
+    "scripting",
+    "storage"
+  ],
+  "optional_permissions": [
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "*://*/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "inject/proxy.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "match_about_blank": true,
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "inject/fallback.js",
+        "inject/index.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "match_about_blank": true,
+      "world": "ISOLATED"
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "inject/color-scheme-watcher.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false,
+      "match_about_blank": false,
+      "world": "ISOLATED"
+    }
+  ]
+}

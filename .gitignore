@@ -1,0 +1,17 @@
+node_modules
+.playwright-cli/
+.agent/
+.omx/
+audit-artifacts/
+.env
+dist
+packages/*/dist/_metadata/
+.wxt
+*.log
+.DS_Store
+dist-smoke.zip
+.tutorial-artifacts/
+packages/clearshield/rules-raw
+packages/inkshade/inkshade-store.zip
+packages/inkshade/upstream/build/
+.tmp

@@ -1,0 +1,160 @@
+{
+  "version": 1,
+  "size": [1920, 1080],
+  "fps": 30,
+  "introSeconds": 2.8,
+  "featureSeconds": 3.25,
+  "outroSeconds": 2.4,
+  "languages": {
+    "en": {
+      "intro": "22 focused tools for study, reading, sharing, and media",
+      "outro": "Choose only what helps. Your study data stays local.",
+      "fixture": "Synthetic fixture · unofficial · local-first"
+    },
+    "ru": {
+      "intro": "22 точечных инструмента для изучения, чтения, ссылок и медиа",
+      "outro": "Включайте только нужное. Данные изучения остаются локально.",
+      "fixture": "Синтетический стенд · неофициально · локально"
+    }
+  },
+  "features": [
+    {
+      "id": "annotations",
+      "screenshot": "03-note-editor.png",
+      "en": {"title": "Highlights, notes & tags", "description": "Mark exact text in four colors, then add a private note and tags."},
+      "ru": {"title": "Выделения, заметки и теги", "description": "Отмечайте точный текст четырьмя цветами и добавляйте личные заметки с тегами."}
+    },
+    {
+      "id": "bookmarks",
+      "screenshot": "10-saved-places.png",
+      "en": {"title": "Saved places", "description": "Save a page, paragraph, or verse and reopen the exact place later."},
+      "ru": {"title": "Сохранённые места", "description": "Сохраняйте страницу, абзац или стих и возвращайтесь точно к этому месту."}
+    },
+    {
+      "id": "citations",
+      "screenshot": "06-popup.png",
+      "fit": "portrait",
+      "en": {"title": "Formatted citations", "description": "Copy selected text, a verse, or the page title with its precise link."},
+      "ru": {"title": "Оформленные цитаты", "description": "Копируйте текст, стих или название страницы вместе с точной ссылкой."}
+    },
+    {
+      "id": "qrShare",
+      "screenshot": "05-qr-overlay.png",
+      "ruScreenshot": "ru-qr-overlay.png",
+      "en": {"title": "Local QR sharing", "description": "Create a visible QR code for the exact link without a remote QR service."},
+      "ru": {"title": "Локальный QR-код", "description": "Создавайте видимый QR-код точной ссылки без удалённого QR-сервиса."}
+    },
+    {
+      "id": "officialOpen",
+      "screenshot": "06-popup.png",
+      "ruScreenshot": "ru-popup.png",
+      "fit": "portrait",
+      "en": {"title": "Open official link", "description": "Open a validated Finder target only when the page exposes valid metadata."},
+      "ru": {"title": "Открыть официальную ссылку", "description": "Открывайте проверенный Finder-адрес только при корректных данных страницы."}
+    },
+    {
+      "id": "verseAudio",
+      "screenshot": "11-verse-audio.png",
+      "en": {"title": "One-verse audio", "description": "Select one verse and clip its narration locally from the chapter audio."},
+      "ru": {"title": "Аудио одного стиха", "description": "Выберите стих и локально вырежьте его озвучку из аудио главы."}
+    },
+    {
+      "id": "copyText",
+      "screenshot": "16-paragraph-tools.png",
+      "ruScreenshot": "ru-article-tools.png",
+      "en": {"title": "Clean text copy", "description": "Copy a paragraph or verse without StudyNav buttons or labels."},
+      "ru": {"title": "Чистое копирование текста", "description": "Копируйте абзац или стих без кнопок и подписей StudyNav."}
+    },
+    {
+      "id": "parLink",
+      "screenshot": "16-paragraph-tools.png",
+      "ruScreenshot": "ru-article-tools.png",
+      "en": {"title": "Paragraph links", "description": "Copy a direct anchor to the current paragraph or selected verse."},
+      "ru": {"title": "Ссылки на абзац", "description": "Копируйте прямую ссылку на текущий абзац или выбранный стих."}
+    },
+    {
+      "id": "advSearch",
+      "screenshot": "12-quick-search.png",
+      "en": {"title": "Quick publication search", "description": "Press Ctrl or Cmd + Shift + K for mnemonics and document IDs."},
+      "ru": {"title": "Быстрый поиск публикаций", "description": "Нажмите Ctrl или Cmd + Shift + K для мнемоник и номеров документов."}
+    },
+    {
+      "id": "altText",
+      "screenshot": "01-jw-default.png",
+      "en": {"title": "Image descriptions", "description": "Surface the page's existing alt text and caption below eligible images."},
+      "ru": {"title": "Описания изображений", "description": "Показывайте существующий alt-текст и подпись под подходящими изображениями."}
+    },
+    {
+      "id": "imgGet",
+      "screenshot": "14-image-download.png",
+      "en": {"title": "Image download", "description": "Enable a real button beside eligible article images only when needed."},
+      "ru": {"title": "Скачивание изображений", "description": "При необходимости включайте настоящую кнопку рядом с изображением статьи."}
+    },
+    {
+      "id": "langCount",
+      "screenshot": "01-jw-default.png",
+      "en": {"title": "Available languages", "description": "Show the count of language options actually exposed by the page."},
+      "ru": {"title": "Доступные языки", "description": "Показывайте число языков, которые действительно предлагает страница."}
+    },
+    {
+      "id": "actionBar",
+      "screenshot": "15-layout-options.png",
+      "en": {"title": "Sticky page header", "description": "Optionally keep the supported article header visible while reading."},
+      "ru": {"title": "Закреплённая шапка", "description": "При желании оставляйте шапку поддерживаемой статьи видимой при чтении."}
+    },
+    {
+      "id": "expandWidth",
+      "screenshot": "15-layout-options.png",
+      "en": {"title": "Wider reading column", "description": "Use more viewport width on supported articles without touching dialogs."},
+      "ru": {"title": "Шире колонка чтения", "description": "Используйте больше ширины в поддерживаемых статьях, не меняя диалоги."}
+    },
+    {
+      "id": "cstblView",
+      "screenshot": "15-layout-options.png",
+      "en": {"title": "Clearer tables", "description": "Add bounded row separators inside the supported article root."},
+      "ru": {"title": "Более ясные таблицы", "description": "Добавляйте аккуратные разделители строк только внутри статьи."}
+    },
+    {
+      "id": "mediaPlayerUI",
+      "screenshot": "01-jw-default.png",
+      "en": {"title": "Calmer player controls", "description": "Dim player chrome until hover or keyboard focus brings it back."},
+      "ru": {"title": "Спокойные элементы плеера", "description": "Приглушайте панель плеера до наведения или клавиатурного фокуса."}
+    },
+    {
+      "id": "customSub",
+      "screenshot": "01-jw-default.png",
+      "en": {"title": "Larger subtitles", "description": "Increase subtitle size and background contrast for easier reading."},
+      "ru": {"title": "Крупные субтитры", "description": "Увеличивайте размер и контраст фона субтитров для удобного чтения."}
+    },
+    {
+      "id": "mediaCtrl",
+      "screenshot": "01-jw-default.png",
+      "en": {"title": "Media keyboard shortcuts", "description": "Use Space or K, J, L, F, and M outside editable controls."},
+      "ru": {"title": "Клавиши управления медиа", "description": "Используйте Space или K, J, L, F и M вне полей ввода."}
+    },
+    {
+      "id": "mediaTS",
+      "screenshot": "01-jw-default.png",
+      "en": {"title": "Copy time link", "description": "Copy the page URL with the current media time in one click."},
+      "ru": {"title": "Ссылка с текущим временем", "description": "Одним нажатием копируйте адрес страницы с текущим временем медиа."}
+    },
+    {
+      "id": "continueWatching",
+      "screenshot": "07-resume-control.png",
+      "en": {"title": "Continue watching", "description": "Resume saved progress only after an explicit click—never autoplay."},
+      "ru": {"title": "Продолжить просмотр", "description": "Возобновляйте сохранённое место только после явного нажатия, без автозапуска."}
+    },
+    {
+      "id": "sndDisp",
+      "screenshot": "01-jw-default.png",
+      "en": {"title": "Second display", "description": "Open the current media source in a separate focused window."},
+      "ru": {"title": "Второй экран", "description": "Открывайте текущий медиаисточник в отдельном окне без лишнего интерфейса."}
+    },
+    {
+      "id": "transcCreate",
+      "screenshot": "13-transcript-search.png",
+      "en": {"title": "Searchable transcript", "description": "Open, search, and download transcript text already on the page."},
+      "ru": {"title": "Поиск по транскрипту", "description": "Открывайте, ищите и скачивайте транскрипт, уже доступный на странице."}
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ad &amp; Tracker Blocker (ClearShield)</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="icons/icon32.png" alt="" width="24" height="24" />
+      <div>
+        <strong>Ad &amp; Tracker Blocker</strong>
+        <div id="statusLine" class="status">—</div>
+      </div>
+    </div>
+    <label class="switch" title="Global enable">
+      <input type="checkbox" id="enabled" />
+      <span></span>
+    </label>
+  </header>
+  <section class="card">
+    <div class="row">
+      <div>
+        <div class="label">This site</div>
+        <div id="host" class="muted">—</div>
+      </div>
+      <button id="siteToggle" class="btn">Allow site</button>
+    </div>
+    <div class="row stats">
+      <div>
+        <div class="label">Blocked (tab)</div>
+        <div id="tabBlocked" class="num">0</div>
+      </div>
+      <div>
+        <div class="label">Blocked (total)</div>
+        <div id="totalBlocked" class="num">0</div>
+      </div>
+    </div>
+  </section>
+  <section class="card">
+    <div class="label">Rule lists</div>
+    <label class="check"><input type="checkbox" id="list-easylist" /> EasyList <span class="hint">ads</span></label>
+    <label class="check"><input type="checkbox" id="list-easyprivacy" /> EasyPrivacy <span class="hint">trackers</span></label>
+    <label class="check"><input type="checkbox" id="list-baseline" /> Baseline <span class="hint">bundled</span></label>
+    <label class="check"><input type="checkbox" id="cosmetic" /> Cosmetic hide <span class="hint">lite</span></label>
+  </section>
+  <footer>
+    <a href="#" id="openOptions">Options</a>
+    <span class="muted">local updates only</span>
+  </footer>
+  <script src="popup.js"></script>
+</body>
+</html>

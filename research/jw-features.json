@@ -1,0 +1,130 @@
+[
+  {
+    "id": "advSearch",
+    "name": "Advanced Search",
+    "description": "Search for or open an article or publication using a document ID or a universal mnemonic code.",
+    "domains": [
+      "www.jw.org"
+    ]
+  },
+  {
+    "id": "actionBar",
+    "name": "Sticky Action Bar",
+    "description": "Keeps the action bar pinned in view for access to navigation and options while reading.",
+    "domains": [
+      "www.jw.org"
+    ]
+  },
+  {
+    "id": "altText",
+    "name": "Alt Text View",
+    "description": "Displays descriptive text that explains the content of an image.",
+    "domains": [
+      "www.jw.org",
+      "wol.jw.org"
+    ]
+  },
+  {
+    "id": "copyText",
+    "name": "Copy Text",
+    "description": "Copies any selected paragraph or Bible verse to the clipboard with a single click.",
+    "domains": [
+      "www.jw.org"
+    ]
+  },
+  {
+    "id": "cstblView",
+    "name": "Custom Table View",
+    "description": "Enables customizable table styling for clearer data presentation.",
+    "domains": [
+      "www.jw.org",
+      "wol.jw.org"
+    ]
+  },
+  {
+    "id": "expandWidth",
+    "name": "Expand Width",
+    "description": "Expands content to fill the entire screen width.",
+    "domains": [
+      "wol.jw.org",
+      "www.jw.org"
+    ]
+  },
+  {
+    "id": "langCount",
+    "name": "Language Count",
+    "description": "Displays how many languages the current content is available in online.",
+    "domains": [
+      "www.jw.org"
+    ]
+  },
+  {
+    "id": "parLink",
+    "name": "Paragraph Link",
+    "description": "Generates a shareable link for the selected paragraph or Bible verse.",
+    "domains": [
+      "www.jw.org",
+      "wol.jw.org"
+    ]
+  },
+  {
+    "id": "mediaPlayerUI",
+    "name": "Custom Media Player UI",
+    "description": "Adjusts transparency of media player controls.",
+    "domains": [
+      "wol.jw.org",
+      "stream.jw.org"
+    ]
+  },
+  {
+    "id": "customSub",
+    "name": "Customize Subtitles",
+    "description": "Adjusts subtitle font size, style, and background.",
+    "domains": [
+      "www.jw.org",
+      "wol.jw.org"
+    ]
+  },
+  {
+    "id": "imgGet",
+    "name": "Image Download",
+    "description": "Downloads any image within an article with a single click.",
+    "domains": [
+      "www.jw.org"
+    ]
+  },
+  {
+    "id": "mediaCtrl",
+    "name": "Media Player Control Keys",
+    "description": "Controls media playback using keyboard shortcuts.",
+    "domains": [
+      "wol.jw.org",
+      "stream.jw.org"
+    ]
+  },
+  {
+    "id": "mediaTS",
+    "name": "Media Timestamp",
+    "description": "Creates a link to the current media timestamp.",
+    "domains": [
+      "www.jw.org"
+    ]
+  },
+  {
+    "id": "sndDisp",
+    "name": "Second Display",
+    "description": "Plays videos on a second display while controlling from the main display.",
+    "domains": [
+      "www.jw.org",
+      "stream.jw.org"
+    ]
+  },
+  {
+    "id": "transcCreate",
+    "name": "Video Transcript",
+    "description": "Displays and allows searching/downloading a video transcript.",
+    "domains": [
+      "www.jw.org"
+    ]
+  }
+]

@@ -1,0 +1,679 @@
+{
+  "extension_name": {
+    "message": "StudyNav — Unofficial Study Tools"
+  },
+  "extension_short_name": {
+    "message": "StudyNav"
+  },
+  "extension_description": {
+    "message": "Unofficial local study helpers for public JW.org pages. No telemetry or uploads; not affiliated with Jehovah’s Witnesses."
+  },
+  "command_adv_search": {
+    "message": "Open the StudyNav command palette"
+  },
+  "popup_header_title": {
+    "message": "StudyNav"
+  },
+  "popup_header_subtitle": {
+    "message": "Unofficial · local processing · supported pages only"
+  },
+  "tools": {
+    "message": "Tools"
+  },
+  "tools_title": {
+    "message": "Enable or disable all StudyNav tools"
+  },
+  "tools_aria": {
+    "message": "Enable all StudyNav tools"
+  },
+  "checking_page": {
+    "message": "Checking this page…"
+  },
+  "open_supported_page": {
+    "message": "Open a supported JW.org page to use study tools."
+  },
+  "page_tools": {
+    "message": "Page tools"
+  },
+  "study_library": {
+    "message": "Study library"
+  },
+  "save_place": {
+    "message": "Save place"
+  },
+  "remove_saved_place": {
+    "message": "Remove saved place"
+  },
+  "copy_citation": {
+    "message": "Copy citation"
+  },
+  "show_qr": {
+    "message": "Show QR"
+  },
+  "open_official_link": {
+    "message": "Open official JW link"
+  },
+  "what_it_gives_you": {
+    "message": "What it gives you"
+  },
+  "guide_bible_label": {
+    "message": "Bible:"
+  },
+  "guide_bible_text": {
+    "message": "select one verse number, then choose Download audio."
+  },
+  "guide_study_label": {
+    "message": "Study:"
+  },
+  "guide_study_text": {
+    "message": "select text to highlight it, add a note, or save an exact place."
+  },
+  "guide_articles_label": {
+    "message": "Articles:"
+  },
+  "guide_articles_text": {
+    "message": "hover or focus text for Copy, Link, and Mark actions."
+  },
+  "guide_media_label": {
+    "message": "Media:"
+  },
+  "guide_media_text": {
+    "message": "use the floating controls for time links, resume, and transcripts."
+  },
+  "feature_settings": {
+    "message": "Feature settings"
+  },
+  "filter_features": {
+    "message": "Filter features"
+  },
+  "find_setting": {
+    "message": "Find a setting…"
+  },
+  "footer_quick_search": {
+    "message": "Quick search: Ctrl/Cmd+Shift+K"
+  },
+  "footer_privacy": {
+    "message": "No telemetry · no uploads"
+  },
+  "group_study": {
+    "message": "Study & sharing"
+  },
+  "group_core": {
+    "message": "Bible & articles"
+  },
+  "group_layout": {
+    "message": "Reading layout"
+  },
+  "group_media": {
+    "message": "Video & audio"
+  },
+  "enabled_count": {
+    "message": "$1 on"
+  },
+  "status_tools_off_title": {
+    "message": "Study tools are off"
+  },
+  "status_tools_off_hint": {
+    "message": "Turn on Tools above to restore helpers on supported pages."
+  },
+  "status_unavailable_title": {
+    "message": "No tools on this page"
+  },
+  "status_unavailable_hint": {
+    "message": "Open a JW.org Bible chapter, library article, or media page."
+  },
+  "status_bible_title": {
+    "message": "Ready on this Bible chapter"
+  },
+  "status_bible_selected": {
+    "message": "Verse $1:$2 is selected. Choose Download audio beside it."
+  },
+  "status_bible_hint": {
+    "message": "Select one verse number. Download audio will appear beside the selected verse."
+  },
+  "status_media_title": {
+    "message": "Ready on this media page"
+  },
+  "status_media_hint": {
+    "message": "Use the floating controls for time links, a second display, and transcripts."
+  },
+  "status_article_title": {
+    "message": "Ready on this article"
+  },
+  "status_article_hint": {
+    "message": "Hover or focus article text for Copy and Link. Optional image downloads are in Feature settings."
+  },
+  "status_palette_title": {
+    "message": "Quick search is ready"
+  },
+  "status_palette_hint": {
+    "message": "Press Ctrl/Cmd+Shift+K to find a publication or DOCID."
+  },
+  "working": {
+    "message": "Working…"
+  },
+  "done": {
+    "message": "Done"
+  },
+  "unavailable_here": {
+    "message": "Unavailable here"
+  },
+  "no_active_tab": {
+    "message": "No active tab"
+  },
+  "place_saved": {
+    "message": "Place saved"
+  },
+  "saved_place_removed": {
+    "message": "Saved place removed"
+  },
+  "feature_annotations_name": {
+    "message": "Highlights, notes & tags"
+  },
+  "feature_annotations_blurb": {
+    "message": "Keep four-color highlights and searchable notes locally"
+  },
+  "feature_bookmarks_name": {
+    "message": "Saved places"
+  },
+  "feature_bookmarks_blurb": {
+    "message": "Save exact pages, paragraphs, and verses locally"
+  },
+  "feature_citations_name": {
+    "message": "Copy formatted citations"
+  },
+  "feature_citations_blurb": {
+    "message": "Copy the selected text or page with an exact JW link"
+  },
+  "feature_qrShare_name": {
+    "message": "Show QR for this page"
+  },
+  "feature_qrShare_blurb": {
+    "message": "Create a local QR code for the precise official page link"
+  },
+  "feature_officialOpen_name": {
+    "message": "Open official JW link"
+  },
+  "feature_officialOpen_blurb": {
+    "message": "Use page-owned metadata to open the official Finder link"
+  },
+  "feature_verseAudio_name": {
+    "message": "Download verse audio"
+  },
+  "feature_verseAudio_blurb": {
+    "message": "Select one Bible verse to save only its narration"
+  },
+  "feature_copyText_name": {
+    "message": "Copy text"
+  },
+  "feature_copyText_blurb": {
+    "message": "Copy a paragraph or verse without tool labels"
+  },
+  "feature_parLink_name": {
+    "message": "Copy paragraph link"
+  },
+  "feature_parLink_blurb": {
+    "message": "Copy a direct link to a paragraph or verse"
+  },
+  "feature_advSearch_name": {
+    "message": "Quick publication search"
+  },
+  "feature_advSearch_blurb": {
+    "message": "Press Ctrl/Cmd+Shift+K to search by mnemonic or DOCID"
+  },
+  "feature_altText_name": {
+    "message": "Image descriptions"
+  },
+  "feature_altText_blurb": {
+    "message": "Show alt text and captions below article images"
+  },
+  "feature_imgGet_name": {
+    "message": "Download article images"
+  },
+  "feature_imgGet_blurb": {
+    "message": "Add a compact download button beside article images"
+  },
+  "feature_langCount_name": {
+    "message": "Available languages"
+  },
+  "feature_langCount_blurb": {
+    "message": "Show the number of languages for an article"
+  },
+  "feature_actionBar_name": {
+    "message": "Keep page header visible"
+  },
+  "feature_actionBar_blurb": {
+    "message": "Keep the JW.org header in view while scrolling"
+  },
+  "feature_expandWidth_name": {
+    "message": "Wider reading column"
+  },
+  "feature_expandWidth_blurb": {
+    "message": "Use more of the window for article text"
+  },
+  "feature_cstblView_name": {
+    "message": "Clearer tables"
+  },
+  "feature_cstblView_blurb": {
+    "message": "Add spacing and row separation to article tables"
+  },
+  "feature_mediaPlayerUI_name": {
+    "message": "Dim player controls"
+  },
+  "feature_mediaPlayerUI_blurb": {
+    "message": "Reduce player chrome until you hover it"
+  },
+  "feature_customSub_name": {
+    "message": "Larger subtitles"
+  },
+  "feature_customSub_blurb": {
+    "message": "Increase subtitle size and background contrast"
+  },
+  "feature_mediaCtrl_name": {
+    "message": "Media keyboard shortcuts"
+  },
+  "feature_mediaCtrl_blurb": {
+    "message": "Use Space/K/J/L/F/M while watching media"
+  },
+  "feature_mediaTS_name": {
+    "message": "Copy time link"
+  },
+  "feature_mediaTS_blurb": {
+    "message": "Copy the current media URL with its time"
+  },
+  "feature_continueWatching_name": {
+    "message": "Continue watching"
+  },
+  "feature_continueWatching_blurb": {
+    "message": "Keep video progress locally and resume only when asked"
+  },
+  "feature_sndDisp_name": {
+    "message": "Open second display"
+  },
+  "feature_sndDisp_blurb": {
+    "message": "Open the current media in a popup window"
+  },
+  "feature_transcCreate_name": {
+    "message": "Search video transcript"
+  },
+  "feature_transcCreate_blurb": {
+    "message": "Open a searchable transcript panel"
+  },
+  "copied": {
+    "message": "Copied"
+  },
+  "copy_failed": {
+    "message": "Copy failed"
+  },
+  "study_tools_off": {
+    "message": "Study tools are off"
+  },
+  "annotations_off": {
+    "message": "Highlights and notes are off"
+  },
+  "bookmarks_off": {
+    "message": "Saved places are off"
+  },
+  "citations_off": {
+    "message": "Citations are off"
+  },
+  "qr_sharing_off": {
+    "message": "QR sharing is off"
+  },
+  "official_links_off": {
+    "message": "Official links are off"
+  },
+  "action_failed": {
+    "message": "Action failed"
+  },
+  "citation_unavailable": {
+    "message": "Citation unavailable"
+  },
+  "citation_copied": {
+    "message": "Citation copied"
+  },
+  "qr_unavailable": {
+    "message": "QR unavailable"
+  },
+  "qr_title": {
+    "message": "QR for this page"
+  },
+  "close": {
+    "message": "Close"
+  },
+  "close_qr_aria": {
+    "message": "Close QR"
+  },
+  "qr_image_aria": {
+    "message": "QR code for the displayed JW link"
+  },
+  "copy_link": {
+    "message": "Copy link"
+  },
+  "qr_opened": {
+    "message": "QR opened"
+  },
+  "not_available_page": {
+    "message": "Not available on this page"
+  },
+  "official_link_opened": {
+    "message": "Official link opened"
+  },
+  "palette_title": {
+    "message": "Quick publication search"
+  },
+  "palette_placeholder": {
+    "message": "Mnemonic / DOCID (for example w25.03, lff, wp24.01, mwb25.01)"
+  },
+  "study_tools_aria": {
+    "message": "Study tools"
+  },
+  "download_audio": {
+    "message": "Download audio"
+  },
+  "download_audio_title": {
+    "message": "Download only this verse as audio"
+  },
+  "mark": {
+    "message": "Mark"
+  },
+  "mark_title": {
+    "message": "Highlight this paragraph or verse and optionally add a private note"
+  },
+  "copy": {
+    "message": "Copy"
+  },
+  "copy_text_title": {
+    "message": "Copy text"
+  },
+  "link": {
+    "message": "Link"
+  },
+  "copy_paragraph_link_title": {
+    "message": "Copy paragraph link"
+  },
+  "languages_count": {
+    "message": "$1 languages"
+  },
+  "download_image": {
+    "message": "Download image"
+  },
+  "copy_time_url": {
+    "message": "Copy time URL"
+  },
+  "second_display": {
+    "message": "Second display"
+  },
+  "transcript": {
+    "message": "Transcript"
+  },
+  "transcript_search": {
+    "message": "Search…"
+  },
+  "no_matches": {
+    "message": "(no matches)"
+  },
+  "annotation_limit": {
+    "message": "The local annotation limit has been reached."
+  },
+  "highlight_color_aria": {
+    "message": "$1 highlight"
+  },
+  "reattach_note_aria": {
+    "message": "Reattach note"
+  },
+  "highlight_selection_aria": {
+    "message": "Highlight selected text"
+  },
+  "reattach_here": {
+    "message": "Reattach here"
+  },
+  "cancel": {
+    "message": "Cancel"
+  },
+  "add_note": {
+    "message": "Add note"
+  },
+  "edit_highlight": {
+    "message": "Edit highlight"
+  },
+  "new_highlight": {
+    "message": "New highlight"
+  },
+  "close_highlight_editor_aria": {
+    "message": "Close highlight editor"
+  },
+  "highlight_color": {
+    "message": "Highlight color"
+  },
+  "color_yellow": {
+    "message": "Yellow"
+  },
+  "color_green": {
+    "message": "Green"
+  },
+  "color_blue": {
+    "message": "Blue"
+  },
+  "color_pink": {
+    "message": "Pink"
+  },
+  "note": {
+    "message": "Note"
+  },
+  "tags": {
+    "message": "Tags"
+  },
+  "tags_placeholder": {
+    "message": "study, family, review"
+  },
+  "save_locally": {
+    "message": "Save locally"
+  },
+  "tags_error": {
+    "message": "Use at most 20 short, comma-separated tags."
+  },
+  "needs_attention": {
+    "message": "Needs attention"
+  },
+  "no_notes_filtered": {
+    "message": "No notes match these filters."
+  },
+  "no_notes_yet": {
+    "message": "Select text on an article or verse to create your first highlight."
+  },
+  "notes_count_one": {
+    "message": "$1 note"
+  },
+  "notes_count_many": {
+    "message": "$1 notes"
+  },
+  "study_export_failed": {
+    "message": "Study data could not be exported."
+  },
+  "notes_tab": {
+    "message": "Notes"
+  },
+  "saved_places_tab": {
+    "message": "Saved places"
+  },
+  "this_page": {
+    "message": "This page"
+  },
+  "all_pages": {
+    "message": "All pages"
+  },
+  "search_notes": {
+    "message": "Search study notes"
+  },
+  "search_saved_places": {
+    "message": "Search saved places"
+  },
+  "filter_notes_tag": {
+    "message": "Filter study notes by tag"
+  },
+  "all_tags": {
+    "message": "All tags"
+  },
+  "export_json": {
+    "message": "Export JSON"
+  },
+  "import_json": {
+    "message": "Import JSON"
+  },
+  "study_library_opened": {
+    "message": "Study library opened"
+  },
+  "saved_places_count_one": {
+    "message": "$1 saved place"
+  },
+  "saved_places_count_many": {
+    "message": "$1 saved places"
+  },
+  "no_saved_places_filtered": {
+    "message": "No saved places match these filters."
+  },
+  "no_saved_places_yet": {
+    "message": "Save a page, paragraph, or verse to return to it quickly."
+  },
+  "open_saved_place": {
+    "message": "Open"
+  },
+  "remove_saved_place_action": {
+    "message": "Remove"
+  },
+  "local_study_data_invalid": {
+    "message": "Local study data is invalid and was left unchanged."
+  },
+  "study_data_validation_failed": {
+    "message": "Study data update failed validation."
+  },
+  "study_data_save_failed": {
+    "message": "Study data could not be saved."
+  },
+  "video_progress_save_failed": {
+    "message": "Video progress could not be saved."
+  },
+  "resume_at": {
+    "message": "Resume at $1"
+  },
+  "resume_title": {
+    "message": "Seek to saved local progress without starting playback"
+  },
+  "ready_at": {
+    "message": "Ready at $1. Press play when you want."
+  },
+  "resume_wait_loading": {
+    "message": "The video must finish loading before it can resume."
+  },
+  "verse_request_rejected": {
+    "message": "This verse audio request was rejected."
+  },
+  "verse_job_busy": {
+    "message": "Another verse audio clip is already being prepared."
+  },
+  "verse_processing_failed": {
+    "message": "Verse audio processing failed."
+  },
+  "verse_page_unverified": {
+    "message": "The Bible page could not be verified."
+  },
+  "verse_request_invalid": {
+    "message": "The selected verse audio request is not valid."
+  },
+  "verse_timing_unavailable": {
+    "message": "The official verse timing data is unavailable."
+  },
+  "verse_timing_redirected": {
+    "message": "The official verse timing request was redirected unexpectedly."
+  },
+  "verse_timing_missing": {
+    "message": "No official audio timing was found for this verse."
+  },
+  "chapter_audio_download_failed": {
+    "message": "The official chapter audio could not be downloaded."
+  },
+  "chapter_audio_redirected": {
+    "message": "The official chapter audio was redirected unexpectedly."
+  },
+  "decoded_audio_invalid": {
+    "message": "Decoded chapter audio is invalid."
+  },
+  "verse_outside_audio": {
+    "message": "The selected verse is outside the chapter audio."
+  },
+  "verse_audio_too_large": {
+    "message": "The selected verse audio is too large to download safely."
+  },
+  "chapter_audio_too_large": {
+    "message": "The chapter audio is too large to process safely."
+  },
+  "chapter_audio_size_mismatch": {
+    "message": "The chapter audio size does not match its official metadata."
+  },
+  "link_copied": {
+    "message": "Link copied"
+  },
+  "palette_hint": {
+    "message": "Enter to open · Esc to close · Unofficial StudyNav"
+  },
+  "chapter_audio_not_ready": {
+    "message": "Chapter audio is not ready. Open Play Audio once, then try again."
+  },
+  "verse_audio_prepare_failed": {
+    "message": "Verse audio could not be prepared."
+  },
+  "verse_audio_downloaded": {
+    "message": "Downloaded $1:$2 audio"
+  },
+  "verse_audio_download_failed": {
+    "message": "Verse audio download failed."
+  },
+  "image_download_started": {
+    "message": "Image download started"
+  },
+  "timestamp_url_copied": {
+    "message": "Timestamp URL copied"
+  },
+  "transcript_download": {
+    "message": "Download .txt"
+  },
+  "close_transcript_aria": {
+    "message": "Close transcript"
+  },
+  "loading": {
+    "message": "Loading…"
+  },
+  "no_transcript_detected": {
+    "message": "No transcript text was detected on this page. If captions load later, reopen this panel."
+  },
+  "selection_cannot_save": { "message": "This selection cannot be saved." },
+  "note_updated": { "message": "Note updated" },
+  "highlight_saved": { "message": "Highlight saved locally" },
+  "select_one_paragraph": { "message": "Select text within one paragraph or verse." },
+  "select_character_count": { "message": "Select between 1 and $1 characters." },
+  "note_missing": { "message": "That note no longer exists." },
+  "reattach_source_first": { "message": "Return to the note’s source page before reattaching it." },
+  "reattach_cancelled": { "message": "Reattach cancelled" },
+  "reattach_instruction": { "message": "Select the replacement text, then choose Reattach here." },
+  "write_private_note": { "message": "Write a private note…" },
+  "paragraph_mark_unreliable": { "message": "This paragraph cannot be marked reliably." },
+  "delete_highlight_confirm": { "message": "Delete this local highlight and note?" },
+  "highlight_deleted": { "message": "Highlight deleted" },
+  "locate": { "message": "Locate" },
+  "open_page": { "message": "Open page" },
+  "edit": { "message": "Edit" },
+  "delete": { "message": "Delete" },
+  "reattach": { "message": "Reattach" },
+  "study_backup_downloaded": { "message": "Study backup downloaded" },
+  "backup_too_large": { "message": "Backup is larger than 5 MB." },
+  "backup_invalid": { "message": "That is not a valid StudyNav backup." },
+  "import_summary": { "message": "Import: $1 added, $2 updated, $3 ignored, $4 rejected" },
+  "all_notes": { "message": "All notes" },
+  "search_notes_placeholder": { "message": "Search quote, note, or tag…" },
+  "close_study_library_aria": { "message": "Close study library" },
+  "preparing": { "message": "Preparing…" },
+  "bookmark_limit": { "message": "The local saved-place limit has been reached." },
+  "remove_saved_place_confirm": { "message": "Remove this saved place?" },
+  "migration_save_failed": { "message": "Migrated study data could not be saved." }
+}

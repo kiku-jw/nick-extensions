@@ -1,0 +1,13 @@
+{
+  "name": "@nick/studynav",
+  "version": "1.4.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node ../../scripts/build-extension.mjs studynav"
+  },
+  "dependencies": {
+    "@nick/shared": "1.1.3",
+    "qr": "0.6.0"
+  }
+}

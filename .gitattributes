@@ -1,0 +1,4 @@
+packages/clearshield/public/rules/*.json linguist-generated=true
+packages/inkshade/patches/*.patch binary
+site/assets/screenshots/* binary
+site/assets/video/*.mp4 binary

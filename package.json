@@ -1,0 +1,37 @@
+{
+  "name": "nick-extensions",
+  "private": true,
+  "version": "1.1.3",
+  "description": "Owner-controlled Manifest V3 extensions: Ad & Tracker Blocker, InkShade dark mode, and JW.org Study Tools",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "bootstrap:inkshade": "bun run --cwd packages/inkshade bootstrap",
+    "build:inkshade": "bun run --cwd packages/inkshade build",
+    "build": "bun scripts/build-shared.mjs && bun scripts/build-extension.mjs clearshield && bun run build:inkshade && bun scripts/build-extension.mjs studynav",
+    "typecheck": "bunx tsc -p tsconfig.json",
+    "test": "bun test test",
+    "test:inkshade-upstream": "bun run --cwd packages/inkshade test",
+    "lint:inkshade-upstream": "bun run --cwd packages/inkshade lint",
+    "icons": "bun scripts/gen-icons.mjs",
+    "fetch:easylist": "bun packages/clearshield/scripts/fetch-and-convert.mjs",
+    "smoke-check": "bun scripts/smoke-check.mjs",
+    "browser:install": "bunx playwright-core install chromium",
+    "smoke:browser": "node scripts/browser-differential.mjs --summary",
+    "media:studynav": "node scripts/build-studynav-tutorial.mjs",
+    "package:dist": "bun run build && zip -qrFS dist-smoke.zip packages/clearshield/dist packages/inkshade/dist packages/studynav/dist -x '*/_metadata/*'",
+    "package:inkshade": "bun run build:inkshade && (cd packages/inkshade/dist && zip -qrFS ../inkshade-store.zip . -x '_metadata/*')",
+    "verify": "bun run typecheck && bun run test && bun run test:inkshade-upstream && bun run build && bun run smoke-check && bun run smoke:browser && bun run smoke-check"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.270",
+    "esbuild": "^0.23.1",
+    "playwright-core": "1.62.0",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

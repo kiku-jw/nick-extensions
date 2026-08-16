@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Ad &amp; Tracker Blocker Settings (ClearShield)</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <main>
+    <h1>Ad &amp; Tracker Blocker Settings</h1>
+    <section>
+      <h2>Rule lists</h2>
+      <p class="muted">Static DNR rulesets. Counts are from the bundled converted JSON (Chrome static rule budget applies).</p>
+      <label><input type="checkbox" id="list-baseline" /> Baseline <span id="count-baseline" class="count">—</span></label>
+      <label><input type="checkbox" id="list-easylist" /> EasyList (converted subset) <span id="count-easylist" class="count">—</span></label>
+      <label><input type="checkbox" id="list-easyprivacy" /> EasyPrivacy (converted subset) <span id="count-easyprivacy" class="count">—</span></label>
+      <label><input type="checkbox" id="cosmetic" /> Cosmetic filtering (lite) <span id="count-cosmetic" class="count">—</span></label>
+      <p id="ruleSummary" class="muted"></p>
+    </section>
+    <section>
+      <h2>Allowlist</h2>
+      <p class="muted">One hostname per line. These hosts bypass network + cosmetic blocking.</p>
+      <textarea id="allowlist" rows="10" placeholder="example.com"></textarea>
+      <div class="row">
+        <button id="saveAllow" class="btn">Save allowlist</button>
+        <span id="allowMeta" class="muted"></span>
+      </div>
+    </section>
+    <section>
+      <h2>Export / Import</h2>
+      <div class="row">
+        <button id="exportBtn" class="btn">Export JSON</button>
+        <label class="btn file">Import JSON<input type="file" id="importFile" accept="application/json" hidden /></label>
+      </div>
+      <pre id="status"></pre>
+    </section>
+    <section class="legal">
+      <h2>Attribution</h2>
+      <p>EasyList / EasyPrivacy used under their published terms with attribution. See rules/ATTRIBUTION.md. ClearShield code is MIT. Complex features (scriptlets, redirects, full cosmetics) are out of scope.</p>
+    </section>
+  </main>
+  <script src="options.js"></script>
+</body>
+</html>

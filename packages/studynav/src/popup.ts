@@ -1,0 +1,215 @@
+import {
+  DEFAULT_FLAGS,
+  FEATURE_META,
+  type FeatureFlags,
+  type FeatureGroup,
+  type FeatureId,
+} from './features';
+import { featureBlurbKey, featureNameKey, localizeDocument, t, type MessageKey } from './i18n';
+
+const list = document.getElementById('list')!;
+const filterEl = document.getElementById('filter') as HTMLInputElement;
+const masterEl = document.getElementById('master') as HTMLInputElement;
+const enabledCountEl = document.getElementById('enabled-count')!;
+const statusEl = document.getElementById('page-status')!;
+const statusTitleEl = document.getElementById('status-title')!;
+const statusHintEl = document.getElementById('status-hint')!;
+const actionFeedbackEl = document.getElementById('action-feedback')!;
+const actionButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('.action-grid button'));
+let currentFlags: FeatureFlags = { ...DEFAULT_FLAGS };
+let currentPageStatus: PageStatus | null = null;
+
+async function load(): Promise<FeatureFlags> {
+  return chrome.runtime.sendMessage({ type: 'GET_FLAGS' });
+}
+
+function enabledCount(flags: FeatureFlags): number {
+  return FEATURE_META.filter((meta) => flags[meta.id]).length;
+}
+
+function updateEnabledCount() {
+  enabledCountEl.textContent = t('enabled_count', String(enabledCount(currentFlags)));
+}
+
+function row(meta: typeof FEATURE_META[number], on: boolean) {
+  const el = document.createElement('div');
+  el.className = 'row';
+  const name = t(featureNameKey(meta.id));
+  const blurb = t(featureBlurbKey(meta.id));
+  el.dataset.name = `${name} ${blurb} ${meta.group}`.toLocaleLowerCase();
+
+  const copy = document.createElement('div');
+  const nameEl = document.createElement('div');
+  nameEl.className = 'name';
+  nameEl.textContent = name;
+  const blurbEl = document.createElement('div');
+  blurbEl.className = 'blurb';
+  blurbEl.textContent = blurb;
+  copy.append(nameEl, blurbEl);
+
+  const label = document.createElement('label');
+  label.className = 'switch';
+  const input = document.createElement('input');
+  input.type = 'checkbox';
+  input.dataset.id = meta.id;
+  input.setAttribute('aria-label', name);
+  input.checked = on;
+  label.append(input, document.createElement('span'));
+  el.append(copy, label);
+
+  input.addEventListener('change', async (e) => {
+    const id = meta.id as FeatureId;
+    const value = (e.target as HTMLInputElement).checked;
+    await chrome.runtime.sendMessage({ type: 'SET_FLAG', id, value });
+    currentFlags = { ...currentFlags, [id]: value };
+    updateEnabledCount();
+    updateActionAvailability();
+  });
+  return el;
+}
+
+function applyFilter() {
+  const q = filterEl.value.trim().toLowerCase();
+  list.querySelectorAll('.row').forEach((el) => {
+    const hay = (el as HTMLElement).dataset.name || '';
+    el.classList.toggle('hidden', !!q && !hay.includes(q));
+  });
+}
+
+type PageStatus = {
+  active?: unknown;
+  kind?: unknown;
+  masterEnabled?: unknown;
+  selectedVerse?: unknown;
+  supported?: unknown;
+  officialOpenAvailable?: unknown;
+  bookmarkAvailable?: unknown;
+  bookmarkSaved?: unknown;
+};
+
+async function readPageStatus(): Promise<PageStatus | null> {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab?.id) return null;
+    const status: unknown = await chrome.tabs.sendMessage(tab.id, { type: 'GET_STUDYNAV_STATUS' });
+    return status && typeof status === 'object' ? status as PageStatus : null;
+  } catch {
+    return null;
+  }
+}
+
+async function renderPageStatus() {
+  const status = await readPageStatus();
+  currentPageStatus = status;
+  updateActionAvailability();
+  if (currentFlags.masterEnabled === false || status?.masterEnabled === false) {
+    statusEl.dataset.state = 'off';
+    statusTitleEl.textContent = t('status_tools_off_title');
+    statusHintEl.textContent = t('status_tools_off_hint');
+    return;
+  }
+  if (!status || status.supported !== true || status.active !== true) {
+    statusEl.dataset.state = 'idle';
+    statusTitleEl.textContent = t('status_unavailable_title');
+    statusHintEl.textContent = t('status_unavailable_hint');
+    return;
+  }
+
+  statusEl.dataset.state = 'ready';
+  if (status.kind === 'bible') {
+    const selected = status.selectedVerse;
+    statusTitleEl.textContent = t('status_bible_title');
+    statusHintEl.textContent = selected && typeof selected === 'object' &&
+      'chapter' in selected && 'verse' in selected
+      ? t('status_bible_selected', [String(selected.chapter), String(selected.verse)])
+      : t('status_bible_hint');
+  } else if (status.kind === 'media') {
+    statusTitleEl.textContent = t('status_media_title');
+    statusHintEl.textContent = t('status_media_hint');
+  } else if (status.kind === 'article') {
+    statusTitleEl.textContent = t('status_article_title');
+    statusHintEl.textContent = t('status_article_hint');
+  } else {
+    statusTitleEl.textContent = t('status_palette_title');
+    statusHintEl.textContent = t('status_palette_hint');
+  }
+}
+
+function updateActionAvailability() {
+  const ready = currentFlags.masterEnabled !== false &&
+    currentPageStatus?.supported === true && currentPageStatus?.active === true;
+  for (const button of actionButtons) {
+    const feature = button.dataset.feature as FeatureId | undefined;
+    const anyFeatures = (button.dataset.anyFeature || '').split(',').filter(Boolean) as FeatureId[];
+    const enabledByFlag = feature ? !!currentFlags[feature] : anyFeatures.some((id) => !!currentFlags[id]);
+    const officialUnavailable = button.id === 'open-official' && currentPageStatus?.officialOpenAvailable !== true;
+    const bookmarkUnavailable = button.id === 'save-place' && currentPageStatus?.bookmarkAvailable !== true;
+    button.disabled = !ready || !enabledByFlag || officialUnavailable || bookmarkUnavailable;
+  }
+  const saveButton = document.getElementById('save-place');
+  if (saveButton) saveButton.textContent = t(currentPageStatus?.bookmarkSaved === true ? 'remove_saved_place' : 'save_place');
+}
+
+const ACTION_MESSAGES: Record<string, string> = {
+  'open-notes': 'OPEN_STUDY_PANEL',
+  'save-place': 'TOGGLE_STUDY_BOOKMARK',
+  'copy-citation': 'COPY_STUDY_CITATION',
+  'show-qr': 'SHOW_STUDY_QR',
+  'open-official': 'OPEN_OFFICIAL_JW_LINK',
+};
+
+async function runPageAction(button: HTMLButtonElement) {
+  const type = ACTION_MESSAGES[button.id];
+  if (!type || button.disabled) return;
+  button.disabled = true;
+  actionFeedbackEl.textContent = t('working');
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab?.id) throw new Error(t('no_active_tab'));
+    const result: unknown = await chrome.tabs.sendMessage(tab.id, { type });
+    const message = result && typeof result === 'object' && 'message' in result && typeof result.message === 'string'
+      ? result.message
+      : t('done');
+    actionFeedbackEl.textContent = message;
+    if (button.id === 'save-place') await renderPageStatus();
+  } catch {
+    actionFeedbackEl.textContent = t('unavailable_here');
+  } finally {
+    window.setTimeout(() => {
+      actionFeedbackEl.textContent = '';
+      updateActionAvailability();
+    }, 1400);
+  }
+}
+
+(async () => {
+  localizeDocument();
+  currentFlags = { ...DEFAULT_FLAGS, ...(await load()) };
+  masterEl.checked = currentFlags.masterEnabled !== false;
+  masterEl.addEventListener('change', async () => {
+    await chrome.runtime.sendMessage({ type: 'SET_FLAG', id: 'masterEnabled', value: masterEl.checked });
+    currentFlags = { ...currentFlags, masterEnabled: masterEl.checked };
+    await renderPageStatus();
+  });
+
+  list.innerHTML = '';
+  const groups: { key: FeatureGroup; title: MessageKey }[] = [
+    { key: 'study', title: 'group_study' },
+    { key: 'core', title: 'group_core' },
+    { key: 'layout', title: 'group_layout' },
+    { key: 'media', title: 'group_media' },
+  ];
+  for (const g of groups) {
+    const h = document.createElement('div');
+    h.className = 'group';
+    h.textContent = t(g.title);
+    list.appendChild(h);
+    for (const meta of FEATURE_META.filter((m) => m.group === g.key)) {
+      list.appendChild(row(meta, !!currentFlags[meta.id]));
+    }
+  }
+  filterEl.addEventListener('input', applyFilter);
+  actionButtons.forEach((button) => button.addEventListener('click', () => void runPageAction(button)));
+  updateEnabledCount();
+  await renderPageStatus();
+})();

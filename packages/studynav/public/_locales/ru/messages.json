@@ -1,0 +1,679 @@
+{
+  "extension_name": {
+    "message": "StudyNav — неофициальные инструменты для изучения"
+  },
+  "extension_short_name": {
+    "message": "StudyNav"
+  },
+  "extension_description": {
+    "message": "Неофициальные локальные инструменты для изучения на общедоступных страницах JW.org. Без телеметрии и отправки данных; не связано со Свидетелями Иеговы."
+  },
+  "command_adv_search": {
+    "message": "Открыть быстрый поиск StudyNav"
+  },
+  "popup_header_title": {
+    "message": "StudyNav"
+  },
+  "popup_header_subtitle": {
+    "message": "Неофициально · локальная обработка · только поддерживаемые страницы"
+  },
+  "tools": {
+    "message": "Инструменты"
+  },
+  "tools_title": {
+    "message": "Включить или выключить все инструменты StudyNav"
+  },
+  "tools_aria": {
+    "message": "Включить все инструменты StudyNav"
+  },
+  "checking_page": {
+    "message": "Проверяем эту страницу…"
+  },
+  "open_supported_page": {
+    "message": "Откройте поддерживаемую страницу JW.org, чтобы использовать инструменты."
+  },
+  "page_tools": {
+    "message": "Инструменты страницы"
+  },
+  "study_library": {
+    "message": "Библиотека изучения"
+  },
+  "save_place": {
+    "message": "Сохранить место"
+  },
+  "remove_saved_place": {
+    "message": "Удалить сохранённое место"
+  },
+  "copy_citation": {
+    "message": "Копировать ссылку с цитатой"
+  },
+  "show_qr": {
+    "message": "Показать QR-код"
+  },
+  "open_official_link": {
+    "message": "Открыть официальную ссылку JW"
+  },
+  "what_it_gives_you": {
+    "message": "Что даёт расширение"
+  },
+  "guide_bible_label": {
+    "message": "Библия:"
+  },
+  "guide_bible_text": {
+    "message": "выберите номер одного стиха, затем нажмите «Скачать аудио»."
+  },
+  "guide_study_label": {
+    "message": "Изучение:"
+  },
+  "guide_study_text": {
+    "message": "выделяйте текст, добавляйте заметки или сохраняйте точное место."
+  },
+  "guide_articles_label": {
+    "message": "Статьи:"
+  },
+  "guide_articles_text": {
+    "message": "наведите указатель или установите фокус на текст, чтобы копировать, отмечать и получать ссылку."
+  },
+  "guide_media_label": {
+    "message": "Медиа:"
+  },
+  "guide_media_text": {
+    "message": "используйте плавающую панель для ссылок на время, продолжения просмотра и стенограмм."
+  },
+  "feature_settings": {
+    "message": "Настройки функций"
+  },
+  "filter_features": {
+    "message": "Фильтр функций"
+  },
+  "find_setting": {
+    "message": "Найти настройку…"
+  },
+  "footer_quick_search": {
+    "message": "Быстрый поиск: Ctrl/Cmd+Shift+K"
+  },
+  "footer_privacy": {
+    "message": "Без телеметрии · без отправки данных"
+  },
+  "group_study": {
+    "message": "Изучение и обмен"
+  },
+  "group_core": {
+    "message": "Библия и статьи"
+  },
+  "group_layout": {
+    "message": "Вид для чтения"
+  },
+  "group_media": {
+    "message": "Видео и аудио"
+  },
+  "enabled_count": {
+    "message": "Включено: $1"
+  },
+  "status_tools_off_title": {
+    "message": "Инструменты изучения выключены"
+  },
+  "status_tools_off_hint": {
+    "message": "Включите «Инструменты» выше, чтобы вернуть помощники на поддерживаемых страницах."
+  },
+  "status_unavailable_title": {
+    "message": "На этой странице нет инструментов"
+  },
+  "status_unavailable_hint": {
+    "message": "Откройте главу Библии, статью библиотеки или медиа на JW.org."
+  },
+  "status_bible_title": {
+    "message": "Готово для этой главы Библии"
+  },
+  "status_bible_selected": {
+    "message": "Выбран стих $1:$2. Рядом с ним нажмите «Скачать аудио»."
+  },
+  "status_bible_hint": {
+    "message": "Выберите номер одного стиха. Рядом появится кнопка «Скачать аудио»."
+  },
+  "status_media_title": {
+    "message": "Готово для этой медиа-страницы"
+  },
+  "status_media_hint": {
+    "message": "Используйте плавающую панель для ссылки на время, второго экрана и стенограммы."
+  },
+  "status_article_title": {
+    "message": "Готово для этой статьи"
+  },
+  "status_article_hint": {
+    "message": "Наведите указатель или установите фокус на текст, чтобы копировать его или ссылку. Скачивание изображений включается в настройках функций."
+  },
+  "status_palette_title": {
+    "message": "Быстрый поиск готов"
+  },
+  "status_palette_hint": {
+    "message": "Нажмите Ctrl/Cmd+Shift+K, чтобы найти публикацию или DOCID."
+  },
+  "working": {
+    "message": "Выполняется…"
+  },
+  "done": {
+    "message": "Готово"
+  },
+  "unavailable_here": {
+    "message": "Здесь недоступно"
+  },
+  "no_active_tab": {
+    "message": "Нет активной вкладки"
+  },
+  "place_saved": {
+    "message": "Место сохранено"
+  },
+  "saved_place_removed": {
+    "message": "Сохранённое место удалено"
+  },
+  "feature_annotations_name": {
+    "message": "Выделения, заметки и теги"
+  },
+  "feature_annotations_blurb": {
+    "message": "Хранить локально выделения четырёх цветов и заметки с поиском"
+  },
+  "feature_bookmarks_name": {
+    "message": "Сохранённые места"
+  },
+  "feature_bookmarks_blurb": {
+    "message": "Локально сохранять точные страницы, абзацы и стихи"
+  },
+  "feature_citations_name": {
+    "message": "Копирование оформленных цитат"
+  },
+  "feature_citations_blurb": {
+    "message": "Копировать выбранный текст или страницу с точной ссылкой JW"
+  },
+  "feature_qrShare_name": {
+    "message": "QR-код этой страницы"
+  },
+  "feature_qrShare_blurb": {
+    "message": "Создавать локальный QR-код для точной официальной ссылки"
+  },
+  "feature_officialOpen_name": {
+    "message": "Открытие официальной ссылки JW"
+  },
+  "feature_officialOpen_blurb": {
+    "message": "Использовать метаданные страницы для открытия официальной ссылки Finder"
+  },
+  "feature_verseAudio_name": {
+    "message": "Скачивание аудио стиха"
+  },
+  "feature_verseAudio_blurb": {
+    "message": "Выбрать один стих Библии и сохранить только его озвучку"
+  },
+  "feature_copyText_name": {
+    "message": "Копирование текста"
+  },
+  "feature_copyText_blurb": {
+    "message": "Копировать абзац или стих без подписей инструментов"
+  },
+  "feature_parLink_name": {
+    "message": "Копирование ссылки на абзац"
+  },
+  "feature_parLink_blurb": {
+    "message": "Копировать прямую ссылку на абзац или стих"
+  },
+  "feature_advSearch_name": {
+    "message": "Быстрый поиск публикаций"
+  },
+  "feature_advSearch_blurb": {
+    "message": "Нажать Ctrl/Cmd+Shift+K для поиска по сокращению или DOCID"
+  },
+  "feature_altText_name": {
+    "message": "Описания изображений"
+  },
+  "feature_altText_blurb": {
+    "message": "Показывать альтернативный текст и подписи под изображениями статьи"
+  },
+  "feature_imgGet_name": {
+    "message": "Скачивание изображений статьи"
+  },
+  "feature_imgGet_blurb": {
+    "message": "Добавлять компактную кнопку скачивания рядом с изображениями статьи"
+  },
+  "feature_langCount_name": {
+    "message": "Доступные языки"
+  },
+  "feature_langCount_blurb": {
+    "message": "Показывать количество языков, на которых доступна статья"
+  },
+  "feature_actionBar_name": {
+    "message": "Закреплённая шапка страницы"
+  },
+  "feature_actionBar_blurb": {
+    "message": "Оставлять шапку JW.org видимой при прокрутке"
+  },
+  "feature_expandWidth_name": {
+    "message": "Расширенная колонка чтения"
+  },
+  "feature_expandWidth_blurb": {
+    "message": "Использовать больше ширины окна для текста статьи"
+  },
+  "feature_cstblView_name": {
+    "message": "Более понятные таблицы"
+  },
+  "feature_cstblView_blurb": {
+    "message": "Добавлять интервалы и разделение строк в таблицах статьи"
+  },
+  "feature_mediaPlayerUI_name": {
+    "message": "Приглушённые элементы плеера"
+  },
+  "feature_mediaPlayerUI_blurb": {
+    "message": "Уменьшать заметность панели плеера до наведения указателя"
+  },
+  "feature_customSub_name": {
+    "message": "Увеличенные субтитры"
+  },
+  "feature_customSub_blurb": {
+    "message": "Увеличивать субтитры и контраст их фона"
+  },
+  "feature_mediaCtrl_name": {
+    "message": "Горячие клавиши медиа"
+  },
+  "feature_mediaCtrl_blurb": {
+    "message": "Использовать Space/K/J/L/F/M при просмотре медиа"
+  },
+  "feature_mediaTS_name": {
+    "message": "Копирование ссылки на время"
+  },
+  "feature_mediaTS_blurb": {
+    "message": "Копировать URL медиа с текущей отметкой времени"
+  },
+  "feature_continueWatching_name": {
+    "message": "Продолжение просмотра"
+  },
+  "feature_continueWatching_blurb": {
+    "message": "Локально хранить прогресс и продолжать только по вашему выбору"
+  },
+  "feature_sndDisp_name": {
+    "message": "Открытие второго экрана"
+  },
+  "feature_sndDisp_blurb": {
+    "message": "Открывать текущее медиа в отдельном всплывающем окне"
+  },
+  "feature_transcCreate_name": {
+    "message": "Поиск по стенограмме видео"
+  },
+  "feature_transcCreate_blurb": {
+    "message": "Открывать панель стенограммы с поиском"
+  },
+  "copied": {
+    "message": "Скопировано"
+  },
+  "copy_failed": {
+    "message": "Не удалось скопировать"
+  },
+  "study_tools_off": {
+    "message": "Инструменты изучения выключены"
+  },
+  "annotations_off": {
+    "message": "Выделения и заметки выключены"
+  },
+  "bookmarks_off": {
+    "message": "Сохранённые места выключены"
+  },
+  "citations_off": {
+    "message": "Цитаты выключены"
+  },
+  "qr_sharing_off": {
+    "message": "Обмен через QR-код выключен"
+  },
+  "official_links_off": {
+    "message": "Официальные ссылки выключены"
+  },
+  "action_failed": {
+    "message": "Не удалось выполнить действие"
+  },
+  "citation_unavailable": {
+    "message": "Цитата недоступна"
+  },
+  "citation_copied": {
+    "message": "Цитата скопирована"
+  },
+  "qr_unavailable": {
+    "message": "QR-код недоступен"
+  },
+  "qr_title": {
+    "message": "QR-код этой страницы"
+  },
+  "close": {
+    "message": "Закрыть"
+  },
+  "close_qr_aria": {
+    "message": "Закрыть QR-код"
+  },
+  "qr_image_aria": {
+    "message": "QR-код для показанной ссылки JW"
+  },
+  "copy_link": {
+    "message": "Копировать ссылку"
+  },
+  "qr_opened": {
+    "message": "QR-код открыт"
+  },
+  "not_available_page": {
+    "message": "Недоступно на этой странице"
+  },
+  "official_link_opened": {
+    "message": "Официальная ссылка открыта"
+  },
+  "palette_title": {
+    "message": "Быстрый поиск публикаций"
+  },
+  "palette_placeholder": {
+    "message": "Сокращение / DOCID (например: w25.03, lff, wp24.01, mwb25.01)"
+  },
+  "study_tools_aria": {
+    "message": "Инструменты изучения"
+  },
+  "download_audio": {
+    "message": "Скачать аудио"
+  },
+  "download_audio_title": {
+    "message": "Скачать аудио только этого стиха"
+  },
+  "mark": {
+    "message": "Отметить"
+  },
+  "mark_title": {
+    "message": "Выделить этот абзац или стих и при желании добавить личную заметку"
+  },
+  "copy": {
+    "message": "Копировать"
+  },
+  "copy_text_title": {
+    "message": "Копировать текст"
+  },
+  "link": {
+    "message": "Ссылка"
+  },
+  "copy_paragraph_link_title": {
+    "message": "Копировать ссылку на абзац"
+  },
+  "languages_count": {
+    "message": "Языков: $1"
+  },
+  "download_image": {
+    "message": "Скачать изображение"
+  },
+  "copy_time_url": {
+    "message": "Копировать ссылку на время"
+  },
+  "second_display": {
+    "message": "Второй экран"
+  },
+  "transcript": {
+    "message": "Стенограмма"
+  },
+  "transcript_search": {
+    "message": "Поиск…"
+  },
+  "no_matches": {
+    "message": "(совпадений нет)"
+  },
+  "annotation_limit": {
+    "message": "Достигнут лимит локальных выделений."
+  },
+  "highlight_color_aria": {
+    "message": "Выделение: $1"
+  },
+  "reattach_note_aria": {
+    "message": "Повторно привязать заметку"
+  },
+  "highlight_selection_aria": {
+    "message": "Выделить выбранный текст"
+  },
+  "reattach_here": {
+    "message": "Привязать здесь"
+  },
+  "cancel": {
+    "message": "Отмена"
+  },
+  "add_note": {
+    "message": "Добавить заметку"
+  },
+  "edit_highlight": {
+    "message": "Изменить выделение"
+  },
+  "new_highlight": {
+    "message": "Новое выделение"
+  },
+  "close_highlight_editor_aria": {
+    "message": "Закрыть редактор выделения"
+  },
+  "highlight_color": {
+    "message": "Цвет выделения"
+  },
+  "color_yellow": {
+    "message": "Жёлтый"
+  },
+  "color_green": {
+    "message": "Зелёный"
+  },
+  "color_blue": {
+    "message": "Синий"
+  },
+  "color_pink": {
+    "message": "Розовый"
+  },
+  "note": {
+    "message": "Заметка"
+  },
+  "tags": {
+    "message": "Теги"
+  },
+  "tags_placeholder": {
+    "message": "изучение, семья, повторение"
+  },
+  "save_locally": {
+    "message": "Сохранить локально"
+  },
+  "tags_error": {
+    "message": "Используйте не более 20 коротких тегов, разделённых запятыми."
+  },
+  "needs_attention": {
+    "message": "Требует внимания"
+  },
+  "no_notes_filtered": {
+    "message": "Нет заметок, соответствующих фильтрам."
+  },
+  "no_notes_yet": {
+    "message": "Выберите текст статьи или стиха, чтобы создать первое выделение."
+  },
+  "notes_count_one": {
+    "message": "Заметок: $1"
+  },
+  "notes_count_many": {
+    "message": "Заметок: $1"
+  },
+  "study_export_failed": {
+    "message": "Не удалось экспортировать данные изучения."
+  },
+  "notes_tab": {
+    "message": "Заметки"
+  },
+  "saved_places_tab": {
+    "message": "Сохранённые места"
+  },
+  "this_page": {
+    "message": "Эта страница"
+  },
+  "all_pages": {
+    "message": "Все страницы"
+  },
+  "search_notes": {
+    "message": "Поиск по заметкам"
+  },
+  "search_saved_places": {
+    "message": "Поиск по сохранённым местам"
+  },
+  "filter_notes_tag": {
+    "message": "Фильтр заметок по тегу"
+  },
+  "all_tags": {
+    "message": "Все теги"
+  },
+  "export_json": {
+    "message": "Экспорт JSON"
+  },
+  "import_json": {
+    "message": "Импорт JSON"
+  },
+  "study_library_opened": {
+    "message": "Библиотека изучения открыта"
+  },
+  "saved_places_count_one": {
+    "message": "Сохранённых мест: $1"
+  },
+  "saved_places_count_many": {
+    "message": "Сохранённых мест: $1"
+  },
+  "no_saved_places_filtered": {
+    "message": "Нет сохранённых мест, соответствующих фильтрам."
+  },
+  "no_saved_places_yet": {
+    "message": "Сохраните страницу, абзац или стих, чтобы быстро вернуться к нему."
+  },
+  "open_saved_place": {
+    "message": "Открыть"
+  },
+  "remove_saved_place_action": {
+    "message": "Удалить"
+  },
+  "local_study_data_invalid": {
+    "message": "Локальные данные изучения повреждены и оставлены без изменений."
+  },
+  "study_data_validation_failed": {
+    "message": "Обновление данных изучения не прошло проверку."
+  },
+  "study_data_save_failed": {
+    "message": "Не удалось сохранить данные изучения."
+  },
+  "video_progress_save_failed": {
+    "message": "Не удалось сохранить прогресс видео."
+  },
+  "resume_at": {
+    "message": "Продолжить с $1"
+  },
+  "resume_title": {
+    "message": "Перейти к сохранённому месту без запуска воспроизведения"
+  },
+  "ready_at": {
+    "message": "Готово на $1. Запустите воспроизведение, когда захотите."
+  },
+  "resume_wait_loading": {
+    "message": "Чтобы продолжить, дождитесь загрузки видео."
+  },
+  "verse_request_rejected": {
+    "message": "Запрос аудио этого стиха отклонён."
+  },
+  "verse_job_busy": {
+    "message": "Уже подготавливается другой аудиофрагмент стиха."
+  },
+  "verse_processing_failed": {
+    "message": "Не удалось обработать аудио стиха."
+  },
+  "verse_page_unverified": {
+    "message": "Не удалось проверить страницу Библии."
+  },
+  "verse_request_invalid": {
+    "message": "Запрос аудио выбранного стиха недействителен."
+  },
+  "verse_timing_unavailable": {
+    "message": "Официальные данные времени стиха недоступны."
+  },
+  "verse_timing_redirected": {
+    "message": "Запрос официальных данных времени был неожиданно перенаправлен."
+  },
+  "verse_timing_missing": {
+    "message": "Для этого стиха не найдены официальные данные времени аудио."
+  },
+  "chapter_audio_download_failed": {
+    "message": "Не удалось скачать официальное аудио главы."
+  },
+  "chapter_audio_redirected": {
+    "message": "Официальное аудио главы было неожиданно перенаправлено."
+  },
+  "decoded_audio_invalid": {
+    "message": "Декодированное аудио главы недействительно."
+  },
+  "verse_outside_audio": {
+    "message": "Выбранный стих находится за пределами аудио главы."
+  },
+  "verse_audio_too_large": {
+    "message": "Аудио выбранного стиха слишком велико для безопасного скачивания."
+  },
+  "chapter_audio_too_large": {
+    "message": "Аудио главы слишком велико для безопасной обработки."
+  },
+  "chapter_audio_size_mismatch": {
+    "message": "Размер аудио главы не соответствует официальным метаданным."
+  },
+  "link_copied": {
+    "message": "Ссылка скопирована"
+  },
+  "palette_hint": {
+    "message": "Enter — открыть · Esc — закрыть · Неофициальный StudyNav"
+  },
+  "chapter_audio_not_ready": {
+    "message": "Аудио главы ещё не готово. Один раз нажмите «Воспроизвести аудио» и повторите попытку."
+  },
+  "verse_audio_prepare_failed": {
+    "message": "Не удалось подготовить аудио стиха."
+  },
+  "verse_audio_downloaded": {
+    "message": "Скачано аудио $1:$2"
+  },
+  "verse_audio_download_failed": {
+    "message": "Не удалось скачать аудио стиха."
+  },
+  "image_download_started": {
+    "message": "Скачивание изображения началось"
+  },
+  "timestamp_url_copied": {
+    "message": "Ссылка на время скопирована"
+  },
+  "transcript_download": {
+    "message": "Скачать .txt"
+  },
+  "close_transcript_aria": {
+    "message": "Закрыть стенограмму"
+  },
+  "loading": {
+    "message": "Загрузка…"
+  },
+  "no_transcript_detected": {
+    "message": "На этой странице не найден текст стенограммы. Если субтитры загрузятся позже, откройте панель снова."
+  },
+  "selection_cannot_save": { "message": "Это выделение нельзя сохранить." },
+  "note_updated": { "message": "Заметка обновлена" },
+  "highlight_saved": { "message": "Выделение сохранено локально" },
+  "select_one_paragraph": { "message": "Выберите текст в пределах одного абзаца или стиха." },
+  "select_character_count": { "message": "Выберите от 1 до $1 символов." },
+  "note_missing": { "message": "Этой заметки больше нет." },
+  "reattach_source_first": { "message": "Перед повторной привязкой вернитесь на исходную страницу заметки." },
+  "reattach_cancelled": { "message": "Повторная привязка отменена" },
+  "reattach_instruction": { "message": "Выберите новый текст, затем нажмите «Привязать здесь»." },
+  "write_private_note": { "message": "Напишите личную заметку…" },
+  "paragraph_mark_unreliable": { "message": "Этот абзац нельзя надёжно отметить." },
+  "delete_highlight_confirm": { "message": "Удалить это локальное выделение и заметку?" },
+  "highlight_deleted": { "message": "Выделение удалено" },
+  "locate": { "message": "Найти" },
+  "open_page": { "message": "Открыть страницу" },
+  "edit": { "message": "Изменить" },
+  "delete": { "message": "Удалить" },
+  "reattach": { "message": "Привязать заново" },
+  "study_backup_downloaded": { "message": "Резервная копия изучения скачана" },
+  "backup_too_large": { "message": "Размер резервной копии превышает 5 МБ." },
+  "backup_invalid": { "message": "Это не действительная резервная копия StudyNav." },
+  "import_summary": { "message": "Импорт: добавлено $1, обновлено $2, без изменений $3, отклонено $4" },
+  "all_notes": { "message": "Все заметки" },
+  "search_notes_placeholder": { "message": "Поиск по цитате, заметке или тегу…" },
+  "close_study_library_aria": { "message": "Закрыть библиотеку изучения" },
+  "preparing": { "message": "Подготовка…" },
+  "bookmark_limit": { "message": "Достигнут лимит локальных сохранённых мест." },
+  "remove_saved_place_confirm": { "message": "Удалить это сохранённое место?" },
+  "migration_save_failed": { "message": "Не удалось сохранить перенесённые данные изучения." }
+}

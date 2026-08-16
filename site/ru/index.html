@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="StudyNav — неофициальное локальное расширение с инструментами изучения, чтения, ссылок и медиа для поддерживаемых страниц JW.org.">
+  <meta name="theme-color" content="#43669F">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="StudyNav — неофициальные инструменты для изучения">
+  <meta property="og:description" content="Локальное руководство по 22 точечным функциям StudyNav для изучения, чтения, ссылок и медиа.">
+  <meta property="og:image" content="https://kiku-jw.github.io/nick-extensions/assets/screenshots/tutorial-poster-ru.jpg">
+  <meta property="og:url" content="https://kiku-jw.github.io/nick-extensions/ru/">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>StudyNav — неофициальные инструменты для изучения</title>
+  <link rel="canonical" href="https://kiku-jw.github.io/nick-extensions/ru/">
+  <link rel="alternate" hreflang="en" href="https://kiku-jw.github.io/nick-extensions/">
+  <link rel="alternate" hreflang="ru" href="https://kiku-jw.github.io/nick-extensions/ru/">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+  <script src="../assets/site.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#content">Перейти к содержанию</a>
+  <header class="site-header"><nav class="nav" aria-label="Основная навигация">
+    <a class="brand" href="#top" aria-label="На главную StudyNav"><span class="brand-mark" aria-hidden="true">SN</span><span class="brand-text">StudyNav</span></a>
+    <div class="nav-links"><a href="#workflows">Сценарии</a><a href="#features">Функции</a><a href="#privacy">Приватность</a><a href="#research">Исследование</a><a href="#install">Установка</a><span class="language-switch" aria-label="Язык"><a href="../" lang="en">EN</a><a href="./" aria-current="page" lang="ru">RU</a></span></div>
+  </nav></header>
+
+  <main id="content" tabindex="-1">
+    <section class="hero" id="top"><div class="container hero-grid">
+      <div><p class="eyebrow">Версия 1.4 · локальная работа · русский + английский</p><h1>Полезные инструменты для изучения — без превращения сайта в отдельное приложение.</h1><p class="lede">StudyNav добавляет на поддерживаемые публичные страницы JW.org подсветки, заметки, сохранённые места, точные ссылки, аудио одного стиха и медиа-инструменты. Личные данные для изучения остаются в браузере.</p><div class="hero-actions"><a class="button" href="#tutorial">Посмотреть обучение за 77 секунд</a><a class="button secondary" href="#install">Установить из исходников</a></div><ul class="trust-list" aria-label="Принципы продукта"><li>Без телеметрии</li><li>Без аккаунта и сервера</li><li>Изменение разметки выключено</li><li>Открытый код</li></ul></div>
+      <figure class="hero-shot"><img src="../assets/screenshots/ru-popup.png" width="760" height="1080" alt="Русское окно StudyNav с действиями текущей страницы и настройками на синтетическом макете"><figcaption>Сначала — действия для текущей страницы; подробные настройки спрятаны до тех пор, пока они не понадобятся.</figcaption></figure>
+    </div><p class="container disclaimer"><strong>Неофициальный проект.</strong> StudyNav не выпускается, не поддерживается и не одобряется Свидетелями Иеговы. На всех скриншотах и в обучении используется явно обозначенный синтетический макет — без официального текста публикаций, иллюстраций, логотипа и дизайна страниц.</p></section>
+
+    <section class="section" id="tutorial"><div class="container"><div class="section-head"><p class="eyebrow">Полный обзор</p><h2>Все функции в одном коротком ролике</h2><p>Ролик по главам показывает все 22 настройки. Каждая сцена называет функцию, демонстрирует результат на синтетическом макете и сразу переходит дальше.</p></div><div class="media-frame"><video data-tutorial controls playsinline poster="../assets/screenshots/tutorial-poster-ru.jpg" aria-label="Русское обучение по функциям StudyNav"><source src="../assets/video/studynav-guide-ru.mp4" type="video/mp4">Браузер не может воспроизвести видео. <a href="../assets/video/studynav-guide-ru.mp4">Скачать MP4</a>.</video><div class="media-caption">Русский · 1920×1080 · синтетический макет · названия функций встроены в сцены</div></div>
+      <details class="chapters"><summary>Перейти к любой из 22 функций</summary><div class="chapter-grid" aria-label="Главы обучения">
+        <button type="button" data-seek="2.8">01 Выделения, заметки и теги</button>
+        <button type="button" data-seek="6.05">02 Сохранённые места</button>
+        <button type="button" data-seek="9.3">03 Оформленные цитаты</button>
+        <button type="button" data-seek="12.55">04 Локальный QR-код</button>
+        <button type="button" data-seek="15.8">05 Официальная ссылка</button>
+        <button type="button" data-seek="19.05">06 Аудио одного стиха</button>
+        <button type="button" data-seek="22.3">07 Чистое копирование текста</button>
+        <button type="button" data-seek="25.55">08 Ссылки на абзац</button>
+        <button type="button" data-seek="28.8">09 Быстрый поиск публикаций</button>
+        <button type="button" data-seek="32.05">10 Описания изображений</button>
+        <button type="button" data-seek="35.3">11 Скачивание изображений</button>
+        <button type="button" data-seek="38.55">12 Доступные языки</button>
+        <button type="button" data-seek="41.8">13 Закреплённая шапка</button>
+        <button type="button" data-seek="45.05">14 Шире колонка чтения</button>
+        <button type="button" data-seek="48.3">15 Более ясные таблицы</button>
+        <button type="button" data-seek="51.55">16 Элементы плеера</button>
+        <button type="button" data-seek="54.8">17 Крупные субтитры</button>
+        <button type="button" data-seek="58.05">18 Клавиши управления медиа</button>
+        <button type="button" data-seek="61.3">19 Ссылка с текущим временем</button>
+        <button type="button" data-seek="64.55">20 Продолжить просмотр</button>
+        <button type="button" data-seek="67.8">21 Второй экран</button>
+        <button type="button" data-seek="71.05">22 Поиск по транскрипту</button>
+      </div></details>
+    </div></section>
+
+    <section class="section soft" id="workflows"><div class="container"><div class="section-head"><p class="eyebrow">С чего начать</p><h2>Четыре практических сценария</h2><p>Окно расширения показывает, что доступно на текущей странице. Дополнительные переключатели не мешают, пока не понадобятся.</p></div><div class="card-grid">
+      <article class="card"><div class="step">1</div><h3>Изучить абзац</h3><p>Выделите текст, выберите один из четырёх цветов, при желании добавьте личную заметку и теги, а позже найдите запись в библиотеке изучения.</p></article>
+      <article class="card"><div class="step">2</div><h3>Вернуться к точному месту</h3><p>Сохраните страницу, абзац или выбранный стих. Места хранятся локально, ищутся, удаляются и входят в резервную копию JSON.</p></article>
+      <article class="card"><div class="step">3</div><h3>Скачать один стих</h3><p>Выберите номер стиха и нажмите <strong>Скачать аудио</strong>. StudyNav локально обрежет официальное аудио главы и сохранит только этот стих в WAV.</p></article>
+      <article class="card"><div class="step">4</div><h3>Работать с медиа</h3><p>Управляйте с клавиатуры, копируйте ссылку со временем, продолжайте просмотр вручную, открывайте второй экран и ищите в транскрипте.</p></article>
+      <article class="card"><div class="step">5</div><h3>Поделиться точной ссылкой</h3><p>Скопируйте оформленную цитату, ссылку на абзац или видимый локальный QR-код.</p></article>
+      <article class="card"><div class="step">6</div><h3>Сохранить стабильную разметку</h3><p>Скачивание картинок и три функции изменения разметки выключены по умолчанию. В WOL изменения разметки всегда подавляются.</p></article>
+    </div></div></section>
+
+    <section class="section"><div class="container release-band"><div><div class="release-label">Новое в 1.4</div><h3>Сохранённые места</h3><p>Закладки на страницу, абзац и стих с точными адресами, поиском, удалением и объединяющим импортом JSON.</p></div><div><div class="release-label">Новое в 1.4</div><h3>Настоящий русский интерфейс</h3><p>Название расширения, окно, встроенные кнопки, редакторы, диалоги, ошибки и подписи доступности следуют языку браузера.</p></div></div></section>
+
+    <section class="section soft" id="features"><div class="container"><div class="section-head"><p class="eyebrow">Справочник</p><h2>22 независимые настройки</h2><p>Главный переключатель отключает все элементы StudyNav. Отдельные настройки находятся в разделе <strong>Настройки функций</strong>. «Вкл.» означает, что функция ждёт подходящую страницу или действие пользователя и сама по себе ничего не меняет.</p></div><div class="feature-tools"><label for="feature-filter">Найти функцию</label><input id="feature-filter" data-feature-filter type="search" placeholder="Например: заметки, стих, транскрипт…" autocomplete="off"></div><p class="filter-empty" data-filter-empty hidden>Ничего не найдено.</p>
+
+      <section class="feature-group" aria-labelledby="study-heading"><h3 id="study-heading">Изучение и ссылки <span>5 настроек</span></h3><table class="feature-table"><thead><tr><th>Функция</th><th>Что делает</th><th>По умолчанию</th></tr></thead><tbody>
+        <tr data-feature-row><td>Выделения, заметки и теги</td><td>Четыре цвета CSS-подсветки, локальные заметки, теги, поиск, изменение, удаление и точная повторная привязка.</td><td><span class="state">Вкл.</span></td></tr>
+        <tr data-feature-row><td>Сохранённые места</td><td>Сохраняет и открывает точные страницы, абзацы и стихи. Поиск и удаление — в библиотеке изучения.</td><td><span class="state">Вкл.</span></td></tr>
+        <tr data-feature-row><td>Копировать оформленные цитаты</td><td>Копирует выделенный текст, выбранный стих или заголовок страницы с точной проверенной HTTPS-ссылкой.</td><td><span class="state">Вкл.</span></td></tr>
+        <tr data-feature-row><td>Показать QR-код страницы</td><td>Создаёт QR-код точной ссылки локально; запрос к сервису QR не отправляется.</td><td><span class="state">Вкл.</span></td></tr>
+        <tr data-feature-row><td>Открыть официальную ссылку JW</td><td>Строит адрес Finder только при наличии корректных метаданных публикации на странице.</td><td><span class="state">Вкл.</span></td></tr>
+      </tbody></table></section>
+
+      <section class="feature-group" aria-labelledby="reading-heading"><h3 id="reading-heading">Библия и статьи <span>7 настроек</span></h3><table class="feature-table"><thead><tr><th>Функция</th><th>Что делает</th><th>По умолчанию</th></tr></thead><tbody>
+        <tr data-feature-row><td>Скачать аудио стиха</td><td>После выбора номера стиха локально сохраняет только его озвучку в PCM WAV.</td><td><span class="state">Вкл.</span></td></tr>
+        <tr data-feature-row><td>Копировать текст</td><td>Копирует абзац или стих без подписей и кнопок StudyNav.</td><td><span class="state">Вкл.</span></td></tr>
+        <tr data-feature-row><td>Копировать ссылку на абзац</td><td>Копирует прямую ссылку на якорь абзаца или стиха.</td><td><span class="state">Вкл.</span></td></tr>
+        <tr data-feature-row><td>Быстрый поиск публикаций</td><td>Ctrl/Cmd+Shift+K открывает поиск по поддерживаемой мнемонике или номеру документа.</td><td><span class="state">Вкл.</span></td></tr>
+        <tr data-feature-row><td>Описания изображений</td><td>Показывает существующий alt-текст и подпись подходящего изображения.</td><td><span class="state">Вкл.</span></td></tr>
+        <tr data-feature-row><td>Скачивать изображения статей</td><td>Добавляет компактную смысловую кнопку рядом с подходящими изображениями.</td><td><span class="state off">Выкл.</span></td></tr>
+        <tr data-feature-row><td>Доступные языки</td><td>Показывает количество реальных вариантов языка, предоставленных страницей.</td><td><span class="state">Вкл.</span></td></tr>
+      </tbody></table></section>
+
+      <section class="feature-group" aria-labelledby="layout-heading"><h3 id="layout-heading">Разметка для чтения <span>3 настройки</span></h3><table class="feature-table"><thead><tr><th>Функция</th><th>Что делает</th><th>По умолчанию</th></tr></thead><tbody>
+        <tr data-feature-row><td>Закрепить шапку страницы</td><td>Применяет узкое правило sticky только к поддерживаемым статьям JW.org.</td><td><span class="state off">Выкл.</span></td></tr>
+        <tr data-feature-row><td>Расширить колонку чтения</td><td>Использует больше ширины для текста статьи, не затрагивая диалоги сайта.</td><td><span class="state off">Выкл.</span></td></tr>
+        <tr data-feature-row><td>Более ясные таблицы</td><td>Добавляет ограниченное разделение строк таблиц внутри корня поддерживаемой статьи.</td><td><span class="state off">Выкл.</span></td></tr>
+      </tbody></table></section>
+
+      <section class="feature-group" aria-labelledby="media-heading"><h3 id="media-heading">Видео и аудио <span>7 настроек</span></h3><table class="feature-table"><thead><tr><th>Функция</th><th>Что делает</th><th>По умолчанию</th></tr></thead><tbody>
+        <tr data-feature-row><td>Затемнять элементы плеера</td><td>Уменьшает заметность панели, пока на неё не наведён указатель или фокус.</td><td><span class="state">Вкл.</span></td></tr>
+        <tr data-feature-row><td>Увеличенные субтитры</td><td>Увеличивает размер субтитров и контраст фона.</td><td><span class="state">Вкл.</span></td></tr>
+        <tr data-feature-row><td>Управление медиа с клавиатуры</td><td>Space/K, J/L, F и M; поля ввода не перехватываются.</td><td><span class="state">Вкл.</span></td></tr>
+        <tr data-feature-row><td>Копировать ссылку со временем</td><td>Копирует адрес медиа с текущим временем или неизменённый адрес страницы, если видео нет.</td><td><span class="state">Вкл.</span></td></tr>
+        <tr data-feature-row><td>Продолжить просмотр</td><td>Хранит ограниченный прогресс локально и переходит к нему только после явного нажатия — без автовоспроизведения.</td><td><span class="state">Вкл.</span></td></tr>
+        <tr data-feature-row><td>Открыть второй экран</td><td>Открывает текущий источник медиа в отдельном окне 960×540.</td><td><span class="state">Вкл.</span></td></tr>
+        <tr data-feature-row><td>Поиск по транскрипту видео</td><td>Открывает, ищет и скачивает текст транскрипта, уже доступный на текущей странице.</td><td><span class="state">Вкл.</span></td></tr>
+      </tbody></table></section>
+    </div></section>
+
+    <section class="section" id="screenshots"><div class="container"><div class="section-head"><p class="eyebrow">Интерфейс</p><h2>Небольшие элементы рядом с задачей</h2><p>Панели StudyNav фиксируются внутри окна, а подсветка не оборачивает и не переписывает текстовые узлы исходной страницы.</p></div><div class="gallery"><figure class="hero-shot"><img src="../assets/screenshots/ru-study-panel.png" width="1440" height="900" alt="Русская библиотека изучения с локальными заметками на синтетической статье"><figcaption>Библиотека изучения: заметки и сохранённые места, поиск и резервная копия.</figcaption></figure><div class="gallery-stack"><figure class="hero-shot"><img src="../assets/screenshots/ru-note-editor.png" width="1440" height="900" alt="Русский редактор выделения с четырьмя цветами, заметкой и тегами"><figcaption>Редактор выделения: четыре цвета, заметка и теги.</figcaption></figure><figure class="hero-shot"><img src="../assets/screenshots/ru-qr-overlay.png" width="1440" height="900" alt="Русский локальный QR-диалог с видимым адресом"><figcaption>QR-диалог: точный адрес виден до копирования.</figcaption></figure></div></div></div></section>
+
+    <section class="section soft" id="privacy"><div class="container"><div class="section-head"><p class="eyebrow">Граница данных</p><h2>Локально по замыслу, с честными ограничениями</h2><p>StudyNav не создаёт аккаунт, сервер, телеметрию и удалённую синхронизацию. Хранилище расширения — часть локального профиля браузера, а не зашифрованный сейф.</p></div><div class="privacy-grid">
+      <article class="card"><h3>Остаётся в локальном хранилище</h3><ul class="privacy-list"><li>Выделения, цитаты, заметки и теги</li><li>Ссылки на страницы, абзацы и стихи</li><li>Ограниченный прогресс видео</li><li>Данные резервной копии JSON</li></ul></article>
+      <article class="card"><h3>Загружается только по запросу</h3><ul class="privacy-list"><li>Публичные официальные метки времени стиха</li><li>Публичное официальное аудио главы для локальной обрезки</li><li>Изображение после нажатия «Скачать»</li><li>Нет прокси произвольных URL и удалённого кода</li></ul></article>
+      <article class="card"><h3>Удаление и резервная копия</h3><p>При удалении расширения его локальное хранилище обычно стирается. Перед переустановкой или переносом профиля используйте <strong>Экспорт JSON</strong>. Импорт только объединяет данные и не удаляет существующие корректные записи.</p></article>
+      <article class="card"><h3>Совместимость страниц</h3><p>DOM и медиа-API JW.org могут меняться. StudyNav закрывается безопасно на неподдерживаемых адресах, убирает свои элементы при отключении и сохраняет исходную разметку WOL.</p></article>
+    </div></div></section>
+
+    <section class="section" id="research"><div class="container"><div class="section-head"><p class="eyebrow">Исследование продукта</p><h2>Что перенесли — и от чего сознательно отказались</h2><p>Для версии 1.4 сравнивались официальные сценарии JW Library, JW Web Add-on и JWPUBS Toolbox, узкие медиа-расширения и пользовательские скрипты. Добавлен только ясный локальный сценарий без лишнего шума.</p></div><div class="research-grid">
+      <article class="card decision"><h3>Добавлено: Сохранённые места</h3><p>Закладки JW Library могут указывать на статью или главу, абзац или стих. StudyNav переносит эту понятную модель на поддерживаемые веб-страницы, сохраняя записи локально и давая поиск.</p></article>
+      <article class="card decision"><h3>Уже было</h3><p>Выделения, заметки, теги, резервная копия, точные ссылки, клавиши медиа, ссылки со временем, транскрипт, второй экран и явное продолжение просмотра уже закрывают главные повторяющиеся задачи.</p></article>
+      <article class="card decision no"><h3>Не добавлено: пассивная история</h3><p>Журнал посещений собирал бы больше поведения, чем нужно. Явные сохранённые места понятнее, меньше и полностью управляются пользователем.</p></article>
+      <article class="card decision no"><h3>Не добавлено: ИИ, ленты и массовое скачивание</h3><p>Они расширяют разрешения, вопросы приватности, обработку контента и поддержку, но не усиливают точечное изучение на странице.</p></article>
+      <article class="card decision no"><h3>Не добавлено: плейлисты и общая обрезка</h3><p>В JW Library уже есть зрелые плейлисты и обрезка. StudyNav оставляет узкую функцию одного стиха, которая нужна непосредственно во время чтения.</p></article>
+      <article class="card decision no"><h3>Не добавлено: удалённые и общие заметки</h3><p>Аккаунты, модерация, конфликты синхронизации и сервер разрушили бы локальную границу. Заметки и теги остаются личными для профиля браузера.</p></article>
+    </div><h3 style="margin-top:34px">Источники исследования</h3><ul class="source-list"><li><a href="https://www.jw.org/en/online-help/jw-library/features/">Официальный обзор функций JW Library</a></li><li><a href="https://www.jw.org/en/online-help/jw-library/windows/bookmarks/">Официальный сценарий закладок: глава, статья, абзац и стих</a></li><li><a href="https://www.jw.org/en/privacy-policy/global-policy-personal-data/how-jw-library-uses-data/">Официальное объяснение хранения личных данных JW Library</a></li><li><a href="https://www.jw.org/en/online-help/jw-library/use-playlists/">Официальная справка по плейлистам и обрезке</a></li><li><a href="https://www.jwpubs.org/addon/#addon-feature-guide">Руководство JW Web Add-on</a> и <a href="https://www.jwpubs.org/tools">JWPUBS Toolbox</a></li><li><a href="https://chromewebstore.google.com/detail/jw-video-player/llcdnhpkicpaohifijppfflfbkcblkib">Узкое расширение JW video player</a>, <a href="https://v.jw-net.work/">многоязычный видеоплеер</a> и <a href="https://greasyfork.org/scripts/572424-wol-jw-personal-mod">пользовательский скрипт заметок WOL</a></li></ul></div></section>
+
+    <section class="section soft" id="install"><div class="container"><div class="section-head"><p class="eyebrow">Установка под контролем владельца</p><h2>Соберите и загрузите распакованное расширение</h2><p>В этом варианте нет автоматических обновлений из магазина. Вы сами проверяете, собираете и перезагружаете код.</p></div><div class="install-grid"><article class="card"><ol class="install-steps"><li>Клонируйте репозиторий вместе с закреплённым подмодулем InkShade и установите зависимости.</li><li>Запустите полную сборку и проверку.</li><li>Откройте <code>brave://extensions</code> или <code>chrome://extensions</code>.</li><li>Включите режим разработчика и нажмите <strong>Загрузить распакованное расширение</strong>.</li><li>Выберите <code>packages/studynav/dist</code>. После следующих сборок нажимайте «Обновить» на той же карточке и обновляйте открытые страницы.</li></ol></article><article class="card"><h3>Команды</h3><code class="command">git clone --recurse-submodules https://github.com/kiku-jw/nick-extensions.git
+cd nick-extensions
+bun install --frozen-lockfile
+bun run bootstrap:inkshade
+bun run verify</code><p>Только сборка StudyNav: <code>bun scripts/build-extension.mjs studynav</code></p><p><a href="https://github.com/kiku-jw/nick-extensions">Исходный код на GitHub</a></p></article></div></div></section>
+
+    <section class="section" id="faq"><div class="container"><div class="section-head"><p class="eyebrow">Вопросы</p><h2>Важные ограничения</h2></div><details><summary>Почему для аудио стиха используется WAV, а не MP3?</summary><p>Браузер может локально декодировать официальное аудио главы и создать предсказуемый PCM WAV. Кодировщик MP3 сильно увеличил бы размер и поверхность поддержки без существенной пользы.</p></details><details><summary>Русский язык браузера переводит всё расширение?</summary><p>Да. Версия 1.4 переводит название, окно, встроенные кнопки, панели изучения, диалоги, сообщения, ошибки и подписи доступности. Содержимое самой страницы остаётся на языке сайта.</p></details><details><summary>Можно синхронизировать заметки между устройствами?</summary><p>Удалённой синхронизации нет. Экспортируйте JSON в одном профиле и импортируйте в другом. Импорт ограничен и только объединяет записи.</p></details><details><summary>Почему функции разметки выключены по умолчанию?</summary><p>Они меняют геометрию исходной страницы. Режим по желанию снижает риск несовместимости, а в WOL StudyNav полностью подавляет эти изменения.</p></details></div></section>
+  </main>
+
+  <footer class="site-footer"><div class="container footer-grid"><p><strong>StudyNav — неофициальные инструменты для изучения.</strong> Независимый проект с открытым кодом; не связан и не одобрен Свидетелями Иеговы. JW.org и JW Library упоминаются только для описания совместимости и исследования.</p><p><a href="https://github.com/kiku-jw/nick-extensions">Исходный код</a> · <a href="https://github.com/kiku-jw/nick-extensions/issues">Ошибки</a> · <a href="../">English</a></p></div></footer>
+</body>
+</html>
