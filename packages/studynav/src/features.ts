@@ -27,10 +27,10 @@ export const FEATURE_META: { id: FeatureId; name: string; blurb: string; group: 
   { id: 'mediaPlayerUI', name: 'Remove video shading', blurb: 'Keep the picture clear when the player controls appear', group: 'media' },
   { id: 'customSub', name: 'Larger subtitles', blurb: 'Increase subtitle size and background contrast', group: 'media' },
   { id: 'mediaCtrl', name: 'Media keyboard shortcuts', blurb: 'Use Space/K/J/L/F/M while watching media', group: 'media' },
-  { id: 'mediaTS', name: 'Copy page and time', blurb: 'Copy the page link together with the current playback time', group: 'media' },
-  { id: 'mediaClip', name: 'Download an audio or video segment', blurb: 'Enter start and end times, then save audio as WAV or video as WebM', group: 'media' },
+  { id: 'mediaTS', name: 'Copy link at current time', blurb: 'Copy a page link that opens at the current playback time', group: 'media' },
+  { id: 'mediaClip', name: 'Download a media segment', blurb: 'Enter start and end times, then save audio as WAV or video as WebM', group: 'media' },
   { id: 'continueWatching', name: 'Continue watching', blurb: 'Keep video progress locally and resume only when asked', group: 'media' },
-  { id: 'sndDisp', name: 'Open second display', blurb: 'Open the current media in a popup window', group: 'media' },
+  { id: 'sndDisp', name: 'Open in a separate window', blurb: 'Open the current media in its own browser window', group: 'media' },
   { id: 'transcCreate', name: 'Search available captions', blurb: 'Open a searchable panel only when text is present', group: 'media' },
 ];
 

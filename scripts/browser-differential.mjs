@@ -688,6 +688,8 @@ function jwFixtureHtml() {
       #jw-player { position: relative; }
       video { width: 100%; height: 280px; background: #101827; display: block; margin-top: 22px; border-radius: 12px; }
       #jw-controls { margin-top: -43px; padding: 10px 14px; border-radius: 0 0 12px 12px; color: #fff; background: linear-gradient(transparent, rgba(0,0,0,.78)); }
+      #jw-player.vjs-user-active #jw-controls { opacity: 1; }
+      #jw-player.vjs-user-inactive #jw-controls { opacity: 0; }
       #fixture-caption {
         position: absolute; z-index: 2; left: 50%; bottom: 54px; transform: translateX(-50%);
         width: max-content; max-width: calc(100% - 48px); pointer-events: none; text-align: center;
@@ -734,7 +736,7 @@ function jwFixtureHtml() {
         <figcaption>A clear path through the hills.</figcaption>
       </figure>
       <table id="article-table"><thead><tr><th>Study step</th></tr></thead><tbody><tr><td>Read</td></tr><tr><td>Review</td></tr></tbody></table>
-      <div class="video-js" id="jw-player">
+      <div class="video-js vjs-user-active vjs-paused" id="jw-player">
         <video id="jw-video" controls preload="metadata" src="https://${HOSTS.jwMedia}/media/fixture.mp4"></video>
         <div class="vjs-text-track-display"><div id="fixture-caption" class="vjs-text-track-cue"><div>Sample caption remains readable.</div></div></div>
         <div class="vjs-control-bar" id="jw-controls">Player controls</div>
@@ -1387,10 +1389,25 @@ async function getStudyNavState(page) {
         .map((button) => button.textContent?.trim() || ''),
       altBlocks: document.querySelectorAll('.studynav-alt').length,
       langBadge: document.getElementById('studynav-langcount')?.textContent?.trim() || null,
+      langBadgeTitle: document.getElementById('studynav-langcount')?.getAttribute('title') || null,
+      langBadgeParent: document.getElementById('studynav-langcount')?.parentElement?.id || null,
+      langBadgePlacement: document.getElementById('studynav-langcount')?.dataset.placement || null,
+      langBadgePosition: style('#studynav-langcount')?.position || null,
       languageSelectOptions: document.querySelector('#otherAvailLangsChooser')?.options?.length || 0,
       stylePresent: !!document.getElementById('studynav-dynamic-style'),
       mediaBar: !!document.getElementById('studynav-media-bar'),
+      mediaHostCount: document.querySelectorAll('[data-studynav-media-host]').length,
       mediaButtons: Array.from(document.querySelectorAll('#studynav-media-bar button')).map((button) => button.textContent?.trim()),
+      mediaBarParent: document.getElementById('studynav-media-bar')?.parentElement?.id || null,
+      mediaBarPlacement: document.getElementById('studynav-media-bar')?.dataset.placement || null,
+      mediaBarPosition: style('#studynav-media-bar')?.position || null,
+      mediaBarVisibility: style('#studynav-media-bar')?.visibility || null,
+      mediaMenuOpen: document.querySelector('#studynav-media-bar details')?.hasAttribute('open') || false,
+      mediaSummaryText: document.querySelector('#studynav-media-bar summary')?.textContent?.replace(/\s+/g, ' ').trim() || null,
+      mediaSummaryRect: (() => {
+        const rect = document.querySelector('#studynav-media-bar summary')?.getBoundingClientRect();
+        return rect ? { width: rect.width, height: rect.height } : null;
+      })(),
       qrOpen: !!document.getElementById('studynav-qr-overlay'),
       studyPanelOpen: !!document.getElementById('studynav-study-panel'),
       selectionTools: !!document.getElementById('studynav-selection-tools'),
@@ -1593,6 +1610,14 @@ async function sendStudyNavPageAction(worker, targetUrl, type) {
   }, { url: targetUrl, messageType: type });
 }
 
+async function openStudyNavMediaMenu(page) {
+  const details = page.locator('#studynav-media-bar details');
+  if ((await details.getAttribute('open')) == null) {
+    await page.locator('#studynav-media-bar summary').click();
+  }
+  await page.waitForFunction(() => document.querySelector('#studynav-media-bar details')?.hasAttribute('open'));
+}
+
 async function selectFixtureText(page, selector, needle) {
   const selected = await page.evaluate(({ rootSelector, exact }) => {
     const root = document.querySelector(rootSelector);
@@ -1633,16 +1658,16 @@ function studyNavFlagSurfaceEnabled(flag, state) {
     case 'copyText': return state.paragraphButtons.includes('Copy');
     case 'cstblView': return state.articleTableBorder === 'solid';
     case 'expandWidth': return state.articleMaxWidth !== '760px';
-    case 'langCount': return state.langBadge === '6 languages';
+    case 'langCount': return state.langBadge === '6';
     case 'parLink': return state.paragraphButtons.includes('Link');
     case 'verseAudio': return state.verseAudioButtons === 3;
     case 'mediaPlayerUI': return state.dynamicCss.includes('.video-js .vjs-control-bar') &&
       state.dynamicCss.includes('background-image: none');
     case 'customSub': return state.dynamicCss.includes('::cue');
     case 'imgGet': return state.imageButtons === 1;
-    case 'mediaTS': return state.mediaButtons.includes('Copy page + time');
-    case 'mediaClip': return state.mediaButtons.includes('Media segment');
-    case 'sndDisp': return state.mediaButtons.includes('Second display');
+    case 'mediaTS': return state.mediaButtons.includes('Copy link at current time');
+    case 'mediaClip': return state.mediaButtons.includes('Download a media segment');
+    case 'sndDisp': return state.mediaButtons.includes('Open in a separate window');
     case 'transcCreate': return state.mediaButtons.includes('Transcript');
     case 'annotations': return state.paragraphButtons.includes('Mark') && state.highlightRangeCount > 0;
     case 'continueWatching': return state.resumePresent === true;
@@ -2704,13 +2729,25 @@ async function runStudyNavScenario(executablePath, port) {
     });
     await jwPage.waitForFunction(() => document.getElementById('studynav-langcount')?.textContent === '12 languages');
     const languageFallbackBadge = await jwPage.locator('#studynav-langcount').textContent();
+    const languageFallbackPlacement = await jwPage.locator('#studynav-langcount').evaluate((badge) => ({
+      placement: badge.dataset.placement,
+      position: getComputedStyle(badge).position,
+      previousId: badge.previousElementSibling?.id || null,
+    }));
     await jwPage.evaluate(() => document.getElementById('language-text-fallback')?.remove());
     await jwPage.waitForFunction(() => !document.getElementById('studynav-langcount'));
     const languageAbsent = await jwPage.evaluate(() => !document.getElementById('studynav-langcount'));
     await jwPage.locator('#language-shell').evaluate((shell, html) => { shell.innerHTML = html; }, languageShellHtml);
-    await jwPage.waitForFunction(() => document.getElementById('studynav-langcount')?.textContent === '6 languages');
+    await jwPage.waitForFunction(() => document.getElementById('studynav-langcount')?.textContent === '6');
     const languageRestoredBadge = await jwPage.locator('#studynav-langcount').textContent();
     const languageRestoredCount = await jwPage.locator('#studynav-langcount').count();
+    const languageRestoredPlacement = await jwPage.locator('#studynav-langcount').evaluate((badge) => ({
+      label: badge.getAttribute('aria-label'),
+      placement: badge.dataset.placement,
+      position: getComputedStyle(badge).position,
+      parentId: badge.parentElement?.id || null,
+      previousTag: badge.previousElementSibling?.tagName || null,
+    }));
 
     const videoMutedBefore = await jwPage.locator('#jw-video').evaluate((video) => video.muted);
     await jwPage.bringToFront();
@@ -2719,6 +2756,66 @@ async function runStudyNavScenario(executablePath, port) {
     await jwPage.waitForFunction(() => document.getElementById('jw-video')?.muted === true);
     const videoMutedAfter = await jwPage.locator('#jw-video').evaluate((video) => video.muted);
 
+    const mediaAnchorState = await jwPage.evaluate(() => {
+      const bar = document.getElementById('studynav-media-bar');
+      const summary = bar?.querySelector('summary');
+      const barRect = bar?.getBoundingClientRect();
+      const playerRect = document.getElementById('jw-player')?.getBoundingClientRect();
+      const summaryRect = summary?.getBoundingClientRect();
+      return {
+        parentId: bar?.parentElement?.id || null,
+        placement: bar?.dataset.placement || null,
+        position: bar ? getComputedStyle(bar).position : null,
+        summaryText: summary?.textContent?.replace(/\s+/g, ' ').trim() || null,
+        summaryTitle: summary?.getAttribute('title') || null,
+        summaryRect: summaryRect ? { width: summaryRect.width, height: summaryRect.height } : null,
+        insidePlayer: !!barRect && !!playerRect &&
+          barRect.left >= playerRect.left && barRect.right <= playerRect.right &&
+          barRect.top >= playerRect.top && barRect.bottom <= playerRect.bottom,
+      };
+    });
+    await openStudyNavMediaMenu(jwPage);
+    const mediaMenuState = await jwPage.evaluate(() => ({
+      open: document.querySelector('#studynav-media-bar details')?.hasAttribute('open') || false,
+      heading: document.querySelector('.studynav-media-menu > strong')?.textContent?.trim() || null,
+      buttons: Array.from(document.querySelectorAll('.studynav-media-actions > button')).map((button) => ({
+        text: button.textContent?.trim() || '',
+        visible: getComputedStyle(button).display !== 'none' && button.getBoundingClientRect().height > 0,
+      })),
+    }));
+    await captureScreenshot(jwPage, '20-media-tools-menu.png');
+    await jwPage.keyboard.press('Escape');
+    await jwPage.waitForFunction(() => !document.querySelector('#studynav-media-bar details')?.hasAttribute('open'));
+    const mediaMenuClosedByEscape = await jwPage.evaluate(() =>
+      !document.querySelector('#studynav-media-bar details')?.hasAttribute('open') &&
+      document.activeElement === document.querySelector('#studynav-media-bar summary'));
+
+    await jwPage.evaluate(() => {
+      const player = document.getElementById('jw-player');
+      player?.classList.remove('vjs-user-active', 'vjs-paused');
+      player?.classList.add('vjs-user-inactive', 'vjs-playing', 'vjs-has-started');
+    });
+    const focusedInactiveVisibility = await jwPage.locator('#studynav-media-bar').evaluate((bar) =>
+      getComputedStyle(bar).visibility);
+    await jwPage.locator('#jw-video').focus();
+    await jwPage.waitForFunction(() => getComputedStyle(document.getElementById('studynav-media-bar')).visibility === 'hidden');
+    const mediaIdleState = await jwPage.evaluate(() => ({
+      barOpacity: getComputedStyle(document.getElementById('studynav-media-bar')).opacity,
+      barVisibility: getComputedStyle(document.getElementById('studynav-media-bar')).visibility,
+      barPointerEvents: getComputedStyle(document.getElementById('studynav-media-bar')).pointerEvents,
+      nativeControlsOpacity: getComputedStyle(document.getElementById('jw-controls')).opacity,
+    }));
+    await jwPage.evaluate(() => document.getElementById('jw-player')?.classList.add('vjs-paused'));
+    await jwPage.waitForFunction(() => getComputedStyle(document.getElementById('studynav-media-bar')).visibility === 'visible');
+    const pausedInactiveVisibility = await jwPage.locator('#studynav-media-bar').evaluate((bar) =>
+      getComputedStyle(bar).visibility);
+    await jwPage.evaluate(() => {
+      const player = document.getElementById('jw-player');
+      player?.classList.remove('vjs-user-inactive', 'vjs-playing', 'vjs-has-started');
+      player?.classList.add('vjs-user-active', 'vjs-paused');
+    });
+
+    await openStudyNavMediaMenu(jwPage);
     await jwPage.locator('#studynav-media-bar button', { hasText: 'Transcript' }).click();
     await jwPage.waitForFunction(() => /First transcript line/.test(document.getElementById('studynav-tr-body')?.textContent || ''));
     await jwPage.fill('#studynav-tr-q', 'lantern');
@@ -2760,13 +2857,15 @@ async function runStudyNavScenario(executablePath, port) {
       await new Promise((resolve) => setTimeout(resolve, 50));
       return { currentTime: video.currentTime, duration: video.duration, target };
     });
-    await jwPage.locator('#studynav-media-bar button', { hasText: 'Copy page + time' }).click();
+    await openStudyNavMediaMenu(jwPage);
+    await jwPage.locator('#studynav-media-bar button', { hasText: 'Copy link at current time' }).click();
     await jwPage.waitForFunction(() => document.getElementById('studynav-toast')?.textContent === 'Page link and time copied');
     const pageAndTimeCopied = await jwPage.evaluate(() =>
       document.getElementById('studynav-toast')?.textContent === 'Page link and time copied');
     const timestampPageUrl = jwPage.url();
 
-    await jwPage.locator('#studynav-media-bar button', { hasText: 'Media segment' }).click();
+    await openStudyNavMediaMenu(jwPage);
+    await jwPage.locator('#studynav-media-bar button', { hasText: 'Download a media segment' }).click();
     await jwPage.waitForFunction(() => !!document.getElementById('studynav-clip-panel'));
     const clipPanelState = await jwPage.evaluate(() => ({
       title: document.querySelector('#studynav-clip-panel strong')?.textContent?.trim(),
@@ -2786,7 +2885,8 @@ async function runStudyNavScenario(executablePath, port) {
     await jwPage.locator('#studynav-clip-panel button[type="button"]').click();
 
     const secondDisplayPromise = context.waitForEvent('page');
-    await jwPage.locator('#studynav-media-bar button', { hasText: 'Second display' }).click();
+    await openStudyNavMediaMenu(jwPage);
+    await jwPage.locator('#studynav-media-bar button', { hasText: 'Open in a separate window' }).click();
     const secondDisplay = await secondDisplayPromise;
     await secondDisplay.waitForLoadState('domcontentloaded');
     const secondDisplayUrl = secondDisplay.url();
@@ -2977,12 +3077,30 @@ async function runStudyNavScenario(executablePath, port) {
           altTextEdgeState.articleDescription === 'A mountain trail at sunrise - A clear path through the hills.',
         altTextEdgeState,
       ),
-      makeAssertion('StudyNav counts the page-level live-style language chooser', jwState.langBadge === '6 languages', jwState),
       makeAssertion(
-        'StudyNav language count uses article-text fallback, handles absence, and restores without duplicates',
+        'StudyNav keeps the language count beside the page chooser instead of floating over content',
+        jwState.langBadge === '6' && jwState.langBadgeTitle === '6 languages' &&
+          jwState.langBadgeParent === 'language-shell' && jwState.langBadgePlacement === 'control' &&
+          jwState.langBadgePosition === 'static',
+        jwState,
+      ),
+      makeAssertion(
+        'StudyNav language count uses an anchored article fallback, handles absence, and restores without duplicates',
         languageFallbackBadge === '12 languages' && languageAbsent === true &&
-          languageRestoredBadge === '6 languages' && languageRestoredCount === 1,
-        { languageFallbackBadge, languageAbsent, languageRestoredBadge, languageRestoredCount },
+          languageFallbackPlacement.placement === 'content' && languageFallbackPlacement.position === 'static' &&
+          languageFallbackPlacement.previousId === 'language-text-fallback' &&
+          languageRestoredBadge === '6' && languageRestoredCount === 1 &&
+          languageRestoredPlacement.label === '6 languages' &&
+          languageRestoredPlacement.placement === 'control' && languageRestoredPlacement.position === 'static' &&
+          languageRestoredPlacement.parentId === 'language-shell' && languageRestoredPlacement.previousTag === 'SELECT',
+        {
+          languageFallbackBadge,
+          languageFallbackPlacement,
+          languageAbsent,
+          languageRestoredBadge,
+          languageRestoredCount,
+          languageRestoredPlacement,
+        },
       ),
       makeAssertion(
         'StudyNav preserves native page geometry with layout helpers off by default',
@@ -3009,14 +3127,37 @@ async function runStudyNavScenario(executablePath, port) {
         layoutOptInState,
       ),
       makeAssertion(
-        'StudyNav applies media, subtitle, and toolbar surfaces while image download stays opt-in',
+        'StudyNav removes player shading without overriding the native control visibility',
         jwState.mediaControlOpacity === '1' &&
           jwState.mediaControlBackground === 'rgba(0, 0, 0, 0)' &&
           jwState.mediaControlBackgroundImage === 'none' &&
-          jwState.imageButtons === 0 &&
-          ['Copy page + time', 'Media segment', 'Second display', 'Transcript']
-            .every((label) => jwState.mediaButtons.includes(label)),
-        jwState,
+          !jwState.dynamicCss.includes('opacity: 1 !important') &&
+          mediaIdleState.nativeControlsOpacity === '0',
+        { jwState, mediaIdleState },
+      ),
+      makeAssertion(
+        'StudyNav media actions use one compact player-anchored menu and follow player idle state',
+        jwState.imageButtons === 0 &&
+          ['Copy link at current time', 'Download a media segment', 'Open in a separate window', 'Transcript']
+            .every((label) => jwState.mediaButtons.includes(label)) &&
+          mediaAnchorState.parentId === 'jw-player' && mediaAnchorState.placement === 'player' &&
+          mediaAnchorState.position === 'absolute' && mediaAnchorState.insidePlayer === true &&
+          mediaAnchorState.summaryText === 'StudyNav · Media tools' && mediaAnchorState.summaryTitle === 'Media tools' &&
+          mediaAnchorState.summaryRect?.width <= 120 && mediaAnchorState.summaryRect?.height <= 40 &&
+          mediaMenuState.open === true && mediaMenuState.heading === 'Media tools' &&
+          mediaMenuState.buttons.length === 4 && mediaMenuState.buttons.every((button) => button.visible) &&
+          mediaMenuClosedByEscape === true && focusedInactiveVisibility === 'visible' &&
+          mediaIdleState.barOpacity === '0' && mediaIdleState.barVisibility === 'hidden' &&
+          mediaIdleState.barPointerEvents === 'none' && pausedInactiveVisibility === 'visible',
+        {
+          jwState,
+          mediaAnchorState,
+          mediaMenuState,
+          mediaMenuClosedByEscape,
+          focusedInactiveVisibility,
+          mediaIdleState,
+          pausedInactiveVisibility,
+        },
       ),
       makeAssertion(
         'StudyNav paragraph Copy and Link buttons write clean clipboard values',
@@ -3194,7 +3335,8 @@ async function runStudyNavScenario(executablePath, port) {
         'StudyNav popup master off removes all owned UI, style, and scope markers',
         disabledState.dataset === 'off' && disabledState.palettePresent === false && disabledState.paraTools === 0 &&
           disabledState.altBlocks === 0 && disabledState.langBadge == null && disabledState.stylePresent === false &&
-          disabledState.mediaBar === false && disabledState.imageButtons === 0 && disabledState.articleMarked == null &&
+          disabledState.mediaBar === false && disabledState.mediaHostCount === 0 &&
+          disabledState.imageButtons === 0 && disabledState.articleMarked == null &&
           disabledState.selectedVerse == null,
         disabledState,
       ),
@@ -3207,7 +3349,9 @@ async function runStudyNavScenario(executablePath, port) {
         'StudyNav SPA route reconciliation tears down unsupported routes and restores supported routes',
         spaUnsupportedState.dataset === 'unsupported' && spaUnsupportedState.paraTools === 0 &&
           spaUnsupportedState.stylePresent === false && spaUnsupportedState.articleMarked == null &&
-          spaRestoredState.dataset === '1' && spaRestoredState.paraTools >= 2 && spaRestoredState.articleMarked === '1',
+          spaUnsupportedState.mediaHostCount === 0 &&
+          spaRestoredState.dataset === '1' && spaRestoredState.paraTools >= 2 &&
+          spaRestoredState.articleMarked === '1' && spaRestoredState.mediaHostCount === 1,
         { spaUnsupportedState, spaRestoredState },
       ),
       makeAssertion(
@@ -3217,8 +3361,9 @@ async function runStudyNavScenario(executablePath, port) {
           pageNotFoundState.paraTools === 0 &&
           pageNotFoundState.stylePresent === false &&
           pageNotFoundState.articleMarked == null &&
+          pageNotFoundState.mediaHostCount === 0 &&
           pageNotFoundRestoredState.dataset === '1' &&
-          pageNotFoundRestoredState.paraTools >= 2,
+          pageNotFoundRestoredState.paraTools >= 2 && pageNotFoundRestoredState.mediaHostCount === 1,
         { pageNotFoundState, pageNotFoundRestoredState },
       ),
     );
@@ -4050,11 +4195,18 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
 
     await page.reload({ waitUntil: 'load' });
     await page.waitForFunction(() => document.getElementById('studynav-resume-media')?.textContent === 'Resume at 0:11');
+    await openStudyNavMediaMenu(page);
     await captureScreenshot(page, '07-resume-control.png');
     await page.click('#studynav-resume-media');
     const resumeState = await page.evaluate(() => {
       const video = document.getElementById('jw-video');
-      return { currentTime: video.currentTime, duration: video.duration, paused: video.paused, ended: video.ended };
+      return {
+        currentTime: video.currentTime,
+        duration: video.duration,
+        paused: video.paused,
+        ended: video.ended,
+        menuOpen: document.querySelector('#studynav-media-bar details')?.hasAttribute('open') ?? null,
+      };
     });
 
     await activateTabByUrl(worker, page.url());
@@ -4121,6 +4273,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       } else if (flag === 'officialOpen') {
         enabledAction = officialResponse;
       } else if (flag === 'transcCreate') {
+        await openStudyNavMediaMenu(page);
         await page.locator('#studynav-media-bar button', { hasText: 'Transcript' }).click();
         await page.waitForFunction(() => !!document.getElementById('studynav-transcript'));
       } else if (flag === 'mediaCtrl') {
@@ -4375,11 +4528,12 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
         masterOffState.dataset === 'off' && masterOffState.paraTools === 0 &&
           masterOffState.highlightRangeCount === 0 && !masterOffState.studyPanelOpen &&
           !masterOffState.qrOpen && !masterOffState.resumePresent && !masterOffState.mediaBar &&
+          masterOffState.mediaHostCount === 0 &&
           localAfterMasterOff.annotations.length === localBeforeMasterOff.annotations.length &&
           localAfterMasterOff.mediaProgress.length === localBeforeMasterOff.mediaProgress.length &&
           localAfterMasterOff.bookmarks.length === localBeforeMasterOff.bookmarks.length &&
           masterRestoredState.dataset === '1' && masterRestoredState.paragraphButtons.includes('Mark') &&
-          masterRestoredState.resumePresent,
+          masterRestoredState.resumePresent && masterRestoredState.mediaHostCount === 1,
         { masterOffState, localBeforeMasterOff, localAfterMasterOff, masterRestoredState },
       ),
       makeAssertion(
@@ -4631,7 +4785,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       makeAssertion(
         'StudyNav removes ended/near-end progress and resumes explicitly without autoplay',
         endedProgress.mediaProgress.length === 0 && Math.abs(resumeState.currentTime - 11) < 0.1 &&
-          resumeState.paused === true && resumeState.ended === false,
+          resumeState.paused === true && resumeState.ended === false && resumeState.menuOpen === false,
         { endedProgress, resumeState },
       ),
     );
@@ -4681,6 +4835,17 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
         audioTitle: document.querySelector('#v1001003 .studynav-verse-audio')?.getAttribute('title'),
       }));
       await captureScreenshot(page, 'ru-article-tools.png');
+      await openStudyNavMediaMenu(page);
+      const mediaLocaleState = await page.evaluate(() => ({
+        heading: document.querySelector('.studynav-media-menu > strong')?.textContent?.trim(),
+        trigger: document.querySelector('#studynav-media-bar summary')?.textContent?.replace(/\s+/g, ' ').trim(),
+        buttons: Array.from(document.querySelectorAll('.studynav-media-actions > button'))
+          .map((button) => button.textContent?.trim()),
+        languageCount: document.getElementById('studynav-langcount')?.textContent?.trim(),
+        languageLabel: document.getElementById('studynav-langcount')?.getAttribute('aria-label'),
+      }));
+      await captureScreenshot(page, 'ru-media-tools.png');
+      await page.keyboard.press('Escape');
 
       await page.locator('#v1001001 .jsHighlightOnly').click();
       await page.locator('#v1001001 > .studynav-para-tools .studynav-verse-range-control').click();
@@ -4800,6 +4965,11 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
             contentLocaleState.toolbarAria === 'Инструменты изучения' &&
             contentLocaleState.audioText === 'Скачать аудио' &&
             contentLocaleState.audioTitle === 'Скачать аудио только этого стиха' &&
+            mediaLocaleState.heading === 'Аудио и видео' &&
+            mediaLocaleState.trigger === 'StudyNav · Аудио и видео' &&
+            mediaLocaleState.buttons.join('|') ===
+              'Копировать ссылку с текущим временем|Скачать фрагмент медиа|Открыть в отдельном окне|Стенограмма' &&
+            mediaLocaleState.languageCount === '6' && mediaLocaleState.languageLabel === 'Языков: 6' &&
             rangeLocaleState.selected === 3 &&
             rangeLocaleState.audioText === 'Скачать аудио 1–3' &&
             rangeLocaleState.clearText === 'Снять выделение' &&
@@ -4815,7 +4985,7 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
             qrResponse?.message === 'QR-код открыт' && qrLocaleState.title === 'QR-код этой страницы' &&
             qrLocaleState.copy.includes('Копировать ссылку') && qrLocaleState.closeAria === 'Закрыть QR-код' &&
             localizedOffResponse?.message === 'Сохранённые места выключены',
-          { contentLocaleState, rangeLocaleState, editorLocaleState, panelResponse, panelLocaleState, qrResponse, qrLocaleState, localizedOffResponse },
+          { contentLocaleState, mediaLocaleState, rangeLocaleState, editorLocaleState, panelResponse, panelLocaleState, qrResponse, qrLocaleState, localizedOffResponse },
         ),
         makeAssertion(
           'StudyNav Russian popup is complete, readable, and retains the product accent layout',
@@ -4978,11 +5148,11 @@ async function runStudyNavLiveSmokeScenario(executablePath) {
 
         let supportedState = await getStudyNavState(supported);
         if (supportedState.languageSelectOptions > 0 &&
-            supportedState.langBadge !== `${supportedState.languageSelectOptions} languages`) {
+            supportedState.langBadge !== String(supportedState.languageSelectOptions)) {
           try {
             await supported.waitForFunction(() => {
               const count = document.querySelector('#otherAvailLangsChooser')?.options?.length || 0;
-              return count > 0 && document.getElementById('studynav-langcount')?.textContent?.trim() === `${count} languages`;
+              return count > 0 && document.getElementById('studynav-langcount')?.textContent?.trim() === String(count);
             }, { timeout: 5000 });
           } catch {
             // Preserve the final mismatching state as assertion evidence.
@@ -5042,7 +5212,7 @@ async function runStudyNavLiveSmokeScenario(executablePath) {
               supportedState.paraTools >= 1 &&
               supportedState.stylePresent === true &&
               (supportedState.languageSelectOptions === 0 ||
-                supportedState.langBadge === `${supportedState.languageSelectOptions} languages`),
+                supportedState.langBadge === String(supportedState.languageSelectOptions)),
             supportedState,
           ),
         );
@@ -5299,8 +5469,9 @@ async function runStudyNavVerseAudioLiveScenario(executablePath, liveCase) {
             document.querySelector('#article, main, body')?.appendChild(audio);
           }, marker.source);
           await page.waitForFunction(() => Array.from(document.querySelectorAll('#studynav-media-bar button'))
-            .some((button) => button.textContent?.trim() === 'Media segment'));
-          await page.locator('#studynav-media-bar button', { hasText: 'Media segment' }).click();
+            .some((button) => button.textContent?.trim() === 'Download a media segment'));
+          await openStudyNavMediaMenu(page);
+          await page.locator('#studynav-media-bar button', { hasText: 'Download a media segment' }).click();
           const inputs = page.locator('#studynav-clip-panel input');
           await inputs.nth(0).fill('0:00');
           await inputs.nth(1).fill('0:01');
@@ -5343,8 +5514,9 @@ async function runStudyNavVerseAudioLiveScenario(executablePath, liveCase) {
             document.querySelector('#article, main, body')?.appendChild(video);
           }, MEDIA_VIDEO_LIVE_URL);
           await page.waitForFunction(() => Array.from(document.querySelectorAll('#studynav-media-bar button'))
-            .some((button) => button.textContent?.trim() === 'Media segment'));
-          await page.locator('#studynav-media-bar button', { hasText: 'Media segment' }).click();
+            .some((button) => button.textContent?.trim() === 'Download a media segment'));
+          await openStudyNavMediaMenu(page);
+          await page.locator('#studynav-media-bar button', { hasText: 'Download a media segment' }).click();
           await page.selectOption('#studynav-clip-panel select', 'video');
           const videoInputs = page.locator('#studynav-clip-panel input');
           await videoInputs.nth(0).fill('0:03');

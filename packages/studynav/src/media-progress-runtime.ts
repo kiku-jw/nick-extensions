@@ -187,7 +187,11 @@ async function refreshResumeControl() {
     }
     button.textContent = t('resume_at', formatMediaTime(record.currentTime));
     button.title = t('resume_title');
-    button.onclick = () => seekWithoutAutoplay(video, record);
+    button.onclick = () => {
+      const details = button?.closest('details');
+      if (details instanceof HTMLDetailsElement) details.open = false;
+      seekWithoutAutoplay(video, record);
+    };
   } catch (error) {
     reportStorageFailure(error);
   }

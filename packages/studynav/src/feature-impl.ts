@@ -172,10 +172,7 @@ export function cssFor(flags: FeatureFlags, hostname: string): string {
   }
   if (flags.mediaPlayerUI) {
     bits.push(`
-      .video-js .vjs-control-bar,
-      .video-js:hover .vjs-control-bar,
-      .video-js.vjs-user-active .vjs-control-bar {
-        opacity: 1 !important;
+      .video-js .vjs-control-bar {
         background: transparent !important;
         background-image: none !important;
         box-shadow: none !important;
@@ -261,6 +258,10 @@ function teardownLanguageBadge() {
 function teardownMediaToolbar() {
   document.getElementById('studynav-media-bar')?.remove();
   document.getElementById('studynav-clip-panel')?.remove();
+  qsa<HTMLElement>('[data-studynav-media-host]').forEach((host) => {
+    delete host.dataset.studynavMediaHost;
+    delete host.dataset.studynavPositioned;
+  });
 }
 
 function teardownTranscript() {
@@ -1074,15 +1075,19 @@ function runLangCount(articleRoots: HTMLElement[]) {
   // The live jw.org chooser is mounted outside the article root. Prefer the
   // largest page-level language select, including its stable public id, before
   // falling back to article-local lists and text.
-  const knownSelectCounts = qsa<HTMLSelectElement>(
+  const knownSelects = qsa<HTMLSelectElement>(
     'select#otherAvailLangsChooser, #otherAvailLangs select',
-  ).map((select) => select.options.length);
-  let count = Math.max(0, ...knownSelectCounts);
+  ).sort((left, right) => right.options.length - left.options.length);
+  let anchor: HTMLElement | null = knownSelects[0] || null;
+  let count = anchor instanceof HTMLSelectElement ? anchor.options.length : 0;
+  let besideControl = count > 0;
   if (!count) {
-    const fallbackSelectCounts = qsa<HTMLSelectElement>(
+    const fallbackSelects = qsa<HTMLSelectElement>(
       'select[name*="lang" i], select[id*="lang" i]',
-    ).map((select) => select.options.length);
-    count = Math.max(0, ...fallbackSelectCounts);
+    ).sort((left, right) => right.options.length - left.options.length);
+    anchor = fallbackSelects[0] || null;
+    count = anchor instanceof HTMLSelectElement ? anchor.options.length : 0;
+    besideControl = count > 0;
   }
 
   const containers = articleRoots.length
@@ -1098,33 +1103,45 @@ function runLangCount(articleRoots: HTMLElement[]) {
     const langSelect = qs<HTMLSelectElement>('select[name*="lang" i], select[id*="lang" i]', root);
     if (langSelect?.options.length) {
       count = langSelect.options.length;
+      anchor = langSelect;
+      besideControl = true;
       break;
     }
     const items = qsa<HTMLElement>('[class*="language"] li, [class*="LanguageList"] li, .mosaicLanguageList li, .languagePicker li', root);
     if (items.length) {
       count = items.length;
+      anchor = items[0].closest<HTMLElement>('[class*="language"], [class*="Language"]') || root;
       break;
     }
     const candidates = qsa<HTMLElement>('a[href*="/languages/"], [data-language], [class*="language"] option, .languagePicker option', root);
     if (candidates.length > 5) {
       count = candidates.length;
+      anchor = candidates[0].closest<HTMLElement>('[class*="language"], [class*="Language"]') || root;
       break;
     }
-    const bodyText = (root as HTMLElement).innerText || '';
-    const match = bodyText.match(/available in\s+(\d+)\s+languages/i);
+    const textAnchor = qsa<HTMLElement>('p, li, [class*="language"], [class*="Language"]', root)
+      .find((node) => /available in\s+\d+\s+languages/i.test(node.innerText || '')) || root;
+    const match = (textAnchor.innerText || '').match(/available in\s+(\d+)\s+languages/i);
     if (match) {
       count = Number(match[1]);
+      anchor = textAnchor;
       break;
     }
   }
 
-  if (!count) return;
-  const badge = document.createElement('div');
+  if (!count || !anchor) return;
+  const label = t('languages_count', String(count));
+  const badge = document.createElement('span');
   badge.id = 'studynav-langcount';
   badge.className = 'studynav-langcount';
-  badge.textContent = t('languages_count', String(count));
+  badge.dataset.placement = besideControl ? 'control' : 'content';
+  badge.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg><span>${escapeHtml(besideControl ? String(count) : label)}</span>`;
+  badge.title = label;
+  badge.setAttribute('aria-label', label);
   badge.setAttribute('data-studynav-owned', '1');
-  document.documentElement.appendChild(badge);
+  if (anchor instanceof HTMLSelectElement) anchor.insertAdjacentElement('afterend', badge);
+  else if (articleRoots.includes(anchor)) anchor.insertBefore(badge, anchor.firstChild);
+  else anchor.insertAdjacentElement('afterend', badge);
 }
 
 function uniqueElementsForLang<T extends Element>(nodes: T[]): T[] {
@@ -1595,13 +1612,13 @@ function openMediaClipPanel() {
 }
 
 function syncToolbarButton(
-  bar: HTMLElement,
+  actions: HTMLElement,
   id: string,
   enabled: boolean,
   label: string,
   action: () => void,
 ) {
-  let button = document.getElementById(id) as HTMLButtonElement | null;
+  let button = actions.querySelector<HTMLButtonElement>(`#${id}`);
   if (!enabled) {
     button?.remove();
     return;
@@ -1610,10 +1627,15 @@ function syncToolbarButton(
     button = document.createElement('button');
     button.id = id;
     button.type = 'button';
+    button.className = 'studynav-media-action';
   }
   button.textContent = label;
-  button.onclick = action;
-  bar.appendChild(button);
+  button.onclick = () => {
+    const details = button?.closest('details');
+    if (details instanceof HTMLDetailsElement) details.open = false;
+    action();
+  };
+  actions.appendChild(button);
 }
 
 function mountMediaToolbar(flags: FeatureFlags, mediaSupported: boolean): HTMLElement | null {
@@ -1623,31 +1645,77 @@ function mountMediaToolbar(flags: FeatureFlags, mediaSupported: boolean): HTMLEl
     return null;
   }
 
+  const media = activePlayableMedia();
+  const playerHost = media?.closest<HTMLElement>(
+    '.video-js, .jwplayer, [class*="mediaPlayer"], [class*="MediaPlayer"]',
+  ) || null;
+  const parent = playerHost || media?.parentElement || null;
+  if (!media || !parent) {
+    teardownMediaToolbar();
+    return null;
+  }
+
   let bar = document.getElementById('studynav-media-bar');
+  const placement = playerHost ? 'player' : 'inline';
+  if (bar && (bar.parentElement !== parent || bar.dataset.placement !== placement)) {
+    teardownMediaToolbar();
+    bar = null;
+  }
   if (!bar) {
     bar = document.createElement('div');
     bar.id = 'studynav-media-bar';
     bar.className = 'studynav-media-bar';
+    bar.dataset.placement = placement;
     bar.setAttribute('data-studynav-owned', '1');
-    document.documentElement.appendChild(bar);
+    bar.innerHTML = `
+      <details>
+        <summary title="${escapeHtml(t('media_tools'))}">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M7 14v6"/></svg>
+          <span>StudyNav</span><span class="studynav-sr-only"> · ${escapeHtml(t('media_tools'))}</span>
+        </summary>
+        <div class="studynav-media-menu">
+          <strong>${escapeHtml(t('media_tools'))}</strong>
+          <div class="studynav-media-actions"></div>
+        </div>
+      </details>`;
+    bar.onkeydown = (event) => {
+      if (event.key !== 'Escape') return;
+      const details = bar?.querySelector('details');
+      if (!(details instanceof HTMLDetailsElement) || !details.open) return;
+      event.preventDefault();
+      details.open = false;
+      bar?.querySelector<HTMLElement>('summary')?.focus();
+    };
+    if (playerHost) {
+      playerHost.dataset.studynavMediaHost = '1';
+      if (getComputedStyle(playerHost).position === 'static') playerHost.dataset.studynavPositioned = '1';
+      playerHost.appendChild(bar);
+    } else {
+      media.insertAdjacentElement('afterend', bar);
+    }
   }
 
-  syncToolbarButton(bar, 'studynav-copy-page-time', !!flags.mediaTS, t('copy_page_time'), () => {
+  const actions = bar.querySelector<HTMLElement>('.studynav-media-actions');
+  if (!actions) {
+    teardownMediaToolbar();
+    return null;
+  }
+  syncToolbarButton(actions, 'studynav-copy-page-time', !!flags.mediaTS, t('copy_page_time'), () => {
     const media = activePlayableMedia();
     const url = canonicalCurrentPageUrl();
     const value = url ? formatPageAndTime(url, media?.currentTime || 0) : null;
     if (value) void copy(value, t('page_time_copied'));
   });
-  syncToolbarButton(bar, 'studynav-media-clip', !!flags.mediaClip, t('media_clip'), openMediaClipPanel);
-  syncToolbarButton(bar, 'studynav-second-display', !!flags.sndDisp, t('second_display'), openSecondDisplay);
+  syncToolbarButton(actions, 'studynav-media-clip', !!flags.mediaClip, t('media_clip'), openMediaClipPanel);
+  syncToolbarButton(actions, 'studynav-second-display', !!flags.sndDisp, t('second_display'), openSecondDisplay);
   syncToolbarButton(
-    bar,
+    actions,
     'studynav-transcript-button',
     !!flags.transcCreate && transcriptSourceAvailable(),
     t('transcript'),
     () => void openTranscript(),
   );
-  return bar;
+  return actions;
 }
 
 export async function readTranscriptFromTracks(video: Pick<HTMLVideoElement, 'textTracks'> | null): Promise<string> {

@@ -93,7 +93,7 @@
     "message": "Media:"
   },
   "guide_media_text": {
-    "message": "use the floating controls for playback, media segments, resume, and available captions."
+    "message": "choose StudyNav on the player for links with time, media segments, a separate window, and captions."
   },
   "feature_settings": {
     "message": "Feature settings"
@@ -153,7 +153,7 @@
     "message": "Ready on this media page"
   },
   "status_media_hint": {
-    "message": "Use the floating controls for playback, media segments, and captions when present."
+    "message": "Choose StudyNav on the player for links with time, media segments, a separate window, and captions."
   },
   "status_article_title": {
     "message": "Ready on this article"
@@ -303,13 +303,13 @@
     "message": "Use Space/K/J/L/F/M while watching media"
   },
   "feature_mediaTS_name": {
-    "message": "Copy page and time"
+    "message": "Copy link at current time"
   },
   "feature_mediaTS_blurb": {
-    "message": "Copy the page link together with the current playback time"
+    "message": "Copy a page link that opens at the current playback time"
   },
   "feature_mediaClip_name": {
-    "message": "Download an audio or video segment"
+    "message": "Download a media segment"
   },
   "feature_mediaClip_blurb": {
     "message": "Enter start and end times, then save audio as WAV or video as WebM"
@@ -321,10 +321,10 @@
     "message": "Keep video progress locally and resume only when asked"
   },
   "feature_sndDisp_name": {
-    "message": "Open second display"
+    "message": "Open in a separate window"
   },
   "feature_sndDisp_blurb": {
-    "message": "Open the current media in a popup window"
+    "message": "Open the current media in its own browser window"
   },
   "feature_transcCreate_name": {
     "message": "Search available captions"
@@ -482,6 +482,9 @@
   "languages_count": {
     "message": "$1 languages"
   },
+  "media_tools": {
+    "message": "Media tools"
+  },
   "download_image": {
     "message": "Download image"
   },
@@ -489,13 +492,13 @@
     "message": "Image download started"
   },
   "copy_page_time": {
-    "message": "Copy page + time"
+    "message": "Copy link at current time"
   },
   "page_time_copied": {
     "message": "Page link and time copied"
   },
   "media_clip": {
-    "message": "Media segment"
+    "message": "Download a media segment"
   },
   "media_clip_title": {
     "message": "Download an audio or video segment"
@@ -579,7 +582,7 @@
     "message": "The selected times are outside this media file."
   },
   "second_display": {
-    "message": "Second display"
+    "message": "Open in a separate window"
   },
   "transcript": {
     "message": "Transcript"

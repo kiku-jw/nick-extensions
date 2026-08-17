@@ -188,7 +188,7 @@ for (const name of pkgs) {
     const studyStorageSource = readFileSync(join(root, 'packages/studynav/src/study-storage.ts'), 'utf8');
     const featureIds = [...featureDefaultsSource.matchAll(/\{ id: '([^']+)'/g)].map((match) => match[1]);
     const hosts = manifest.host_permissions || [];
-    ok(manifest.version === '1.5.2', `${name}: expected 1.5.2 release version`);
+    ok(manifest.version === '1.5.3', `${name}: expected 1.5.3 release version`);
     ok(
       JSON.stringify(hosts) === JSON.stringify([
         'https://jw.org/*',
@@ -348,7 +348,7 @@ for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
   const expectedDuration = relativeHtml.includes('/ru/') ? '4:35' : '4:17';
   ok(html.includes(`23 ${relativeHtml.includes('/ru/') ? 'главы' : 'chapters'} · ${expectedDuration}`),
     `${relativeHtml}: final narrated tutorial duration is visible`);
-  ok(/1\.5\.2/.test(html), `${relativeHtml}: current release is visible`);
+  ok(/1\.5\.3/.test(html), `${relativeHtml}: current release is visible`);
   ok(/several consecutive verses|несколько стихов подряд/i.test(html), `${relativeHtml}: consecutive verse audio is explained`);
   ok(
     !/slower learning|red (?:ring|circle)|product choices|production note|animation direction|focus marker|render pipeline|более медленное(?: и понятное)? обучение|красное кольцо|продуктовые решения|внутренн(?:ий|его) беклог|указани[ея] для анимации|маркер показывает, куда смотреть|процесс монтажа/i.test(html),

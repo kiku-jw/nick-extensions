@@ -358,6 +358,14 @@ describe('StudyNav feature planning', () => {
     expect(css).not.toContain('#footer');
   });
 
+  test('removes video shading without forcing the native controls to stay visible', () => {
+    const css = cssFor(DEFAULT_FLAGS, 'www.jw.org');
+    expect(css).toContain('.video-js .vjs-control-bar');
+    expect(css).toContain('background-image: none');
+    expect(css).not.toContain('opacity: 1');
+    expect(css).not.toContain('.video-js:hover .vjs-control-bar');
+  });
+
   test('keeps article image downloads opt-in while respecting an explicit enable', () => {
     expect(DEFAULT_FLAGS.imgGet).toBe(false);
     const plan = deriveFeaturePlan({ ...DEFAULT_FLAGS, imgGet: true }, {
