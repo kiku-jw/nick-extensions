@@ -1,49 +1,49 @@
-StudyNav adds notes, precise links, short downloads, and extra player controls to supported JW.org pages in Chromium browsers.
+With StudyNav, you can write notes on JW.org, send links to the verses you need, download only the part you want, and control videos from the keyboard.
 
-Highlight the words you need in one of six colors. Add a note or tags, and keep the note beside the text when the window is wide enough.
+Highlight the words you need in one of six colors. Add a note or tags, and keep the note beside the text when there is enough room.
 
-Press Save place beside a paragraph or verse. Later, open the StudyNav library and return directly to that saved place.
+Press Save place beside a paragraph or verse. Later, open your saved places and return there with one click.
 
-Select the text and copy it with the publication title and a link. The result is ready to paste into a message or notes.
+Select the text and press Copy quote. The publication title and a link are copied with it, ready to send.
 
-Show a QR code for the current page or selected verse, then scan it with your phone.
+Press QR code and point your phone camera at it. The same page or selected verse will open on your phone.
 
-StudyNav opens the same publication through a JW.org address without the extra technical parts. The shorter link is easier to save or send.
+If a page has a long address, press Open clean link. StudyNav opens a shorter JW.org address for the same publication.
 
-Select one verse or several consecutive verses. Press Download audio, and StudyNav saves the selected narration as one WAV file.
+Click the number of the verse you need. To download several verses in a row, choose the first and last. Then press Download audio to save them as one audio file.
 
-The copied result keeps only the verse words, without its number, reference letters, footnotes, or StudyNav buttons.
+When you paste the copied verse, you get only its words, without the number, small reference letters, footnotes, or extension buttons.
 
-Select the first and last verse. The Link button copies one address that opens the whole selected range.
+Choose the first and last verse, then press Link. One link is copied for all the selected verses.
 
-If you know a publication code or document number, press Control or Command plus Shift and K. This opens the regular JW.org and WOL search, not an AI search.
+Know a publication code or document number? Press Control or Command plus Shift and K, enter the code, and StudyNav finds it with the regular JW.org and WOL search. This is not an AI search.
 
-Open the caption and text description that the page authors provided for the image.
+Press Description below an image to read the caption and explanation added to it on the website.
 
-After you turn this feature on, a regular Download image button appears below suitable images in an article.
+Turn on image downloads. A clear Download image button will appear below pictures in articles.
 
-Beside the language control, StudyNav shows the exact number of translations available for the current page.
+A number appears beside the language button. It tells you how many translations of the page are available.
 
-The article title and navigation buttons stay at the top of the window, so you do not need to return to the beginning of a long page.
+Turn this feature on, and the article title and buttons stay at the top while you continue reading.
 
-On a wide screen, the article uses more space and fits more words on each line. Study panels and dialogs do not stretch.
+On a wide screen, you can make the article text wider. Each line holds more words, while windows and notes keep their normal size.
 
-Article tables gain spacing, borders, and alternating row backgrounds, making it easier to follow each row.
+StudyNav separates table rows with spacing and different backgrounds, making them easier to follow.
 
-When you move the pointer over a video and the player buttons appear, the picture no longer darkens around the edges.
+When you move the pointer over a video, the controls appear but the edges of the picture no longer darken.
 
-Player captions become larger and higher-contrast, making them easier to read.
+Captions become larger and easier to see, so they are easier to read.
 
-Space or K pauses and resumes the video. J and L seek, M mutes, and F enters full screen.
+Press Space or K to pause and continue the video. J and L move backward and forward, M turns off the sound, and F opens full screen.
 
-StudyNav copies the page address with the current time. The recipient can see where to seek, but the link itself does not start at that second.
+Pause at the place you want and press Copy page plus time. When you paste, you get the link and the time to seek to. The video will not start there automatically.
 
-Enter the start and end of the part you need. You can save up to two minutes of audio as WAV or one minute of video as WebM.
+Enter the beginning and end of the part you need. StudyNav downloads only that part: up to two minutes of audio or one minute of video.
 
-StudyNav remembers where you stopped the video. Next time, press Resume to return to that point without automatic playback.
+StudyNav remembers where you stopped. When you return, press Resume at… to go back to that place without starting the video automatically.
 
-The Second display button opens the video or audio in a small separate window. It does not download the media file.
+Press Second display to open the video or audio in a small separate window. The media file is not downloaded.
 
-If the media has captions or a prepared transcript, a button appears to search and download the text. If no text is available, the button stays hidden.
+If captions or a written transcript come with the video, StudyNav shows a button for searching and downloading the text. If there is no text, there is no button.
 
-Download the StudyNav archive, unzip it, and load the folder from the extensions page in your Chromium browser.
+Download the StudyNav archive and unzip it. Then open the extensions page in Chrome and press Load unpacked.
