@@ -308,6 +308,8 @@ for (const name of pkgs) {
 console.log('\n== public StudyNav guide ==');
 const guideCss = readFileSync(join(root, 'site', 'assets', 'site.css'), 'utf8');
 const musicPrompt = readFileSync(join(root, 'site', 'assets', 'narration', 'studynav-music-prompt.md'), 'utf8');
+const musicPromptBody = (musicPrompt.match(/## Prompt\s+([\s\S]*?)(?:\n## |$)/)?.[1] ?? '').replace(/\s+/g, ' ');
+const musicPromptExclusions = (musicPrompt.match(/## Exclude Styles\s+([\s\S]*?)(?:\n## |$)/)?.[1] ?? '').replace(/\s+/g, ' ');
 ok(
   guideCss.includes('color-scheme: dark') &&
     guideCss.includes('--paper: #0b1018') &&
@@ -323,10 +325,13 @@ ok(
   'StudyNav Eleven Music setup separates the prompt and style controls',
 );
 ok(
-  ['drums', 'percussion', 'rhythmic pulse', 'dominant melody', 'noise', 'hiss'].every((term) =>
-    musicPrompt.match(/## Exclude Styles\s+([\s\S]*?)(?:\n## |$)/)?.[1]?.includes(term)) &&
-    !/Suno|V5\.5|92 BPM|4\/4 pulse/i.test(musicPrompt),
-  'StudyNav Eleven Music setup excludes rhythm, dominant elements, noise, and old Suno controls',
+  ['drums', 'percussion', 'rhythmic pulse', 'sustained synth pads', 'humming', 'swelling pads', 'rising layers', 'dominant melody', 'noise', 'hiss'].every((term) =>
+    musicPromptExclusions.includes(term)) &&
+    musicPromptBody.includes('ethereal guitar ambient') &&
+    musicPromptBody.includes('delicate clean electric guitar') &&
+    musicPromptBody.includes('silence') &&
+    !/Suno|V5\.5|92 BPM|4\/4 pulse|warm electric-piano|soft sustained synth pads/i.test(musicPromptBody),
+  'StudyNav Eleven Music setup uses sparse ethereal guitar and excludes hum, builds, rhythm, dominance, and noise',
 );
 for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
   const htmlPath = join(root, relativeHtml);
