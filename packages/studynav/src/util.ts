@@ -1,5 +1,6 @@
 import { copyToClipboard } from '@nick/shared';
 import { t } from './i18n';
+import { isAllowedStudyNavHostname } from './page-origin';
 
 export function qs<T extends Element = Element>(sel: string, root: ParentNode = document): T | null {
   return root.querySelector(sel) as T | null;
@@ -189,8 +190,7 @@ export function detectSupport(probe: SupportProbe): SupportState {
   const hostname = probe.hostname.toLowerCase();
   const pathname = probe.pathname;
   const isWol = hostname === 'wol.jw.org';
-  const isStream = hostname === 'stream.jw.org';
-  const isJw = /(^|\.)jw\.org$/.test(hostname) && !isWol && !isStream;
+  const isJw = isAllowedStudyNavHostname(hostname) && !isWol;
   const isLibrary = isJwLibraryPath(pathname);
   const decodedSegments = (() => {
     try {
@@ -203,8 +203,7 @@ export function detectSupport(probe: SupportProbe): SupportState {
 
   const palette = Boolean(
     (isJw && (isLibrary || JW_SEARCH_PATH_RE.test(pathname))) ||
-    (isWol && WOL_PATH_RE.test(pathname)) ||
-    (isStream && probe.mediaRootCount > 0),
+    (isWol && WOL_PATH_RE.test(pathname)),
   );
   const article = Boolean(
     probe.articleRootCount > 0 &&
@@ -213,7 +212,7 @@ export function detectSupport(probe: SupportProbe): SupportState {
   const language = article && isJw;
   const media = Boolean(
     probe.mediaRootCount > 0 &&
-    (isStream || (isJw && (isLibrary || isJwArticlePath)) || (isWol && WOL_PATH_RE.test(pathname))),
+    ((isJw && (isLibrary || isJwArticlePath)) || (isWol && WOL_PATH_RE.test(pathname))),
   );
 
   return {

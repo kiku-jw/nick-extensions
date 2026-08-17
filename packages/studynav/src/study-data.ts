@@ -6,6 +6,8 @@
  * only records safe to persist or render.
  */
 
+import { isAllowedStudyNavPageUrl } from './page-origin';
+
 /** The pre-1.4 key is deliberately retained for read-only migration. */
 export const STUDY_DATA_LEGACY_STORAGE_KEY = 'studynavStudyDataV1' as const;
 export const STUDY_DATA_V2_STORAGE_KEY = 'studynavStudyDataV2' as const;
@@ -297,11 +299,6 @@ function normalizeIdentifier(value: unknown, maximum = MAX_IDENTIFIER_LENGTH): s
   return normalized;
 }
 
-function isSupportedHost(hostname: string): boolean {
-  const host = hostname.toLowerCase();
-  return host === 'jw.org' || host.endsWith('.jw.org') || host === 'wol.jw.org' || host === 'stream.jw.org';
-}
-
 function normalizeSupportedUrl(value: unknown, preserveHash: boolean): string | null {
   if (!boundedString(value, 1, MAX_URL_LENGTH)) return null;
   const source = value.trim();
@@ -309,7 +306,7 @@ function normalizeSupportedUrl(value: unknown, preserveHash: boolean): string | 
 
   try {
     const url = new URL(source);
-    if (url.protocol !== 'https:' || url.username || url.password || !isSupportedHost(url.hostname)) return null;
+    if (!isAllowedStudyNavPageUrl(url)) return null;
     const encodedParts = [url.pathname, url.search, url.hash];
     if (encodedParts.some((part) => {
       try {
@@ -343,7 +340,7 @@ export const normalizePageUrl = normalizeStudyPageUrl;
 
 /**
  * Return a canonical HTTPS target URL while retaining its precise fragment.
- * Targets are still restricted to the supported JW/WOL/stream origins.
+ * Targets are still restricted to the supported JW.org and WOL origins.
  */
 export function normalizeStudyTargetUrl(value: unknown): string | null {
   return normalizeSupportedUrl(value, true);

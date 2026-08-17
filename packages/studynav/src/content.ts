@@ -18,6 +18,7 @@ import { parseBibleVerseId } from './verse-audio';
 import { t } from './i18n';
 import { openStudyPanel } from './study-runtime';
 import { continueWatchingStatus } from './media-progress-runtime';
+import { isAllowedStudyNavPageUrl } from './page-origin';
 
 async function flags(): Promise<FeatureFlags> {
   try {
@@ -118,11 +119,12 @@ async function boot() {
   }
 }
 
-boot();
-
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'sync' && changes.flags) boot();
-});
+if (isAllowedStudyNavPageUrl(location.href)) {
+  boot();
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && changes.flags) boot();
+  });
+}
 
 async function currentPageStatus() {
   const support = currentSupport();
@@ -161,7 +163,7 @@ async function currentPageStatus() {
   };
 }
 
-chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+if (isAllowedStudyNavPageUrl(location.href)) chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg?.type === 'GET_STUDYNAV_STATUS') {
     currentPageStatus()
       .then(sendResponse)

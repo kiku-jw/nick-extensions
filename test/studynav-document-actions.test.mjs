@@ -18,10 +18,14 @@ import { qrSvgForStudyUrl } from '../packages/studynav/src/qr-code.ts';
 describe('StudyNav document actions', () => {
   test('accepts only supported HTTPS JW hosts', () => {
     expect(isSupportedJwHttpsUrl('https://www.jw.org/en/library/')).toBe(true);
+    expect(isSupportedJwHttpsUrl('https://jw.org/en/library/')).toBe(true);
     expect(isSupportedJwHttpsUrl('https://wol.jw.org/en/wol/d/r1/lp-e/1')).toBe(true);
-    expect(isSupportedJwHttpsUrl('https://stream.jw.org/')).toBe(true);
+    expect(isSupportedJwHttpsUrl('https://stream.jw.org/')).toBe(false);
+    expect(isSupportedJwHttpsUrl('https://hub.jw.org/')).toBe(false);
+    expect(isSupportedJwHttpsUrl('https://foo.jw.org/')).toBe(false);
     expect(isSupportedJwHttpsUrl('http://www.jw.org/en/')).toBe(false);
     expect(isSupportedJwHttpsUrl('https://jw.org.example.com/')).toBe(false);
+    expect(isSupportedJwHttpsUrl('https://www.jw.org:444/')).toBe(false);
     expect(isSupportedJwHttpsUrl('not a url')).toBe(false);
   });
 

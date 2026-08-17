@@ -1,4 +1,5 @@
 import { t } from './i18n';
+import { isAllowedStudyNavPageUrl } from './page-origin';
 
 const MEDIA_API_HOST = 'b.jw-cdn.org';
 const MEDIA_API_PATH = '/apis/pub-media/getpubmedialinks';
@@ -205,9 +206,8 @@ export function validateVerseAudioRequest(
 
   try {
     const page = new URL(senderUrl);
-    const isJw = page.hostname === 'jw.org' || page.hostname.endsWith('.jw.org');
     const chapter = parseBibleChapterFromPath(page.pathname);
-    if (!isJw || !/^https?:$/.test(page.protocol) || chapter === null) return null;
+    if (!isAllowedStudyNavPageUrl(page) || chapter === null) return null;
     if (chapter !== first.chapter) return null;
   } catch {
     return null;
@@ -260,8 +260,7 @@ export function validateMediaAudioClipRequest(
 
   try {
     const sender = new URL(senderUrl);
-    const allowedHost = sender.hostname === 'jw.org' || sender.hostname.endsWith('.jw.org');
-    if (sender.protocol !== 'https:' || !allowedHost || sender.username || sender.password) return null;
+    if (!isAllowedStudyNavPageUrl(sender)) return null;
   } catch {
     return null;
   }
@@ -299,8 +298,7 @@ export function validateMediaVideoClipRequest(
 
   try {
     const sender = new URL(senderUrl);
-    const allowedHost = sender.hostname === 'jw.org' || sender.hostname.endsWith('.jw.org');
-    if (sender.protocol !== 'https:' || !allowedHost || sender.username || sender.password) return null;
+    if (!isAllowedStudyNavPageUrl(sender)) return null;
   } catch {
     return null;
   }

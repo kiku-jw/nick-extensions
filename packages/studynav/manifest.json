@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "__MSG_extension_name__",
   "short_name": "__MSG_extension_short_name__",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "__MSG_extension_description__",
   "default_locale": "en",
   "icons": {
@@ -28,15 +28,17 @@
     "offscreen"
   ],
   "host_permissions": [
-    "*://*.jw.org/*",
-    "*://jw.org/*",
+    "https://jw.org/*",
+    "https://www.jw.org/*",
+    "https://wol.jw.org/*",
     "https://*.jw-cdn.org/*"
   ],
   "content_scripts": [
     {
       "matches": [
-        "*://*.jw.org/*",
-        "*://jw.org/*"
+        "https://jw.org/*",
+        "https://www.jw.org/*",
+        "https://wol.jw.org/*"
       ],
       "js": [
         "content.js"

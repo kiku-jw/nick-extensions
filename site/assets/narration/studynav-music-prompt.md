@@ -1,27 +1,32 @@
-# Suno setup — StudyNav tutorial music
+# Eleven Music setup — StudyNav tutorial background
 
-Use **Custom Mode** with **V5.5**. Copy the two lists into separate fields.
+Use Eleven Music v2. Set the duration to **4:40** and copy each part into its
+matching field.
 
-## Style (positive)
+## Prompt
 
-instrumental, minimal tutorial underscore, warm modern ambient, gently optimistic, calm and focused, 92 BPM, steady 4/4 pulse, soft muted percussion, light marimba, plucked mallets, restrained electric piano, subtle rounded bass, thin airy synth texture, sparse arrangement, smooth micro-transitions every 8 to 12 seconds, even dynamics, narration-friendly mix, soft opening, gentle three-second fade-out
+Create a 4 minute 40 second instrumental-only background track for a clear
+software tutorial. Light, clean, transparent ambient with slow, gentle harmonic
+movement and an even energy level. Use soft sustained synth pads, a very subtle
+warm electric-piano texture, and smooth airy tonal layers. Keep the arrangement
+sparse and quiet, leaving plenty of space for spoken narration. Neutral,
+comfortable, unobtrusive, high-fidelity studio-quality mix with a smooth fade-in
+and fade-out.
 
-## Exclude (negative)
+## Include Styles
 
-vocals, spoken word, choir, vocal chops, dominant lead melody, catchy hook, dramatic build, drop, trailer music, cinematic climax, sentimental solo piano, ukulele, heavy drums, aggressive bass, distorted guitars, dense arrangement, abrupt transitions, risers, impacts, excessive reverb, shrill lead instruments
+light ambient, transparent ambient, minimal ambient, calm, neutral,
+unobtrusive, sparse arrangement, sustained pads, slow harmonic movement, soft
+dynamics, narration-friendly, high fidelity, clean mix, instrumental
 
-## Settings
+## Exclude Styles
 
-- Model: V5.5
-- Custom Mode: on
-- Instrumental: on
-- Lyrics: empty
-- Duration slider: 4:40
-- Style Influence: medium-high, about 70%
-- Weirdness: low, about 20%
-- Title: StudyNav tutorial bed
+vocals, spoken word, choir, drums, percussion, beat, rhythmic pulse, metronome,
+ticking, clicks, hi-hats, kick, snare, rhythmic ostinato, arpeggios, rhythmic
+plucks, bass throb, sub-bass pulse, dominant melody, catchy hook, repetitive
+loop, dark drone, continuous drone, dramatic swells, crescendos, tension, abrupt
+transitions, risers, impacts, sound effects, noise, hiss, crackle, vinyl noise,
+distortion, harsh frequencies, excessive reverb
 
-Generate at least two versions. Choose the one that stays in the background and
-does not pull attention away from the narration. If both versions are too busy,
-add the distracting instrument or effect to **Exclude** instead of adding a
-negative instruction to **Style**.
+Generate two versions. Choose the one that stays behind the voice without
+creating a beat or pulling attention toward the music.

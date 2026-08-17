@@ -1,4 +1,4 @@
-# StudyNav 1.5.1 — English narration and edit map
+# StudyNav 1.5.2 — English narration and edit map
 
 ## ElevenLabs export
 

@@ -188,13 +188,29 @@ for (const name of pkgs) {
     const studyStorageSource = readFileSync(join(root, 'packages/studynav/src/study-storage.ts'), 'utf8');
     const featureIds = [...featureDefaultsSource.matchAll(/\{ id: '([^']+)'/g)].map((match) => match[1]);
     const hosts = manifest.host_permissions || [];
-    ok(manifest.version === '1.5.1', `${name}: expected 1.5.1 release version`);
+    ok(manifest.version === '1.5.2', `${name}: expected 1.5.2 release version`);
     ok(
-      hosts.length === 3 &&
-        hosts.includes('*://*.jw.org/*') &&
-        hosts.includes('*://jw.org/*') &&
-        hosts.includes('https://*.jw-cdn.org/*'),
-      `${name}: host_permissions limited to JW pages and official HTTPS media`,
+      JSON.stringify(hosts) === JSON.stringify([
+        'https://jw.org/*',
+        'https://www.jw.org/*',
+        'https://wol.jw.org/*',
+        'https://*.jw-cdn.org/*',
+      ]),
+      `${name}: exact page hosts plus official HTTPS media permission`,
+    );
+    ok(
+      JSON.stringify(manifest.content_scripts?.[0]?.matches) === JSON.stringify([
+        'https://jw.org/*',
+        'https://www.jw.org/*',
+        'https://wol.jw.org/*',
+      ]),
+      `${name}: content script runs only on the main site and WOL`,
+    );
+    ok(
+      runtimeJs.includes('wol.jw.org') &&
+        !runtimeJs.includes('stream.jw.org') &&
+        !runtimeJs.includes('hub.jw.org'),
+      `${name}: runtime bundle contains no denied JW subdomain exception`,
     );
     ok(
       (manifest.permissions || []).length === 2 &&
@@ -299,16 +315,18 @@ ok(
   'StudyNav guide uses the dark default palette and product accent',
 );
 ok(
-  musicPrompt.includes('## Style (positive)') &&
-    musicPrompt.includes('## Exclude (negative)') &&
-    musicPrompt.includes('Duration slider: 4:40') &&
-    musicPrompt.includes('Instrumental: on'),
-  'StudyNav Suno setup separates positive style, negative exclusions, duration, and instrumental controls',
+  musicPrompt.includes('# Eleven Music setup') &&
+    musicPrompt.includes('Eleven Music v2') &&
+    musicPrompt.includes('4 minute 40 second instrumental-only') &&
+    musicPrompt.includes('## Include Styles') &&
+    musicPrompt.includes('## Exclude Styles'),
+  'StudyNav Eleven Music setup separates the prompt and style controls',
 );
-const positiveMusicStyle = musicPrompt.match(/## Style \(positive\)\s+([\s\S]*?)\s+## Exclude/)?.[1] || '';
 ok(
-  !/\b(?:do not|without|exclude|no vocals?)\b/i.test(positiveMusicStyle),
-  'StudyNav Suno positive style does not contain negative instructions',
+  ['drums', 'percussion', 'rhythmic pulse', 'dominant melody', 'noise', 'hiss'].every((term) =>
+    musicPrompt.match(/## Exclude Styles\s+([\s\S]*?)(?:\n## |$)/)?.[1]?.includes(term)) &&
+    !/Suno|V5\.5|92 BPM|4\/4 pulse/i.test(musicPrompt),
+  'StudyNav Eleven Music setup excludes rhythm, dominant elements, noise, and old Suno controls',
 );
 for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
   const htmlPath = join(root, relativeHtml);
@@ -323,7 +341,7 @@ for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
   );
   ok(/not produced, endorsed|не выпускается, не поддерживается и не одобряется/i.test(html), `${relativeHtml}: clear non-affiliation statement`);
   ok(!/3-minute|3-минут/i.test(html), `${relativeHtml}: tutorial duration copy is current`);
-  ok(/1\.5\.1/.test(html), `${relativeHtml}: current release is visible`);
+  ok(/1\.5\.2/.test(html), `${relativeHtml}: current release is visible`);
   ok(/several consecutive verses|несколько стихов подряд/i.test(html), `${relativeHtml}: consecutive verse audio is explained`);
   ok(
     !/slower learning|red (?:ring|circle)|product choices|production note|animation direction|focus marker|render pipeline|более медленное(?: и понятное)? обучение|красное кольцо|продуктовые решения|внутренн(?:ий|его) беклог|указани[ея] для анимации|маркер показывает, куда смотреть|процесс монтажа/i.test(html),

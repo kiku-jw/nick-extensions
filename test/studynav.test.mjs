@@ -4,6 +4,7 @@ import { createApplyCoordinator } from '../packages/studynav/src/apply-coordinat
 import { DEFAULT_FLAGS, migrateFlagsForInstall } from '../packages/studynav/src/features.ts';
 import { cssFor, deriveFeaturePlan, readTranscriptFromTracks } from '../packages/studynav/src/feature-impl.ts';
 import { resolveQueryForLang, wolRouteForLang, wolSearchUrl } from '../packages/studynav/src/mnemonics.ts';
+import { isAllowedStudyNavPageUrl, STUDYNAV_PAGE_HOSTS } from '../packages/studynav/src/page-origin.ts';
 import {
   articleRootPriority,
   buildOwnedAnchorId,
@@ -103,6 +104,45 @@ describe('StudyNav mnemonic resolution', () => {
 });
 
 describe('StudyNav support gate', () => {
+  test('allows only the three exact HTTPS page origins', () => {
+    expect(STUDYNAV_PAGE_HOSTS).toEqual(['jw.org', 'www.jw.org', 'wol.jw.org']);
+    for (const url of [
+      'https://jw.org/',
+      'https://www.jw.org/en/library/',
+      'https://wol.jw.org/ru/wol/h/r2/lp-u',
+      'https://WWW.JW.ORG:443/en/',
+    ]) expect(isAllowedStudyNavPageUrl(url)).toBe(true);
+
+    for (const url of [
+      'http://www.jw.org/',
+      'https://stream.jw.org/',
+      'https://hub.jw.org/',
+      'https://foo.jw.org/',
+      'https://jw.org.example.com/',
+      'https://eviljw.org/',
+      'https://user:pass@www.jw.org/',
+      'https://www.jw.org:444/',
+      'not a URL',
+    ]) expect(isAllowedStudyNavPageUrl(url)).toBe(false);
+  });
+
+  test('reports no features on denied JW subdomains', () => {
+    for (const hostname of ['stream.jw.org', 'hub.jw.org', 'foo.jw.org']) {
+      expect(detectSupport({
+        hostname,
+        pathname: '/en/library/books/sample/',
+        articleRootCount: 1,
+        mediaRootCount: 1,
+      })).toEqual({
+        supported: false,
+        palette: false,
+        article: false,
+        language: false,
+        media: false,
+      });
+    }
+  });
+
   test('supports jw.org library article surfaces', () => {
     expect(detectSupport({
       hostname: 'www.jw.org',
@@ -487,6 +527,14 @@ describe('StudyNav verse audio boundaries', () => {
       'https://www.jw.org/en/library/bible/study-bible/books/genesis/1/',
     )?.verses).toEqual([{ book: 1, chapter: 1, verse: 3 }]);
     expect(validateVerseAudioRequest(
+      validRequest,
+      'https://stream.jw.org/en/library/bible/study-bible/books/genesis/1/',
+    )).toBeNull();
+    expect(validateVerseAudioRequest(
+      validRequest,
+      'https://hub.jw.org/en/library/bible/study-bible/books/genesis/1/',
+    )).toBeNull();
+    expect(validateVerseAudioRequest(
       { ...validRequest, label: 'Бытие' },
       'https://www.jw.org/ru/biblioteka/bibliya/izuchenie-biblii/knigi/bytie/1/',
     )?.verses).toEqual([{ book: 1, chapter: 1, verse: 3 }]);
@@ -742,6 +790,8 @@ describe('StudyNav manual media clips', () => {
     expect(validateMediaAudioClipRequest({ ...request, endSeconds: 132.1 }, page)).toBeNull();
     expect(validateMediaAudioClipRequest({ ...request, mediaUrl: 'https://example.com/video.mp4' }, page)).toBeNull();
     expect(validateMediaAudioClipRequest(request, 'http://www.jw.org/ru/biblioteka/video/sample/')).toBeNull();
+    expect(validateMediaAudioClipRequest(request, 'https://stream.jw.org/media/sample/')).toBeNull();
+    expect(validateMediaAudioClipRequest(request, 'https://hub.jw.org/media/sample/')).toBeNull();
 
     const videoRequest = { ...request, type: 'DOWNLOAD_MEDIA_VIDEO_CLIP', endSeconds: 60 };
     expect(validateMediaVideoClipRequest(videoRequest, page)).toMatchObject({
@@ -753,6 +803,8 @@ describe('StudyNav manual media clips', () => {
     expect(validateMediaVideoClipRequest({ ...videoRequest, endSeconds: 72.1 }, page)).toBeNull();
     expect(validateMediaVideoClipRequest({ ...videoRequest, mediaUrl: 'https://example.com/video.mp4' }, page)).toBeNull();
     expect(validateMediaVideoClipRequest(videoRequest, 'http://www.jw.org/ru/biblioteka/video/sample/')).toBeNull();
+    expect(validateMediaVideoClipRequest(videoRequest, 'https://stream.jw.org/media/sample/')).toBeNull();
+    expect(validateMediaVideoClipRequest(videoRequest, 'https://hub.jw.org/media/sample/')).toBeNull();
   });
 });
 

@@ -7,12 +7,12 @@
   "outroSeconds": 3.5,
   "languages": {
     "en": {
-      "intro": "StudyNav 1.5.1 — see all 23 tools",
+      "intro": "StudyNav 1.5.2 — see all 23 tools",
       "outro": "Download, unzip, and load the folder in a Chromium browser.",
       "fixture": "StudyNav demonstration · local data · Chromium browsers"
     },
     "ru": {
-      "intro": "StudyNav 1.5.1 — все 23 функции",
+      "intro": "StudyNav 1.5.2 — все 23 функции",
       "outro": "Скачайте архив, распакуйте и загрузите папку в Chromium-браузере.",
       "fixture": "Демонстрация StudyNav · локальные данные · Chromium-браузеры"
     }

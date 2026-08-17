@@ -1,6 +1,6 @@
 # StudyNav — Unofficial Study Tools
 
-Unofficial productivity helper for jw.org / wol.jw.org / stream.jw.org.
+Unofficial productivity helper for jw.org and wol.jw.org.
 Clean-room original — not affiliated with Jehovah’s Witnesses or JW PubMedia One.
 
 ## Main workflows

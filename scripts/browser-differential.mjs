@@ -128,6 +128,10 @@ function httpUrl(host, port, pathname) {
   return `http://${host}:${port}${pathname}`;
 }
 
+function httpsUrl(host, pathname) {
+  return `https://${host}${pathname}`;
+}
+
 function json(value) {
   return JSON.stringify(value, null, 2);
 }
@@ -927,6 +931,40 @@ function createFixtureServer() {
   });
 }
 
+async function routeStudyNavFixtures(context) {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: `https://${HOSTS.jw}` });
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: `https://${HOSTS.wol}` });
+  await context.route(`https://${HOSTS.jw}/**`, async (route) => {
+    const url = new URL(route.request().url());
+    if (url.pathname === '/missing-image.png') {
+      const isNavigation = route.request().resourceType() === 'document';
+      await route.fulfill({
+        status: isNavigation ? 200 : 404,
+        contentType: 'text/plain; charset=utf-8',
+        body: isNavigation ? 'Missing image fallback fixture' : 'Missing image fixture',
+      });
+      return;
+    }
+    if ([
+      '/en/library/test',
+      STUDYNAV_FIXTURE_PATH,
+      '/ru/biblioteka/bibliya/izuchenie-biblii/knigi/bytie/1/',
+    ].includes(url.pathname)) {
+      await route.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: jwFixtureHtml() });
+      return;
+    }
+    await route.fulfill({ status: 404, contentType: 'text/plain; charset=utf-8', body: 'No HTTPS JW fixture' });
+  });
+  await context.route(`https://${HOSTS.wol}/**`, async (route) => {
+    const url = new URL(route.request().url());
+    if (url.pathname === '/en/wol/d/r1/lp-e/999') {
+      await route.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: wolFixtureHtml() });
+      return;
+    }
+    await route.fulfill({ status: 404, contentType: 'text/plain; charset=utf-8', body: 'No HTTPS WOL fixture' });
+  });
+}
+
 function createScenario(id, extensions) {
   return {
     id,
@@ -1467,12 +1505,22 @@ async function waitForCopiedText(page, predicate, message, timeoutMs = 3000) {
   let last = '';
   let captured = [];
   let match = '';
+  let toast = '';
   await waitFor(async () => {
     captured = await page.evaluate(() => window.__studynavCopyCapture || []);
+    const clipboardText = await page.evaluate(async () => {
+      try {
+        return await navigator.clipboard.readText();
+      } catch {
+        return '';
+      }
+    });
+    if (clipboardText && !captured.includes(clipboardText)) captured.push(clipboardText);
+    toast = await page.evaluate(() => document.getElementById('studynav-toast')?.textContent || '');
     last = captured.at(-1) || '';
     match = [...captured].reverse().find((value) => predicate(value)) || '';
     return !!match;
-  }, timeoutMs, `${message}; last=${last}; captured=${json(captured)}`);
+  }, timeoutMs, `${message}; toast=${toast}; last=${last}; captured=${json(captured)}`);
   return match;
 }
 
@@ -2462,6 +2510,14 @@ async function runStudyNavScenario(executablePath, port) {
     const worker = await getWorkerByName(context, 'StudyNav');
 
     await setStudyNavFlags(worker, DEFAULT_STUDYNAV_FLAGS);
+    await routeStudyNavFixtures(context);
+    for (const hostname of ['stream.jw.org', 'hub.jw.org']) {
+      await context.route(`https://${hostname}/**`, (route) => route.fulfill({
+        status: 200,
+        contentType: 'text/html; charset=utf-8',
+        body: '<!doctype html><title>Denied JW subdomain fixture</title><main data-pid="p1">No StudyNav here</main>',
+      }));
+    }
     await context.route(`https://${HOSTS.jwMedia}/media/fixture.mp4`, fulfillFixtureVideo);
 
     const ordinary = await openPage(
@@ -2475,12 +2531,30 @@ async function runStudyNavScenario(executablePath, port) {
       dataset: document.documentElement.dataset.studynav || null,
       palettePresent: !!document.getElementById('studynav-palette'),
     }));
+    const deniedOriginStates = [];
+    for (const hostname of ['stream.jw.org', 'hub.jw.org']) {
+      const deniedPage = await openPage(context, scenario, `denied-${hostname}`, `https://${hostname}/fixture`);
+      await deniedPage.waitForTimeout(400);
+      deniedOriginStates.push(await deniedPage.evaluate(() => ({
+        hostname: location.hostname,
+        dataset: document.documentElement.dataset.studynav || null,
+        palettePresent: !!document.getElementById('studynav-palette'),
+        ownedNodes: document.querySelectorAll('[data-studynav-owned]').length,
+      })));
+      await deniedPage.close();
+    }
+    scenario.assertions.push(makeAssertion(
+      'StudyNav does not inject into Stream or Hub',
+      deniedOriginStates.every((state) =>
+        state.dataset == null && state.palettePresent === false && state.ownedNodes === 0),
+      deniedOriginStates,
+    ));
 
     const jwPage = await openPage(
       context,
       scenario,
       'jw',
-      httpUrl(HOSTS.jw, port, STUDYNAV_FIXTURE_PATH),
+      httpsUrl(HOSTS.jw, STUDYNAV_FIXTURE_PATH),
     );
     await jwPage.waitForTimeout(1400);
     const jwState = await getStudyNavState(jwPage);
@@ -2523,21 +2597,19 @@ async function runStudyNavScenario(executablePath, port) {
       getComputedStyle(document.querySelector('#article-table td')).borderTopStyle !== 'solid');
     await installCopyCapture(jwPage);
 
-    const copyButton = jwPage.locator('#p1 > .studynav-para-tools button', { hasText: 'Copy' });
     await jwPage.hover('#p1');
-    await copyButton.click();
+    await jwPage.locator('#p1 > .studynav-para-tools button', { hasText: 'Copy' }).click();
     const copiedParagraph = await waitForCopiedText(
       jwPage,
       (text) => text === 'A useful thought is easier to revisit when it stays beside the text.',
-      'StudyNav paragraph copy did not execute its browser clipboard fallback',
+      'StudyNav paragraph copy did not reach the browser clipboard boundary',
     );
-    const linkButton = jwPage.locator('#p1 > .studynav-para-tools button', { hasText: 'Link' });
     await jwPage.hover('#p1');
-    await linkButton.click();
+    await jwPage.locator('#p1 > .studynav-para-tools button', { hasText: 'Link' }).click();
     const copiedLink = await waitForCopiedText(
       jwPage,
       (text) => text.endsWith('#p1'),
-      'StudyNav paragraph link did not execute its browser clipboard fallback',
+      'StudyNav paragraph link did not reach the browser clipboard boundary',
     );
     await jwPage.evaluate(() => {
       const collision = document.createElement('span');
@@ -2582,16 +2654,17 @@ async function runStudyNavScenario(executablePath, port) {
     await captureScreenshot(jwPage, '12-quick-search.png');
     await jwPage.keyboard.press('Escape');
 
-    await context.route('https://www.jw.org/**', (route) => route.fulfill({
+    const fulfillPaletteDestination = (route) => route.fulfill({
       status: 200,
       contentType: 'text/html',
       body: '<!doctype html><title>Palette destination</title><p>Palette destination fixture</p>',
-    }));
+    });
+    await context.route('https://www.jw.org/**', fulfillPaletteDestination);
     const paletteNavigationPage = await openPage(
       context,
       scenario,
       'study-palette-navigation',
-      httpUrl(HOSTS.jw, port, STUDYNAV_FIXTURE_PATH),
+      httpsUrl(HOSTS.jw, STUDYNAV_FIXTURE_PATH),
     );
     await paletteNavigationPage.waitForFunction(() => document.documentElement.dataset.studynav === '1');
     await paletteNavigationPage.keyboard.press(process.platform === 'darwin' ? 'Meta+Shift+K' : 'Control+Shift+K');
@@ -2600,7 +2673,7 @@ async function runStudyNavScenario(executablePath, port) {
     await paletteNavigationPage.waitForURL('https://www.jw.org/en/library/books/enjoy-life-forever/');
     const paletteEnterUrl = paletteNavigationPage.url();
     await paletteNavigationPage.goto(
-      httpUrl(HOSTS.jw, port, STUDYNAV_FIXTURE_PATH),
+      httpsUrl(HOSTS.jw, STUDYNAV_FIXTURE_PATH),
       { waitUntil: 'load' },
     );
     await paletteNavigationPage.waitForFunction(() => document.documentElement.dataset.studynav === '1');
@@ -2610,7 +2683,7 @@ async function runStudyNavScenario(executablePath, port) {
     await paletteNavigationPage.waitForURL('https://www.jw.org/en/search/?q=123456');
     const paletteClickUrl = paletteNavigationPage.url();
     await paletteNavigationPage.close();
-    await context.unroute('https://www.jw.org/**');
+    await context.unroute('https://www.jw.org/**', fulfillPaletteDestination);
 
     const commandApiProbe = await worker.evaluate(async (targetUrl) => {
       const target = (await chrome.tabs.query({})).find((tab) => tab.url === targetUrl);
@@ -2762,7 +2835,7 @@ async function runStudyNavScenario(executablePath, port) {
     await imageButton.click();
     const imageDownload = await imageDownloadPromise;
     const imageDownloadName = imageDownload.suggestedFilename();
-    const missingImageUrl = httpUrl(HOSTS.jw, port, '/missing-image.png');
+    const missingImageUrl = httpsUrl(HOSTS.jw, '/missing-image.png');
     await jwPage.evaluate((src) => new Promise((resolve) => {
       const image = document.getElementById('article-image');
       if (!image) {
@@ -3161,13 +3234,14 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
     scenario.serviceWorkers = workers;
     const worker = await getWorkerByName(context, 'StudyNav');
     await setStudyNavFlags(worker, DEFAULT_STUDYNAV_FLAGS);
+    await routeStudyNavFixtures(context);
     await context.route(`https://${HOSTS.jwMedia}/media/fixture.mp4`, fulfillFixtureVideo);
 
     const page = await openPage(
       context,
       scenario,
       'study-suite-jw',
-      httpUrl(HOSTS.jw, port, STUDYNAV_FIXTURE_PATH),
+      httpsUrl(HOSTS.jw, STUDYNAV_FIXTURE_PATH),
     );
     await page.waitForFunction(() =>
       document.documentElement.dataset.studynav === '1' &&
@@ -3737,7 +3811,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       context,
       scenario,
       'study-suite-unavailable-official',
-      httpUrl(HOSTS.jw, port, '/en/library/test'),
+      httpsUrl(HOSTS.jw, '/en/library/test'),
     );
     await unavailablePage.waitForFunction(() => document.documentElement.dataset.studynav === '1');
     await unavailablePage.evaluate(() => {
@@ -3785,7 +3859,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
     const ukrainianArticleOfficialUrl = ukrainianArticlePage.url();
     await ukrainianArticlePage.close();
     await unavailablePage.evaluate(() => document.querySelector('link[rel="canonical"]')?.remove());
-    const unavailableQrResponse = await sendStudyNavPageAction(
+    const canonicalFallbackQrResponse = await sendStudyNavPageAction(
       worker,
       unavailablePage.url(),
       'SHOW_STUDY_QR',
@@ -4183,7 +4257,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       context,
       scenario,
       'study-suite-wol',
-      httpUrl(HOSTS.wol, port, '/en/wol/d/r1/lp-e/999'),
+      httpsUrl(HOSTS.wol, '/en/wol/d/r1/lp-e/999'),
     );
     await wolPage.waitForFunction(() =>
       document.documentElement.dataset.studynav === '1' &&
@@ -4497,8 +4571,8 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
         'StudyNav QR overlay uses the exact precise URL, stays in the viewport, copies, closes, and restores focus',
         qrResponse?.ok === true && qrState.svg && qrState.url.endsWith('#v1001003') &&
           qrState.panelInViewport && qrState.closeFocused && qrCopyToast === 'Link copied' && qrRestoredFocus === 'p2' &&
-          unavailableQrResponse?.ok === false && unavailableQrResponse?.message === 'QR unavailable',
-        { qrResponse, qrState, qrCopyToast, qrRestoredFocus, unavailableQrResponse },
+          canonicalFallbackQrResponse?.ok === true && canonicalFallbackQrResponse?.message === 'QR opened',
+        { qrResponse, qrState, qrCopyToast, qrRestoredFocus, canonicalFallbackQrResponse },
       ),
       makeAssertion(
         'StudyNav opens only the page-derived official Finder target and fails closed without metadata',
@@ -4584,12 +4658,13 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
         command: chrome.runtime.getManifest().commands?.['adv-search']?.description,
       }));
       await setStudyNavFlags(worker, DEFAULT_STUDYNAV_FLAGS);
+      await routeStudyNavFixtures(context);
 
       const page = await openPage(
         context,
         scenario,
         'studynav-russian-page',
-        httpUrl(HOSTS.jw, port, '/ru/biblioteka/bibliya/izuchenie-biblii/knigi/bytie/1/'),
+        httpsUrl(HOSTS.jw, '/ru/biblioteka/bibliya/izuchenie-biblii/knigi/bytie/1/'),
       );
       await page.waitForFunction(() =>
         document.documentElement.dataset.studynav === '1' &&
@@ -4670,6 +4745,10 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
       await page.keyboard.press('Escape');
 
       await setStudyNavFlags(worker, { ...DEFAULT_STUDYNAV_FLAGS, bookmarks: false });
+      await waitFor(async () => {
+        const status = await sendStudyNavPageAction(worker, page.url(), 'GET_STUDYNAV_STATUS');
+        return status?.enabledCount === 18;
+      }, 5_000, 'Russian StudyNav content did not apply the bookmarks-off flag');
       const localizedOffResponse = await sendStudyNavPageAction(worker, page.url(), 'TOGGLE_STUDY_BOOKMARK');
       await setStudyNavFlags(worker, DEFAULT_STUDYNAV_FLAGS);
 
@@ -4777,6 +4856,7 @@ async function runCombinedScenario(executablePath, port) {
 
       await setClearShieldSettings(clearShieldWorker, DEFAULT_CLEARSHIELD);
       await setStudyNavFlags(studyNavWorker, DEFAULT_STUDYNAV_FLAGS);
+      await routeStudyNavFixtures(context);
 
       const ordinary = await openPage(
         context,
@@ -4796,7 +4876,7 @@ async function runCombinedScenario(executablePath, port) {
         context,
         scenario,
         'jw',
-        httpUrl(HOSTS.jw, port, '/en/library/test'),
+        httpsUrl(HOSTS.jw, '/en/library/test'),
       );
       await settleInkShade(jwPage, 4000);
       await jwPage.waitForTimeout(400);
@@ -5428,7 +5508,7 @@ async function main() {
       ordinaryUrl: httpUrl(HOSTS.ordinary, fixture.port, '/ordinary'),
       lightUrl: httpUrl(HOSTS.ordinary, fixture.port, '/light'),
       darkUrl: httpUrl(HOSTS.ordinary, fixture.port, '/dark'),
-      jwUrl: httpUrl(HOSTS.jw, fixture.port, STUDYNAV_FIXTURE_PATH),
+      jwUrl: httpsUrl(HOSTS.jw, STUDYNAV_FIXTURE_PATH),
     };
 
     if (scenarioRequested('baseline')) report.scenarios.push(await runBaselineScenario(executable.executablePath, fixture.port));

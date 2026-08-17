@@ -1,4 +1,5 @@
-const SUPPORTED_HOSTS = new Set(['www.jw.org', 'jw.org', 'wol.jw.org', 'stream.jw.org']);
+import { isAllowedStudyNavPageUrl } from './page-origin';
+
 const TRACKING_PARAMS = new Set(['srcid', 'wtlocale', 'prefer']);
 
 export type OfficialFinderMetadata = {
@@ -23,12 +24,7 @@ function finiteToken(value: string | null | undefined, pattern: RegExp, maxLengt
 }
 
 export function isSupportedJwHttpsUrl(value: string): boolean {
-  try {
-    const url = new URL(value);
-    return url.protocol === 'https:' && SUPPORTED_HOSTS.has(url.hostname.toLowerCase());
-  } catch {
-    return false;
-  }
+  return isAllowedStudyNavPageUrl(value);
 }
 
 export function canonicalStudyUrl(currentUrl: string, canonicalHref?: string | null): string | null {

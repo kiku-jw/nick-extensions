@@ -112,16 +112,20 @@ describe('StudyNav study data constants and empty envelope', () => {
 });
 
 describe('StudyNav supported page normalization', () => {
-  test('normalizes supported HTTPS JW, WOL, and stream pages deterministically', () => {
+  test('normalizes supported HTTPS JW and WOL pages deterministically', () => {
     expect(normalizeStudyPageUrl('https://WWW.JW.ORG/en/page/?z=2&a=1#p1')).toBe('https://www.jw.org/en/page/?a=1&z=2');
+    expect(normalizeStudyPageUrl('https://jw.org/en/page/')).toBe('https://jw.org/en/page/');
     expect(normalizeStudyPageUrl('https://wol.jw.org/ru/wol/d/r2/lp-u/123')).toBe('https://wol.jw.org/ru/wol/d/r2/lp-u/123');
-    expect(normalizeStudyPageUrl('https://stream.jw.org/media/item')).toBe('https://stream.jw.org/media/item');
   });
 
   test('rejects non-HTTPS, credentials, malformed, and unrelated hosts', () => {
     expect(normalizeStudyPageUrl('http://www.jw.org/en/page/')).toBeNull();
     expect(normalizeStudyPageUrl('https://user:pass@www.jw.org/en/page/')).toBeNull();
     expect(normalizeStudyPageUrl('https://www.jw.org.evil.example/en/page/')).toBeNull();
+    expect(normalizeStudyPageUrl('https://stream.jw.org/media/item')).toBeNull();
+    expect(normalizeStudyPageUrl('https://hub.jw.org/')).toBeNull();
+    expect(normalizeStudyPageUrl('https://foo.jw.org/')).toBeNull();
+    expect(normalizeStudyPageUrl('https://www.jw.org:444/en/page/')).toBeNull();
     expect(normalizeStudyPageUrl('not a URL')).toBeNull();
     expect(normalizeStudyPageUrl(`https://www.jw.org/${'a'.repeat(2_050)}`)).toBeNull();
   });
