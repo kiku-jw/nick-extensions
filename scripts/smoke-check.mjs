@@ -345,7 +345,9 @@ for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
     `${relativeHtml}: uses a self-contained interactive extension demo`,
   );
   ok(/not produced, endorsed|не выпускается, не поддерживается и не одобряется/i.test(html), `${relativeHtml}: clear non-affiliation statement`);
-  ok(!/3-minute|3-минут/i.test(html), `${relativeHtml}: tutorial duration copy is current`);
+  const expectedDuration = relativeHtml.includes('/ru/') ? '4:35' : '4:17';
+  ok(html.includes(`23 ${relativeHtml.includes('/ru/') ? 'главы' : 'chapters'} · ${expectedDuration}`),
+    `${relativeHtml}: final narrated tutorial duration is visible`);
   ok(/1\.5\.2/.test(html), `${relativeHtml}: current release is visible`);
   ok(/several consecutive verses|несколько стихов подряд/i.test(html), `${relativeHtml}: consecutive verse audio is explained`);
   ok(
@@ -361,12 +363,11 @@ for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
   }
 }
 
-const narrationParagraphsByLanguage = {};
 for (const language of ['en', 'ru']) {
   const video = join(root, 'site', 'assets', 'video', `studynav-guide-${language}.mp4`);
   const poster = join(root, 'site', 'assets', 'screenshots', `tutorial-poster-${language}.jpg`);
-  ok(nonEmpty(video) && statSync(video).size > 500_000 && statSync(video).size < 65_000_000,
-    `StudyNav ${language}: bounded non-empty tutorial MP4`);
+  ok(nonEmpty(video) && statSync(video).size > 500_000 && statSync(video).size < 99_500_000,
+    `StudyNav ${language}: bounded publishable tutorial MP4`);
   ok(nonEmpty(poster) && statSync(poster).size > 10_000,
     `StudyNav ${language}: non-empty tutorial poster`);
   if (nonEmpty(video)) {
@@ -385,7 +386,6 @@ for (const language of ['en', 'ru']) {
   const voiceover = readFileSync(voiceoverPath, 'utf8');
   const elevenLabs = readFileSync(elevenLabsPath, 'utf8').trim();
   const cleanParagraphs = elevenLabs.split(/\n\s*\n/).map((paragraph) => paragraph.replace(/\s+/g, ' ').trim());
-  narrationParagraphsByLanguage[language] = cleanParagraphs;
   const label = language === 'ru' ? 'Озвучка' : 'Voice-over';
   const spokenLines = [...voiceover.matchAll(new RegExp(`\\*\\*${label}:\\*\\*\\s+(.+)`, 'g'))]
     .map((match) => match[1].replace(/\s+/g, ' ').trim());
@@ -402,37 +402,70 @@ for (const language of ['en', 'ru']) {
   );
 }
 
-// Calibrated from the owner's ElevenLabs renders: RU 451 words in 4:30 and
-// EN 488 words in 3:50, after subtracting the same 24 × 0.75-second pauses.
-const narrationWordsPerMinute = { en: 488 / 212 * 60, ru: 451 / 252 * 60 };
-const countNarrationWords = (value) => value.match(/[\p{L}\p{N}]+(?:[’'–-][\p{L}\p{N}]+)*/gu)?.length || 0;
-const estimatedSceneSeconds = Object.fromEntries(
-  Object.entries(narrationParagraphsByLanguage).map(([language, paragraphs]) => [
-    language,
-    paragraphs.map((paragraph) => countNarrationWords(paragraph) / narrationWordsPerMinute[language] * 60),
-  ]),
-);
-if (estimatedSceneSeconds.en?.length === 25 && estimatedSceneSeconds.ru?.length === 25) {
-  const sceneDeltas = estimatedSceneSeconds.en.map((seconds, index) => Math.abs(seconds - estimatedSceneSeconds.ru[index]));
-  const totalEn = estimatedSceneSeconds.en.reduce((sum, seconds) => sum + seconds, 0);
-  const totalRu = estimatedSceneSeconds.ru.reduce((sum, seconds) => sum + seconds, 0);
-  const maxSceneDelta = Math.max(...sceneDeltas);
-  const totalDelta = Math.abs(totalEn - totalRu);
-  const sharedPauseSeconds = 24 * 0.75;
-  const totalEnWithPauses = totalEn + sharedPauseSeconds;
-  const totalRuWithPauses = totalRu + sharedPauseSeconds;
-  ok(maxSceneDelta <= 0.9, `StudyNav narration: estimated scene pacing differs by at most ${maxSceneDelta.toFixed(1)} seconds`);
-  ok(totalDelta <= 5, `StudyNav narration: estimated language runtimes differ by only ${totalDelta.toFixed(1)} seconds`);
-  ok(
-    Math.abs(totalEnWithPauses - 270) <= 5 && Math.abs(totalRuWithPauses - 270) <= 5,
-    `StudyNav narration: calibrated runtimes stay near 4:30 (${totalRuWithPauses.toFixed(1)}s RU, ${totalEnWithPauses.toFixed(1)}s EN)`,
-  );
-}
-
 const tutorialManifest = JSON.parse(readFileSync(join(root, 'scripts', 'studynav-tutorial-scenes.json'), 'utf8'));
 ok(tutorialManifest.features?.length === 23 && new Set(tutorialManifest.features.map((item) => item.id)).size === 23 &&
   tutorialManifest.size?.[0] === 2560 && tutorialManifest.size?.[1] === 1440 && tutorialManifest.fps === 60,
   'StudyNav tutorial manifest has 23 unique high-resolution feature chapters');
+const publishedTutorialManifest = JSON.parse(readFileSync(
+  join(root, 'site', 'assets', 'video', 'studynav-guide-manifest.json'),
+  'utf8',
+));
+const vttTimeSeconds = (value) => {
+  const [hours, minutes, seconds] = value.split(':').map(Number);
+  return hours * 3_600 + minutes * 60 + seconds;
+};
+for (const language of ['en', 'ru']) {
+  const durations = tutorialManifest.timelines?.[language];
+  const expected = tutorialManifest.audio?.expectedDurations?.[language];
+  ok(
+    Array.isArray(durations) && durations.length === 25 &&
+      durations.every((duration) => Number.isFinite(duration) && duration >= 5) &&
+      Math.abs(durations.reduce((sum, duration) => sum + duration, 0) - expected) < 0.05,
+    `StudyNav ${language}: 25 narration-aligned scene durations match the final recording`,
+  );
+  const timeline = publishedTutorialManifest.languages?.[language];
+  const expectedFinalDuration = expected + tutorialManifest.audio.voiceLeadSeconds +
+    tutorialManifest.audio.outroHoldSeconds;
+  let expectedStart = tutorialManifest.audio.voiceLeadSeconds + durations[0];
+  const publishedScenesMatch = timeline?.scenes?.length === tutorialManifest.features.length &&
+    timeline.scenes.every((scene, index) => {
+      const matches = scene.id === tutorialManifest.features[index].id &&
+        Math.abs(scene.start - expectedStart) < 0.002 &&
+        Math.abs(scene.duration - durations[index + 1]) < 0.002;
+      expectedStart += durations[index + 1];
+      return matches;
+    });
+  ok(
+    publishedScenesMatch && Math.abs(timeline.duration - expectedFinalDuration) < 0.002,
+    `StudyNav ${language}: published chapter manifest matches the final narration timeline`,
+  );
+
+  const chapterVtt = readFileSync(
+    join(root, 'site', 'assets', 'video', `studynav-guide-${language}-chapters.vtt`),
+    'utf8',
+  );
+  const vttCues = [...chapterVtt.matchAll(
+    /^(\d{2}:\d{2}:\d{2}\.\d{3}) --> (\d{2}:\d{2}:\d{2}\.\d{3})\n(.+)$/gm,
+  )];
+  ok(
+    vttCues.length === timeline.scenes.length && vttCues.every((cue, index) => {
+      const scene = timeline.scenes[index];
+      return Math.abs(vttTimeSeconds(cue[1]) - scene.start) < 0.002 &&
+        Math.abs(vttTimeSeconds(cue[2]) - (scene.start + scene.duration)) < 0.002 &&
+        cue[3].trim() === tutorialManifest.features[index][language].title;
+    }),
+    `StudyNav ${language}: all published VTT cues match the localized chapter manifest`,
+  );
+}
+const guideScript = readFileSync(join(root, 'site', 'assets', 'site.js'), 'utf8');
+ok(guideScript.includes("manifest.languages?.[locale]"),
+  'StudyNav guide selects the chapter timeline for its current language');
+const tutorialBuilder = readFileSync(join(root, 'scripts', 'build-studynav-tutorial.mjs'), 'utf8');
+ok(
+  ['STUDYNAV_NARRATION_EN', 'STUDYNAV_NARRATION_RU', 'STUDYNAV_MUSIC', 'sidechaincompress', 'loudnorm=I=']
+    .every((token) => tutorialBuilder.includes(token)) && !tutorialBuilder.includes('atempo='),
+  'StudyNav tutorial builder uses the supplied voices, ducks music, and never time-stretches narration',
+);
 
 console.log('\n' + (failed ? `FAILED (${failed})` : 'ALL CHECKS PASSED'));
 process.exit(failed ? 1 : 0);

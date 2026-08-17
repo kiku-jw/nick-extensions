@@ -130,7 +130,8 @@ const manifestPath = locale === 'ru'
 fetch(manifestPath)
   .then((response) => response.ok ? response.json() : Promise.reject(new Error(String(response.status))))
   .then((manifest) => {
-    const starts = new Map((manifest.scenes || []).map((scene) => [scene.id, Number(scene.start)]));
+    const timeline = manifest.languages?.[locale] || manifest;
+    const starts = new Map((timeline.scenes || []).map((scene) => [scene.id, Number(scene.start)]));
     for (const chapter of document.querySelectorAll('[data-scene]')) {
       const start = starts.get(chapter.dataset.scene);
       if (Number.isFinite(start)) chapter.dataset.seek = String(start);

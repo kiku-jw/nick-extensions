@@ -11,6 +11,7 @@ packages/*/dist/_metadata/
 .DS_Store
 dist-smoke.zip
 .tutorial-artifacts/
+output/transcribe/
 packages/clearshield/rules-raw
 packages/inkshade/inkshade-store.zip
 packages/inkshade/upstream/build/
