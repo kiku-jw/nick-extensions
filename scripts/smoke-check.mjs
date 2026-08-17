@@ -351,6 +351,20 @@ for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
   ok(html.includes(`23 ${relativeHtml.includes('/ru/') ? 'главы' : 'chapters'} · ${expectedDuration}`),
     `${relativeHtml}: final narrated tutorial duration is visible`);
   ok(/1\.6\.0/.test(html), `${relativeHtml}: current release is visible`);
+  const releaseGuideTokens = relativeHtml.includes('/ru/')
+    ? ['Нажмите на цветное выделение', 'Запятая или Enter', 'StudyNav · видео', 'Путь к папке не меняйте']
+    : ['Click the colored highlight', 'Comma or Enter', 'StudyNav video', 'Keep that folder at the same path'];
+  ok(
+    html.includes('id="release-160"') &&
+      html.includes('assets/screenshots/19-note-rail.png') &&
+      html.includes('assets/screenshots/20-media-tools-menu.png') &&
+      releaseGuideTokens.every((token) => html.includes(token)),
+    `${relativeHtml}: explains the StudyNav 1.6.0 note, media, and safe-update workflows`,
+  );
+  ok(
+    html.includes('demo-note-tags') && html.includes('demo-note-actions'),
+    `${relativeHtml}: interactive preview shows tag chips plus visible note actions`,
+  );
   ok(/several consecutive verses|несколько стихов подряд/i.test(html), `${relativeHtml}: consecutive verse audio is explained`);
   ok(
     !/slower learning|red (?:ring|circle)|product choices|production note|animation direction|focus marker|render pipeline|более медленное(?: и понятное)? обучение|красное кольцо|продуктовые решения|внутренн(?:ий|его) беклог|указани[ея] для анимации|маркер показывает, куда смотреть|процесс монтажа/i.test(html),
