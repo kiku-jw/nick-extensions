@@ -338,6 +338,32 @@ for (const language of ['en', 'ru']) {
   }
 }
 
+for (const language of ['en', 'ru']) {
+  const voiceoverPath = join(root, 'site', 'assets', 'narration', `studynav-voiceover-${language}.md`);
+  const elevenLabsPath = join(root, 'site', 'assets', 'narration', `studynav-elevenlabs-${language}.txt`);
+  ok(nonEmpty(voiceoverPath), `StudyNav ${language}: non-empty narration and edit map`);
+  ok(nonEmpty(elevenLabsPath), `StudyNav ${language}: non-empty clean ElevenLabs input`);
+  if (!nonEmpty(voiceoverPath) || !nonEmpty(elevenLabsPath)) continue;
+
+  const voiceover = readFileSync(voiceoverPath, 'utf8');
+  const elevenLabs = readFileSync(elevenLabsPath, 'utf8').trim();
+  const cleanParagraphs = elevenLabs.split(/\n\s*\n/).map((paragraph) => paragraph.replace(/\s+/g, ' ').trim());
+  const label = language === 'ru' ? 'Озвучка' : 'Voice-over';
+  const spokenLines = [...voiceover.matchAll(new RegExp(`\\*\\*${label}:\\*\\*\\s+(.+)`, 'g'))]
+    .map((match) => match[1].replace(/\s+/g, ' ').trim());
+
+  ok(cleanParagraphs.length === 25, `StudyNav ${language}: ElevenLabs input has exactly 25 spoken paragraphs`);
+  ok(spokenLines.length === 25, `StudyNav ${language}: edit map has exactly 25 spoken scenes`);
+  ok(
+    JSON.stringify(cleanParagraphs) === JSON.stringify(spokenLines),
+    `StudyNav ${language}: ElevenLabs input exactly matches the edit-map narration`,
+  );
+  ok(
+    !/^(?:#|\*\*(?:Edit|Voice-over|Монтаж|Озвучка):)|(?:Edit|Монтаж):/m.test(elevenLabs),
+    `StudyNav ${language}: ElevenLabs input contains speech only`,
+  );
+}
+
 const tutorialManifest = JSON.parse(readFileSync(join(root, 'scripts', 'studynav-tutorial-scenes.json'), 'utf8'));
 ok(tutorialManifest.features?.length === 23 && new Set(tutorialManifest.features.map((item) => item.id)).size === 23 &&
   tutorialManifest.size?.[0] === 2560 && tutorialManifest.size?.[1] === 1440 && tutorialManifest.fps === 60,

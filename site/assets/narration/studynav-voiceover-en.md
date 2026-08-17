@@ -1,149 +1,163 @@
-# StudyNav 1.5.1 — English voice-over
+# StudyNav 1.5.1 — English narration and edit map
 
-Delivery: conversational, clear, 132–138 words per minute. Leave about 0.5 seconds after each scene. Do not read the scene numbers or action cues.
+## ElevenLabs export
 
-## Intro
+- Paste only the text from `studynav-elevenlabs-en.txt` into ElevenLabs.
+- Generate one continuous file and preserve the blank line between paragraphs.
+- Use a conversational, calm, neutral delivery without a sales voice.
+- Target 125–132 words per minute.
+- Leave 0.6–0.9 seconds of silence after each paragraph.
+- Do not add music, sound effects, or automatic loudness processing.
+- Export WAV when possible. MP3 is acceptable if WAV is unavailable.
+- The finished scenes will be timed to the narration. Do not rush the voice to
+  fit the current 6.6-second scene length.
 
-StudyNav adds practical study and media tools to supported JW.org pages in Chromium browsers.
+## 00 — Intro
+
+**Voice-over:** StudyNav adds notes, precise links, short downloads, and extra player controls to supported JW.org pages in Chromium browsers.
+
+**Edit:** Show the StudyNav name, followed by four clear results: a note, a verse-range link, an audio file, and video controls.
 
 ## 01 — Highlights, notes, and tags
 
-Choose one of six colors, then add a private note and useful tags.
+**Voice-over:** Highlight the words you need in one of six colors. Add a note or tags, and keep the note beside the text when the window is wide enough.
 
-Action cue: select a sentence, choose purple, type a short note, and show the right notes rail.
+**Edit:** Highlight a sentence, choose purple, add a short note, and show it beside the text without moving the article.
 
-## 02 — Save a place to return to
+## 02 — Return to a saved place
 
-Save an exact page, paragraph, verse, or range and return to it later.
+**Voice-over:** Press Save place beside a paragraph or verse. Later, open the StudyNav library and return directly to that saved place.
 
-Action cue: save the paragraph, open Study library, and focus the saved result.
+**Edit:** Save a paragraph, open the StudyNav library, select the entry, and return the page to that exact paragraph.
 
-## 03 — Copy a quote with its source
+## 03 — Quote with its source
 
-Copy the quotation, its reference, and a precise link in one action.
+**Voice-over:** Select the text and copy it with the publication title and a link. The result is ready to paste into a message or notes.
 
-Action cue: select text, press Copy citation, and reveal the copied three-line result.
+**Edit:** Select text, press Copy quote, and show the pasted result with the quote, source, and link.
 
-## 04 — QR code
+## 04 — Open the link on your phone
 
-Create a QR code locally and check its exact address before sharing.
+**Voice-over:** Show a QR code for the current page or selected verse, then scan it with your phone.
 
-Action cue: open the QR panel, circle the visible target URL, then the Copy link button.
+**Edit:** Open the QR code, point a phone at it, and show the same page or selected verse opening on the phone.
 
-## 05 — Clean publication link
+## 05 — Short link to the same publication
 
-Open a clean Finder address when the current page link is long or contains extra parameters.
+**Voice-over:** StudyNav opens the same publication through a JW.org address without the extra technical parts. The shorter link is easier to save or send.
 
-Action cue: press Open clean publication link, then show the Finder address ready to save or share.
+**Edit:** Show the long current address, press Open clean link, and then show the shorter address for the same publication.
 
-## 06 — Audio for selected verses
+## 06 — Audio for one or several verses
 
-Select one verse or several consecutive verses and save the narration as one local WAV file.
+**Voice-over:** Select one verse or several consecutive verses. Press Download audio, and StudyNav saves the selected narration as one WAV file.
 
-Action cue: click the first verse, press Select several, click the last verse, circle Download audio 3–5, and show the finished filename.
+**Edit:** Select the first verse, press Select several, choose the last verse, highlight Download audio 3–5, and show the finished file.
 
-## 07 — Clean text copy
+## 07 — Copy only the verse words
 
-Copy the words without verse numbers, reference letters, footnotes, or extension controls.
+**Voice-over:** The copied result keeps only the verse words, without its number, reference letters, footnotes, or StudyNav buttons.
 
-Action cue: press Copy and compare the page line with the clean clipboard result.
+**Edit:** Copy a verse and compare the page text with the clean clipboard result beside it.
 
-## 08 — Verse-range links
+## 08 — One link for several verses
 
-Click the first verse, press Select several, click the last verse, and copy one range link.
+**Voice-over:** Select the first and last verse. The Link button copies one address that opens the whole selected range.
 
-Action cue: select verses three through five and circle the single range URL.
+**Edit:** Select verses three through five, press Link, and open the resulting address with the full range selected.
 
-## 09 — Search by publication code
+## 09 — Find a publication by its code
 
-Use the keyboard palette for known publication codes and document IDs. This is not AI.
+**Voice-over:** If you know a publication code or document number, press Control or Command plus Shift and K. This opens the regular JW.org and WOL search, not an AI search.
 
-Action cue: press the shortcut, type a publication code, and focus the JW.org and WOL results.
+**Edit:** Press the shortcut, enter a short code, and show the JW.org and WOL results.
 
-## 10 — Image descriptions
+## 10 — Show an image description
 
-Show the alternative text and caption that the page already provides for an image.
+**Voice-over:** Open the caption and text description that the page authors provided for the image.
 
-Action cue: reveal the description directly beneath the sample image.
+**Edit:** Press the description button below an image and reveal its caption and text description directly underneath.
 
-## 11 — Image download
+## 11 — Download an article image
 
-When enabled, a labeled Download image button appears beside eligible article images.
+**Voice-over:** After you turn this feature on, a regular Download image button appears below suitable images in an article.
 
-Action cue: switch the option on, circle the new button, and trigger the download.
+**Edit:** Show the setting off, turn it on, highlight the new labeled button, and download one image.
 
-## 12 — Available languages
+## 12 — See how many languages are available
 
-See how many language choices the current page actually exposes.
+**Voice-over:** Beside the language control, StudyNav shows the exact number of translations available for the current page.
 
-Action cue: open the language chooser and connect its options to the StudyNav count.
+**Edit:** Highlight the count beside the language control, open the list, and show the matching number of choices.
 
-## 13 — Keep the header visible
+## 13 — Article navigation while scrolling
 
-Keep article navigation within reach while scrolling a long supported article.
+**Voice-over:** The article title and navigation buttons stay at the top of the window, so you do not need to return to the beginning of a long page.
 
-Action cue: scroll down and hold the article header at the top edge.
+**Edit:** Turn the setting on and scroll through a long article while the title and buttons remain at the top.
 
-## 14 — Wider reading column
+## 14 — Fit more text on each line
 
-Give more of a wide window to the reading pane without widening dialogs.
+**Voice-over:** On a wide screen, the article uses more space and fits more words on each line. Study panels and dialogs do not stretch.
 
-Action cue: animate the reading pane from its original width to the wider layout.
+**Edit:** Show the original width, turn the setting on, and smoothly expand only the article column.
 
-## 15 — Clearer tables
+## 15 — Separate table rows
 
-Add spacing, borders, and alternating rows so dense tables are easier to scan.
+**Voice-over:** Article tables gain spacing, borders, and alternating row backgrounds, making it easier to follow each row.
 
-Action cue: transition from the original table to the clearer version.
+**Edit:** Compare one table before and after the setting is enabled, then hold on the separated rows.
 
-## 16 — Remove video shading
+## 16 — Keep video bright on hover
 
-Remove the dark edge gradient when player controls appear, while keeping every control visible.
+**Voice-over:** When you move the pointer over a video and the player buttons appear, the picture no longer darkens around the edges.
 
-Action cue: hover the player and wipe the dark gradient away from the picture.
+**Edit:** Hover once with the feature off and once with it on. Use a red ring to point out the removed edge darkening.
 
-## 17 — Larger subtitles
+## 17 — Make subtitles larger
 
-Increase caption size and contrast when the video provides captions.
+**Voice-over:** Player captions become larger and higher-contrast, making them easier to read.
 
-Action cue: show the same caption before and after the setting.
+**Edit:** Show the same caption line before and after the setting is enabled.
 
-## 18 — Media keyboard shortcuts
+## 18 — Control the player from the keyboard
 
-Space or K controls the focused player; J, L, M, and F handle the rest.
+**Voice-over:** Space or K pauses and resumes the video. J and L seek, M mutes, and F enters full screen.
 
-Action cue: focus the video, press Space twice, then briefly show the other keys.
+**Edit:** Focus the player, press Space twice, then demonstrate J, L, M, and F. Also show that typing in a field is not intercepted.
 
-## 19 — Copy page and time
+## 19 — Send the page and current time
 
-Copy the page address with a readable timestamp, without inventing a seek parameter.
+**Voice-over:** StudyNav copies the page address with the current time. The recipient can see where to seek, but the link itself does not start at that second.
 
-Action cue: pause at two fourteen and reveal “Time: 2:14” under the page URL.
+**Edit:** Pause at 2:14, press the button, and show the copied address together with “Time: 2:14.”
 
-## 20 — Download a media segment
+## 20 — Download a segment by time
 
-Choose audio or video, enter start and end times, then save up to two minutes as WAV or one minute as WebM. Video is recorded locally in real time.
+**Voice-over:** Enter the start and end of the part you need. You can save up to two minutes of audio as WAV or one minute of video as WebM.
 
-Action cue: enter zero thirty to zero forty-two, press Download, and show the filename.
+**Edit:** Choose a format, enter 0:30 and 0:42, download the segment, and show the finished file name and duration.
 
-## 21 — Continue watching
+## 21 — Return to where you stopped
 
-Press Resume to restore local progress. StudyNav never starts the video automatically.
+**Voice-over:** StudyNav remembers where you stopped the video. Next time, press Resume to return to that point without automatic playback.
 
-Action cue: circle Resume, click it, and move the playhead without starting playback.
+**Edit:** Stop the video, reload the page, show one stable Resume button, and return to the saved position without flicker or autoplay.
 
-## 22 — Second display
+## 22 — Open the player in another window
 
-Open a lightweight native player in a separate window without starting a large download.
+**Voice-over:** The Second display button opens the video or audio in a small separate window. It does not download the media file.
 
-Action cue: press Second display and show the separate player window beside the page.
+**Edit:** Press Second display, place the separate window beside the page, and show that no file download starts.
 
-## 23 — Available captions
+## 23 — Find available captions
 
-Search or download text only when the page really provides captions or a transcript.
+**Voice-over:** If the media has captions or a prepared transcript, a button appears to search and download the text. If no text is available, the button stays hidden.
 
-Action cue: show the button on a captioned fixture, then show it absent when no text exists.
+**Edit:** First show media with the button and available text, then media without captions where the button is absent.
 
-## Outro
+## 24 — Outro
 
-Download the archive, unzip it, and load the folder from the Chromium extensions page.
+**Voice-over:** Download the StudyNav archive, unzip it, and load the folder from the extensions page in your Chromium browser.
+
+**Edit:** Show the three installation steps: download the ZIP, unzip it, and select the folder with Load unpacked.
