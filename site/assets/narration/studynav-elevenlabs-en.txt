@@ -1,49 +1,49 @@
-With StudyNav, you can write notes on JW.org, send links to the verses you need, download only the part you want, and control videos from the keyboard.
+With StudyNav, you can write notes on JW.org, share links to selected verses, download the part you need, and control videos from the keyboard.
 
-Highlight the words you need in one of six colors. Add a note or tags, and keep the note beside the text when there is enough room.
+Highlight words in one of six colors. Add a note or tags, and keep the note beside the text when space allows.
 
 Press Save place beside a paragraph or verse. Later, open your saved places and return there with one click.
 
-Select the text and press Copy quote. The publication title and a link are copied with it, ready to send.
+Select the text and press Copy quote. Its publication title and link are copied too, ready to send.
 
-Press QR code and point your phone camera at it. The same page or selected verse will open on your phone.
+Press QR code and scan it with your phone. The page or selected verse opens there.
 
-If a page has a long address, press Open clean link. StudyNav opens a shorter JW.org address for the same publication.
+If the page address is long, press Open clean link. StudyNav opens a shorter JW.org address for the same publication.
 
-Click the number of the verse you need. To download several verses in a row, choose the first and last. Then press Download audio to save them as one audio file.
+Click the verse number. For several verses in a row, choose the first and last, then press Download audio to save one audio file.
 
-When you paste the copied verse, you get only its words, without the number, small reference letters, footnotes, or extension buttons.
+When you paste the verse, you get only words, without the number, reference letters, footnotes, or extension buttons.
 
-Choose the first and last verse, then press Link. One link is copied for all the selected verses.
+Choose the first and last verse, then press Link. One link is copied for all selected verses.
 
 Know a publication code or document number? Press Control or Command plus Shift and K, enter the code, and StudyNav finds it with the regular JW.org and WOL search. This is not an AI search.
 
-Press Description below an image to read the caption and explanation added to it on the website.
+Press Description below an image to read the caption and explanation provided by the website.
 
-Turn on image downloads. A clear Download image button will appear below pictures in articles.
+Turn on image downloads. A Download image button appears below pictures in articles.
 
-A number appears beside the language button. It tells you how many translations of the page are available.
+The number beside the language button shows how many translations this page has.
 
-Turn this feature on, and the article title and buttons stay at the top while you continue reading.
+Turn this on, and the title and buttons stay at the top while you read.
 
-On a wide screen, you can make the article text wider. Each line holds more words, while windows and notes keep their normal size.
+On a wide screen, widen the article. Lines hold more words, while notes and windows keep their size.
 
 StudyNav separates table rows with spacing and different backgrounds, making them easier to follow.
 
-When you move the pointer over a video, the controls appear but the edges of the picture no longer darken.
+Hover over a video. Its controls appear, but the picture no longer darkens at the edges.
 
-Captions become larger and easier to see, so they are easier to read.
+Captions become larger and clearer, making them easier to read.
 
-Press Space or K to pause and continue the video. J and L move backward and forward, M turns off the sound, and F opens full screen.
+Press Space or K to pause and continue. J and L move through the video, M turns off sound, and F opens full screen.
 
-Pause at the place you want and press Copy page plus time. When you paste, you get the link and the time to seek to. The video will not start there automatically.
+Pause where you want and press Copy page plus time. When pasted, it shows the page link and the time to seek to. The video will not start at that time automatically.
 
-Enter the beginning and end of the part you need. StudyNav downloads only that part: up to two minutes of audio or one minute of video.
+Enter the start and end. StudyNav downloads only that part: up to two minutes of audio or one minute of video.
 
-StudyNav remembers where you stopped. When you return, press Resume at… to go back to that place without starting the video automatically.
+StudyNav remembers where you stopped. When you return, press Resume at… to go there again without starting the video automatically.
 
 Press Second display to open the video or audio in a small separate window. The media file is not downloaded.
 
-If captions or a written transcript come with the video, StudyNav shows a button for searching and downloading the text. If there is no text, there is no button.
+If captions or text come with the video, StudyNav shows a button to search and download them. Without text, there is no button.
 
 Download the StudyNav archive and unzip it. Then open the extensions page in Chrome and press Load unpacked.

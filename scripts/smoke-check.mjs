@@ -325,6 +325,7 @@ for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
   }
 }
 
+const narrationParagraphsByLanguage = {};
 for (const language of ['en', 'ru']) {
   const video = join(root, 'site', 'assets', 'video', `studynav-guide-${language}.mp4`);
   const poster = join(root, 'site', 'assets', 'screenshots', `tutorial-poster-${language}.jpg`);
@@ -348,6 +349,7 @@ for (const language of ['en', 'ru']) {
   const voiceover = readFileSync(voiceoverPath, 'utf8');
   const elevenLabs = readFileSync(elevenLabsPath, 'utf8').trim();
   const cleanParagraphs = elevenLabs.split(/\n\s*\n/).map((paragraph) => paragraph.replace(/\s+/g, ' ').trim());
+  narrationParagraphsByLanguage[language] = cleanParagraphs;
   const label = language === 'ru' ? 'Озвучка' : 'Voice-over';
   const spokenLines = [...voiceover.matchAll(new RegExp(`\\*\\*${label}:\\*\\*\\s+(.+)`, 'g'))]
     .map((match) => match[1].replace(/\s+/g, ' ').trim());
@@ -362,6 +364,24 @@ for (const language of ['en', 'ru']) {
     !/^(?:#|\*\*(?:Edit|Voice-over|Монтаж|Озвучка):)|(?:Edit|Монтаж):/m.test(elevenLabs),
     `StudyNav ${language}: ElevenLabs input contains speech only`,
   );
+}
+
+const narrationWordsPerMinute = { en: 130, ru: 121 };
+const countNarrationWords = (value) => value.match(/[\p{L}\p{N}]+(?:[’'–-][\p{L}\p{N}]+)*/gu)?.length || 0;
+const estimatedSceneSeconds = Object.fromEntries(
+  Object.entries(narrationParagraphsByLanguage).map(([language, paragraphs]) => [
+    language,
+    paragraphs.map((paragraph) => countNarrationWords(paragraph) / narrationWordsPerMinute[language] * 60),
+  ]),
+);
+if (estimatedSceneSeconds.en?.length === 25 && estimatedSceneSeconds.ru?.length === 25) {
+  const sceneDeltas = estimatedSceneSeconds.en.map((seconds, index) => Math.abs(seconds - estimatedSceneSeconds.ru[index]));
+  const totalEn = estimatedSceneSeconds.en.reduce((sum, seconds) => sum + seconds, 0);
+  const totalRu = estimatedSceneSeconds.ru.reduce((sum, seconds) => sum + seconds, 0);
+  const maxSceneDelta = Math.max(...sceneDeltas);
+  const totalDelta = Math.abs(totalEn - totalRu);
+  ok(maxSceneDelta <= 0.8, `StudyNav narration: estimated scene pacing differs by at most ${maxSceneDelta.toFixed(1)} seconds`);
+  ok(totalDelta <= 5, `StudyNav narration: estimated language runtimes differ by only ${totalDelta.toFixed(1)} seconds`);
 }
 
 const tutorialManifest = JSON.parse(readFileSync(join(root, 'scripts', 'studynav-tutorial-scenes.json'), 'utf8'));
