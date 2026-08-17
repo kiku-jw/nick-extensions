@@ -252,13 +252,13 @@
     "message": "Image descriptions"
   },
   "feature_altText_blurb": {
-    "message": "Show alt text and captions below article images"
+    "message": "Show alt text and captions below full article illustrations, not small thumbnails"
   },
   "feature_imgGet_name": {
     "message": "Download article images"
   },
   "feature_imgGet_blurb": {
-    "message": "Add a compact download button beside article images"
+    "message": "Add a download button below full article illustrations, not small thumbnails"
   },
   "feature_langCount_name": {
     "message": "Available languages"
@@ -270,19 +270,19 @@
     "message": "Keep page header visible"
   },
   "feature_actionBar_blurb": {
-    "message": "Keep the JW.org header in view while scrolling"
+    "message": "Keep the JW.org header in view; WOL already keeps it fixed"
   },
   "feature_expandWidth_name": {
     "message": "Wider reading column"
   },
   "feature_expandWidth_blurb": {
-    "message": "Use more of the window for article text"
+    "message": "Make article text use more space on wide screens"
   },
   "feature_cstblView_name": {
     "message": "Clearer tables"
   },
   "feature_cstblView_blurb": {
-    "message": "Add spacing and row separation to article tables"
+    "message": "When an article has a table, add spacing and row separators"
   },
   "feature_mediaPlayerUI_name": {
     "message": "Remove video shading"
@@ -306,7 +306,7 @@
     "message": "Copy link at current time"
   },
   "feature_mediaTS_blurb": {
-    "message": "Copy a page link that opens at the current playback time"
+    "message": "Copy the page link together with the current audio or video time"
   },
   "feature_mediaClip_name": {
     "message": "Download a media segment"
@@ -324,13 +324,13 @@
     "message": "Open in a separate window"
   },
   "feature_sndDisp_blurb": {
-    "message": "Open the current media in its own browser window"
+    "message": "Move playback to its own window at the same place and stop the original"
   },
   "feature_transcCreate_name": {
     "message": "Search available captions"
   },
   "feature_transcCreate_blurb": {
-    "message": "Open a searchable panel only when text is present"
+    "message": "Keep Transcript in the video menu and search captions when they exist"
   },
   "copied": {
     "message": "Copied"
@@ -485,6 +485,18 @@
   "media_tools": {
     "message": "Media tools"
   },
+  "audio_tools": {
+    "message": "Audio tools"
+  },
+  "video_tools": {
+    "message": "Video tools"
+  },
+  "media_summary_audio": {
+    "message": "StudyNav audio"
+  },
+  "media_summary_video": {
+    "message": "StudyNav video"
+  },
   "download_image": {
     "message": "Download image"
   },
@@ -497,6 +509,18 @@
   "page_time_copied": {
     "message": "Page link and time copied"
   },
+  "copy_audio_time": {
+    "message": "Copy audio link and time"
+  },
+  "copy_video_time": {
+    "message": "Copy video link and time"
+  },
+  "audio_time_copied": {
+    "message": "Audio link and time copied"
+  },
+  "video_time_copied": {
+    "message": "Video link and time copied"
+  },
   "media_clip": {
     "message": "Download a media segment"
   },
@@ -507,10 +531,10 @@
     "message": "Format"
   },
   "clip_format_audio": {
-    "message": "Audio (.wav) · up to 2 minutes"
+    "message": "Audio (.wav) · up to 5 minutes"
   },
   "clip_format_video": {
-    "message": "Video (.webm) · up to 1 minute"
+    "message": "Video (.webm) · up to 3 minutes"
   },
   "clip_start": {
     "message": "Start"
@@ -531,10 +555,10 @@
     "message": "Enter times as M:SS or H:MM:SS. The end must be after the start."
   },
   "clip_too_long": {
-    "message": "Choose a segment no longer than 2 minutes."
+    "message": "Choose an audio segment no longer than 5 minutes."
   },
   "clip_video_too_long": {
-    "message": "Choose a video segment no longer than 1 minute."
+    "message": "Choose a video segment no longer than 3 minutes."
   },
   "clip_preparing": {
     "message": "Preparing audio segment…"
@@ -583,6 +607,12 @@
   },
   "second_display": {
     "message": "Open in a separate window"
+  },
+  "second_display_blocked": {
+    "message": "The browser blocked the new window. Allow pop-ups for this page and try again."
+  },
+  "second_display_press_play": {
+    "message": "Playback moved here at the same time. Press Play to continue."
   },
   "transcript": {
     "message": "Transcript"
@@ -700,6 +730,12 @@
   },
   "tags_placeholder": {
     "message": "study, family, review"
+  },
+  "tag_input_aria": {
+    "message": "Add a tag; press comma or Enter to save it"
+  },
+  "remove_tag_aria": {
+    "message": "Remove tag $1"
   },
   "save_locally": {
     "message": "Save locally"

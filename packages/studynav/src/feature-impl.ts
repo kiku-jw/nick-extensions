@@ -37,7 +37,9 @@ import {
   findBibleAudioApiUrl,
   isJwCdnUrl,
   MAX_MEDIA_CLIP_SECONDS,
+  MAX_MEDIA_VIDEO_BYTES,
   MAX_MEDIA_VIDEO_CLIP_SECONDS,
+  MAX_WAV_BASE64_CHARS,
   parseBibleVerseId,
   parseUserMediaTime,
   type MediaAudioClipRequest,
@@ -51,6 +53,7 @@ const STYLE_ID = 'studynav-dynamic-style';
 const ARTICLE_MARKER = 'data-studynav-article';
 const QR_OVERLAY_ID = 'studynav-qr-overlay';
 const verseAudioJobs = new Set<string>();
+const lastOfficialMediaSources = new WeakMap<HTMLMediaElement, string>();
 let verseSelectionListening = false;
 let selectedVerseIds: string[] = [];
 let verseRangePickAnchorId: string | null = null;
@@ -138,8 +141,19 @@ export function cssFor(flags: FeatureFlags, hostname: string): string {
       }
     `);
   }
-  if (flags.expandWidth && !isWol) {
-    bits.push(`
+  if (flags.expandWidth) {
+    bits.push(isWol ? `
+      @media (min-width: 980px) {
+        [${ARTICLE_MARKER}="1"] {
+          width: 100% !important;
+          max-width: none !important;
+          box-sizing: border-box !important;
+          padding-left: 48px !important;
+          padding-right: 48px !important;
+          margin-left: 0 !important; margin-right: auto !important;
+        }
+      }
+    ` : `
       [${ARTICLE_MARKER}="1"] {
         max-width: min(1100px, 96vw) !important;
         width: 100% !important;
@@ -156,8 +170,20 @@ export function cssFor(flags: FeatureFlags, hostname: string): string {
       }
     `);
   }
-  if (flags.cstblView && !isWol) {
-    bits.push(`
+  if (flags.cstblView) {
+    bits.push(isWol ? `
+      [${ARTICLE_MARKER}="1"] table {
+        border-collapse: separate !important; border-spacing: 0 !important; width: 100% !important;
+      }
+      [${ARTICLE_MARKER}="1"] table th,
+      [${ARTICLE_MARKER}="1"] table td {
+        border: 0 !important; border-bottom: 1px solid rgba(67,102,159,.32) !important;
+        padding: 8px 10px !important; text-align: start;
+      }
+      [${ARTICLE_MARKER}="1"] table tr:nth-child(even) td {
+        background: rgba(67,102,159,.07) !important;
+      }
+    ` : `
       [${ARTICLE_MARKER}="1"] table {
         border-collapse: collapse !important; width: 100% !important;
       }
@@ -194,6 +220,7 @@ export function cssFor(flags: FeatureFlags, hostname: string): string {
       .studynav-alt {
         display:block; margin-top:4px; padding:6px 8px;
         border:1px solid rgba(67,102,159,.38); border-radius:6px;
+        max-width:100%; min-width:0; box-sizing:border-box; overflow-wrap:anywhere;
         background: rgba(67,102,159,.1); color: inherit; font-size: 0.92em;
       }
     `);
@@ -744,8 +771,27 @@ function closePalette() {
   document.getElementById('studynav-palette')?.classList.add('hidden');
 }
 
+function isSubstantiveArticleImage(img: HTMLImageElement): boolean {
+  if (img.closest('[data-studynav-owned]')) return false;
+  const rect = img.getBoundingClientRect();
+  const width = rect.width || img.width || img.naturalWidth;
+  const height = rect.height || img.height || img.naturalHeight;
+  const compactContainer = img.closest(
+    'li, [class*="card" i], [class*="teaser" i], [class*="result" i], [class*="thumbnail" i]',
+  );
+  if (compactContainer && (!width || width < 280)) return false;
+  if (img.closest('a[href]') && !img.closest('figure') && (!width || width < 320)) return false;
+  if (img.closest('figure')) return !width || width >= 220;
+  return width >= 260 && height >= 120;
+}
+
+function imageHelperAnchor(img: HTMLImageElement): Element {
+  return img.closest('figure') || img;
+}
+
 function runAltText(articleRoots: HTMLElement[]) {
-  const images = queryWithinRoots<HTMLImageElement>(['img', 'figure img'], articleRoots);
+  const images = queryWithinRoots<HTMLImageElement>(['img', 'figure img'], articleRoots)
+    .filter(isSubstantiveArticleImage);
   images.forEach((img) => {
     if (img.dataset.snAlt) return;
     const alt = img.getAttribute('alt') || '';
@@ -757,7 +803,7 @@ function runAltText(articleRoots: HTMLElement[]) {
     div.className = 'studynav-alt';
     div.textContent = text;
     div.setAttribute('data-studynav-owned', '1');
-    img.insertAdjacentElement('afterend', div);
+    imageHelperAnchor(img).insertAdjacentElement('afterend', div);
   });
 }
 
@@ -930,7 +976,7 @@ async function downloadVerseAudio(verseElements: readonly HTMLElement[], button:
       typeof response.base64 !== 'string' ||
       !('filename' in response) ||
       typeof response.filename !== 'string' ||
-      response.base64.length > 34 * 1024 * 1024
+      response.base64.length > MAX_WAV_BASE64_CHARS
     ) {
       const error = response && typeof response === 'object' && 'error' in response && typeof response.error === 'string'
         ? response.error
@@ -1151,9 +1197,11 @@ function uniqueElementsForLang<T extends Element>(nodes: T[]): T[] {
 }
 
 function runImgGet(articleRoots: HTMLElement[]) {
-  const images = queryWithinRoots<HTMLImageElement>(['img', 'figure img'], articleRoots);
+  const images = queryWithinRoots<HTMLImageElement>(['img', 'figure img'], articleRoots)
+    .filter(isSubstantiveArticleImage);
   images.forEach((img) => {
-    const next = img.nextElementSibling;
+    const anchor = imageHelperAnchor(img);
+    const next = anchor.nextElementSibling;
     if (next?.classList.contains('studynav-imgdl')) next.remove();
     img.dataset.snDl = '1';
     const btn = document.createElement('button');
@@ -1186,7 +1234,7 @@ function runImgGet(articleRoots: HTMLElement[]) {
         if (opened) opened.opener = null;
       }
     });
-    img.insertAdjacentElement('afterend', btn);
+    anchor.insertAdjacentElement('afterend', btn);
   });
 }
 
@@ -1246,15 +1294,50 @@ function transcriptDomText(): string {
     .join('\n\n');
 }
 
-function transcriptSourceAvailable(): boolean {
-  if (transcriptDomText()) return true;
-  const video = activeVideo();
-  return !!video && (video.textTracks.length > 0 || !!video.querySelector('track[src]'));
+export function officialMediaSourceFromCandidates(candidates: readonly unknown[]): string | null {
+  for (const candidate of candidates) {
+    if (typeof candidate !== 'string') continue;
+    const source = candidate.trim();
+    if (source && isJwCdnUrl(source)) return source;
+  }
+  return null;
+}
+
+export function onlyOfficialMediaSourceFromCandidates(candidates: readonly unknown[]): string | null {
+  const sources = new Set<string>();
+  for (const candidate of candidates) {
+    if (typeof candidate !== 'string') continue;
+    const source = candidate.trim();
+    if (source && isJwCdnUrl(source)) sources.add(source);
+  }
+  return sources.size === 1 ? sources.values().next().value || null : null;
+}
+
+function recentOfficialMediaResource(media: HTMLMediaElement): string {
+  const expected = media instanceof HTMLVideoElement
+    ? /\.(?:mp4|m4v|webm)(?:$|[?#])/i
+    : /\.(?:mp3|m4a|aac|wav)(?:$|[?#])/i;
+  const candidates = performance.getEntriesByType('resource')
+    .map((entry) => entry.name)
+    .filter((name) => expected.test(name));
+  // A page can preload several publications. Refuse an ambiguous fallback
+  // instead of transferring or clipping the wrong official media file.
+  return onlyOfficialMediaSourceFromCandidates(candidates) || '';
 }
 
 function mediaSource(media: HTMLMediaElement | null): string | null {
-  const source = media?.currentSrc || media?.src || '';
-  return source && isJwCdnUrl(source) ? source : null;
+  if (!media) return null;
+  const childSources = Array.from(media.querySelectorAll<HTMLSourceElement>('source[src]'));
+  const source = officialMediaSourceFromCandidates([
+    media.currentSrc,
+    media.getAttribute('src'),
+    media.src,
+    ...childSources.flatMap((child) => [child.getAttribute('src'), child.src]),
+    lastOfficialMediaSources.get(media),
+    recentOfficialMediaResource(media),
+  ]);
+  if (source) lastOfficialMediaSources.set(media, source);
+  return source;
 }
 
 function openSecondDisplay() {
@@ -1264,32 +1347,80 @@ function openSecondDisplay() {
     toast(t('clip_source_unavailable'));
     return;
   }
-  const popup = window.open('about:blank', 'studynav-second', 'popup=yes,width=960,height=540');
-  if (!popup) return;
-  popup.opener = null;
-  const doc = popup.document;
-  doc.title = pageDocumentTitle();
-  doc.documentElement.lang = document.documentElement.lang || 'en';
-  const style = doc.createElement('style');
-  style.textContent = `
-    :root { color-scheme: dark; background: #080b10; }
-    * { box-sizing: border-box; }
-    body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: #080b10; }
-    video { width: 100vw; height: 100vh; object-fit: contain; background: #000; }
-    audio { width: min(760px, calc(100vw - 40px)); }
-  `;
-  const player = doc.createElement(sourceMedia instanceof HTMLAudioElement ? 'audio' : 'video');
-  player.controls = true;
-  player.autoplay = false;
-  player.preload = 'metadata';
-  player.src = source;
-  const startTime = sourceMedia.currentTime;
-  player.addEventListener('loadedmetadata', () => {
-    if (Number.isFinite(startTime)) player.currentTime = Math.min(startTime, player.duration || startTime);
+  const wasPlaying = !sourceMedia.paused && !sourceMedia.ended;
+  const startTime = Number.isFinite(sourceMedia.currentTime) ? sourceMedia.currentTime : 0;
+  const playbackState = {
+    muted: sourceMedia.muted,
+    volume: sourceMedia.volume,
+    playbackRate: sourceMedia.playbackRate,
+  };
+  const tag = sourceMedia instanceof HTMLAudioElement ? 'audio' : 'video';
+  const popupUrl = URL.createObjectURL(new Blob([`<!doctype html>
+    <html lang="${escapeHtml(document.documentElement.lang || 'en')}">
+      <head>
+        <meta charset="utf-8">
+        <title>${escapeHtml(pageDocumentTitle())}</title>
+        <style>
+          :root { color-scheme: dark; background: #080b10; }
+          * { box-sizing: border-box; }
+          body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: #080b10; }
+          video { width: 100vw; height: 100vh; object-fit: contain; background: #000; }
+          audio { width: min(760px, calc(100vw - 40px)); }
+          output { position: fixed; left: 50%; bottom: 18px; translate: -50% 0; max-width: calc(100vw - 32px);
+            padding: 8px 12px; border-radius: 8px; background: rgba(18,26,39,.94); color: #eef3fb;
+            font: 13px/1.35 system-ui,sans-serif; text-align: center; }
+        </style>
+      </head>
+      <body>
+        <${tag} id="studynav-second-player" controls ${wasPlaying ? 'autoplay' : ''} preload="auto" src="${escapeHtml(source)}"></${tag}>
+        <output id="studynav-second-status" hidden></output>
+      </body>
+    </html>`], { type: 'text/html' }));
+  const popup = window.open(popupUrl, 'studynav-second', 'popup=yes,width=960,height=540');
+  if (!popup) {
+    URL.revokeObjectURL(popupUrl);
+    toast(t('second_display_blocked'));
+    return;
+  }
+  sourceMedia.pause();
+  popup.addEventListener('load', () => {
+    URL.revokeObjectURL(popupUrl);
+    const playerNode = popup.document.getElementById('studynav-second-player');
+    const statusNode = popup.document.getElementById('studynav-second-status');
+    if (!playerNode || !['AUDIO', 'VIDEO'].includes(playerNode.tagName) || statusNode?.tagName !== 'OUTPUT') {
+      popup.opener = null;
+      return;
+    }
+    // The popup has its own DOM realm, so opener-realm instanceof checks are
+    // false. The parser-created tag names are the stable boundary here.
+    const player = playerNode as HTMLMediaElement;
+    const status = statusNode as HTMLOutputElement;
+    player.muted = playbackState.muted;
+    player.volume = playbackState.volume;
+    player.playbackRate = playbackState.playbackRate;
+    let resumed = false;
+    const resume = async () => {
+      if (resumed) return;
+      resumed = true;
+      player.currentTime = Math.min(startTime, Number.isFinite(player.duration) ? player.duration : startTime);
+      popup.opener = null;
+      if (!wasPlaying) return;
+      try {
+        await player.play();
+      } catch {
+        status.textContent = t('second_display_press_play');
+        status.hidden = false;
+      }
+    };
+    player.addEventListener('loadedmetadata', () => void resume(), { once: true });
+    player.addEventListener('error', () => { popup.opener = null; }, { once: true });
+    if (player.readyState >= HTMLMediaElement.HAVE_METADATA) void resume();
+    player.focus();
   }, { once: true });
-  doc.head.appendChild(style);
-  doc.body.replaceChildren(player);
-  player.focus();
+  window.setTimeout(() => {
+    URL.revokeObjectURL(popupUrl);
+    if (!popup.closed) popup.opener = null;
+  }, 10_000);
 }
 
 function formatClipInput(seconds: number): string {
@@ -1429,7 +1560,7 @@ async function recordVideoClip(request: ValidatedMediaVideoClipRequest): Promise
     await stopped;
 
     const blob = new Blob(chunks, { type: mimeType });
-    if (blob.size <= 0 || blob.size > 24 * 1024 * 1024) throw new Error(t('clip_video_too_large'));
+    if (blob.size <= 0 || blob.size > MAX_MEDIA_VIDEO_BYTES) throw new Error(t('clip_video_too_large'));
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
@@ -1456,7 +1587,7 @@ function downloadMediaResponse(response: unknown, fallbackMessage: string): bool
     typeof response.base64 !== 'string' ||
     !('filename' in response) ||
     typeof response.filename !== 'string' ||
-    response.base64.length > 34 * 1024 * 1024
+    response.base64.length > MAX_WAV_BASE64_CHARS
   ) {
     const error = response && typeof response === 'object' && 'error' in response && typeof response.error === 'string'
       ? response.error
@@ -1646,10 +1777,17 @@ function mountMediaToolbar(flags: FeatureFlags, mediaSupported: boolean): HTMLEl
   }
 
   const media = activePlayableMedia();
-  const playerHost = media?.closest<HTMLElement>(
+  const isVideo = media instanceof HTMLVideoElement;
+  const playerHost = isVideo ? media.closest<HTMLElement>(
     '.video-js, .jwplayer, [class*="mediaPlayer"], [class*="MediaPlayer"]',
-  ) || null;
-  const parent = playerHost || media?.parentElement || null;
+  ) : null;
+  const audioShell = !isVideo
+    ? media?.closest<HTMLElement>('.mejs-container, [role="application"][aria-label*="audio" i]') || null
+    : null;
+  const wolArticleAnchor = !isVideo && location.hostname === 'wol.jw.org'
+    ? qs<HTMLElement>('#article > .scalableui, #article, article > .scalableui, article')
+    : null;
+  const parent = playerHost || wolArticleAnchor || audioShell?.parentElement || media?.parentElement || null;
   if (!media || !parent) {
     teardownMediaToolbar();
     return null;
@@ -1657,24 +1795,32 @@ function mountMediaToolbar(flags: FeatureFlags, mediaSupported: boolean): HTMLEl
 
   let bar = document.getElementById('studynav-media-bar');
   const placement = playerHost ? 'player' : 'inline';
-  if (bar && (bar.parentElement !== parent || bar.dataset.placement !== placement)) {
+  const kind = isVideo ? 'video' : 'audio';
+  if (bar && (
+    bar.parentElement !== parent ||
+    bar.dataset.placement !== placement ||
+    bar.dataset.kind !== kind
+  )) {
     teardownMediaToolbar();
     bar = null;
   }
   if (!bar) {
+    const toolsLabel = t(isVideo ? 'video_tools' : 'audio_tools');
+    const summaryLabel = t(isVideo ? 'media_summary_video' : 'media_summary_audio');
     bar = document.createElement('div');
     bar.id = 'studynav-media-bar';
     bar.className = 'studynav-media-bar';
     bar.dataset.placement = placement;
+    bar.dataset.kind = kind;
     bar.setAttribute('data-studynav-owned', '1');
     bar.innerHTML = `
       <details>
-        <summary title="${escapeHtml(t('media_tools'))}">
+        <summary title="${escapeHtml(toolsLabel)}">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M7 14v6"/></svg>
-          <span>StudyNav</span><span class="studynav-sr-only"> · ${escapeHtml(t('media_tools'))}</span>
+          <span>${escapeHtml(summaryLabel)}</span><span class="studynav-sr-only"> · ${escapeHtml(toolsLabel)}</span>
         </summary>
         <div class="studynav-media-menu">
-          <strong>${escapeHtml(t('media_tools'))}</strong>
+          <strong>${escapeHtml(toolsLabel)}</strong>
           <div class="studynav-media-actions"></div>
         </div>
       </details>`;
@@ -1690,8 +1836,10 @@ function mountMediaToolbar(flags: FeatureFlags, mediaSupported: boolean): HTMLEl
       playerHost.dataset.studynavMediaHost = '1';
       if (getComputedStyle(playerHost).position === 'static') playerHost.dataset.studynavPositioned = '1';
       playerHost.appendChild(bar);
+    } else if (wolArticleAnchor) {
+      wolArticleAnchor.prepend(bar);
     } else {
-      media.insertAdjacentElement('afterend', bar);
+      (audioShell || media).insertAdjacentElement('afterend', bar);
     }
   }
 
@@ -1700,31 +1848,38 @@ function mountMediaToolbar(flags: FeatureFlags, mediaSupported: boolean): HTMLEl
     teardownMediaToolbar();
     return null;
   }
-  syncToolbarButton(actions, 'studynav-copy-page-time', !!flags.mediaTS, t('copy_page_time'), () => {
-    const media = activePlayableMedia();
+  syncToolbarButton(actions, 'studynav-copy-page-time', !!flags.mediaTS, t(isVideo ? 'copy_video_time' : 'copy_audio_time'), () => {
+    const activeMedia = activePlayableMedia();
     const url = canonicalCurrentPageUrl();
-    const value = url ? formatPageAndTime(url, media?.currentTime || 0) : null;
-    if (value) void copy(value, t('page_time_copied'));
+    const value = url ? formatPageAndTime(url, activeMedia?.currentTime || 0) : null;
+    if (value) void copy(value, t(isVideo ? 'video_time_copied' : 'audio_time_copied'));
   });
   syncToolbarButton(actions, 'studynav-media-clip', !!flags.mediaClip, t('media_clip'), openMediaClipPanel);
   syncToolbarButton(actions, 'studynav-second-display', !!flags.sndDisp, t('second_display'), openSecondDisplay);
   syncToolbarButton(
     actions,
     'studynav-transcript-button',
-    !!flags.transcCreate && transcriptSourceAvailable(),
+    !!flags.transcCreate && isVideo,
     t('transcript'),
     () => void openTranscript(),
   );
   return actions;
 }
 
-export async function readTranscriptFromTracks(video: Pick<HTMLVideoElement, 'textTracks'> | null): Promise<string> {
+export async function readTranscriptFromTracks(
+  video: Pick<HTMLVideoElement, 'textTracks'> | null,
+  waitForCuesMs = 0,
+): Promise<string> {
   if (!video) return '';
   const tracks = Array.from(video.textTracks || []);
   for (const track of tracks) {
     const priorMode = track.mode;
     try {
       track.mode = 'hidden';
+      const deadline = Date.now() + Math.max(0, waitForCuesMs);
+      while ((!track.cues || !track.cues.length) && Date.now() < deadline) {
+        await new Promise((resolve) => window.setTimeout(resolve, 150));
+      }
       const cues = track.cues;
       if (!cues || !cues.length) continue;
       const lines: string[] = [];
@@ -1788,10 +1943,7 @@ async function openTranscript() {
   const body = panel.querySelector('#studynav-tr-body') as HTMLElement;
 
   let text = transcriptDomText();
-  for (let attempt = 0; !text && attempt < 4; attempt += 1) {
-    text = await readTranscriptFromTracks(activeVideo());
-    if (!text && attempt < 3) await new Promise((resolve) => window.setTimeout(resolve, 300));
-  }
+  if (!text) text = await readTranscriptFromTracks(activeVideo(), 2_400);
   if (!text) text = t('no_transcript_detected');
 
   body.dataset.full = text;

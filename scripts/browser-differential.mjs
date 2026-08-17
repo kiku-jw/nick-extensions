@@ -142,7 +142,11 @@ async function fulfillFixtureVideo(route) {
     await route.fulfill({
       status: 200,
       contentType: 'video/mp4',
-      headers: { 'accept-ranges': 'bytes', 'content-length': String(VIDEO_MP4.length) },
+      headers: {
+        'accept-ranges': 'bytes',
+        'access-control-allow-origin': '*',
+        'content-length': String(VIDEO_MP4.length),
+      },
       body: VIDEO_MP4,
     });
     return;
@@ -156,6 +160,7 @@ async function fulfillFixtureVideo(route) {
     contentType: 'video/mp4',
     headers: {
       'accept-ranges': 'bytes',
+      'access-control-allow-origin': '*',
       'content-length': String(body.length),
       'content-range': `bytes ${start}-${end}/${VIDEO_MP4.length}`,
     },
@@ -683,6 +688,12 @@ function jwFixtureHtml() {
           #dce7f4;
       }
       figcaption { margin-top: 8px; color: #637087; font-size: 14px; }
+      #compact-publication-card {
+        display: grid; grid-template-columns: 116px minmax(0, 1fr); gap: 12px; align-items: start;
+        margin: 24px 0; padding: 10px; border: 1px solid #d9e1ec; border-radius: 10px;
+      }
+      #compact-publication-card img { width: 116px; height: 72px; border-radius: 7px; }
+      #compact-publication-card p { margin: 0; font-size: 14px; }
       #article-table { width: 100%; margin: 28px 0; border-collapse: separate; border-spacing: 0; }
       #article-table th, #article-table td { padding: 8px 0; text-align: left; }
       #jw-player { position: relative; }
@@ -735,6 +746,10 @@ function jwFixtureHtml() {
         <img id="article-image" alt="A mountain trail at sunrise" src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=" />
         <figcaption>A clear path through the hills.</figcaption>
       </figure>
+      <a id="compact-publication-card" class="publication-card" href="/en/library/books/compact-preview/">
+        <img id="compact-card-image" alt="Compact publication preview" src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=" />
+        <p>Small publication preview text must remain unobstructed.</p>
+      </a>
       <table id="article-table"><thead><tr><th>Study step</th></tr></thead><tbody><tr><td>Read</td></tr><tr><td>Review</td></tr></tbody></table>
       <div class="video-js vjs-user-active vjs-paused" id="jw-player">
         <video id="jw-video" controls preload="metadata" src="https://${HOSTS.jwMedia}/media/fixture.mp4"></video>
@@ -761,10 +776,12 @@ function wolFixtureHtml() {
     <style>
       html, body { margin: 0; padding: 0; background: #fff; color: #181818; }
       body { font: 16px/1.55 system-ui, sans-serif; }
-      #regionHeader { position: static; height: 58px; padding: 12px 20px; box-sizing: border-box; background: #eceff3; }
-      #wol-shell { display: grid; grid-template-columns: 184px minmax(0, 720px); gap: 28px; width: 960px; margin: 22px auto; }
+      #regionHeader { position: static; min-height: 88px; padding: 12px 20px; box-sizing: border-box; background: #eceff3; }
+      #regionHeader .mejs-container { margin-top: 8px; height: 28px; }
+      #wol-shell { display: grid; grid-template-columns: 184px minmax(0, 900px); gap: 28px; width: 1112px; margin: 22px auto; }
       #wol-nav { min-height: 380px; padding: 12px; background: #f3f5f7; }
       .bodyTxt { width: 720px; max-width: 720px; margin: 0; padding: 18px; box-sizing: border-box; border: 1px solid #ccd2da; }
+      .scalableui { width: 100%; }
       .bodyTxt table { width: 410px; border-collapse: separate; border-spacing: 2px; }
       .bodyTxt td, .bodyTxt th { border: 0; padding: 2px 4px; }
       @media (max-width: 980px) {
@@ -775,14 +792,21 @@ function wolFixtureHtml() {
     </style>
   </head>
   <body>
-    <header id="regionHeader">Synthetic reference-library fixture</header>
+    <header id="regionHeader">
+      <span>Synthetic reference-library fixture</span>
+      <div class="mejs-container" role="application" aria-label="audio player">
+        <audio id="wolplayer" preload="none" src="${VERSE_AUDIO_URL}"></audio>
+      </div>
+    </header>
     <div id="wol-shell">
       <nav id="wol-nav">Reference navigation must not move.</nav>
-      <main class="bodyTxt document" id="wol-article">
-        <h1>Stable synthetic reference article</h1>
-        <p id="p1" data-pid="p1">Reference paragraph one remains in its original layout.</p>
-        <p id="p2" data-pid="p2">Reference paragraph two can receive local notes safely.</p>
-        <table id="wol-table"><tbody><tr><th>Heading</th><td>Cell</td></tr></tbody></table>
+      <main class="bodyTxt document" id="article">
+        <div class="scalableui" id="wol-article">
+          <h1>Stable synthetic reference article</h1>
+          <p id="p1" data-pid="p1">Reference paragraph one remains in its original layout.</p>
+          <p id="p2" data-pid="p2">Reference paragraph two can receive local notes safely.</p>
+          <table id="wol-table"><tbody><tr><th>Heading</th><td>Cell</td></tr><tr><th>Second row</th><td>More detail</td></tr></tbody></table>
+        </div>
       </main>
     </div>
   </body>
@@ -1665,7 +1689,7 @@ function studyNavFlagSurfaceEnabled(flag, state) {
       state.dynamicCss.includes('background-image: none');
     case 'customSub': return state.dynamicCss.includes('::cue');
     case 'imgGet': return state.imageButtons === 1;
-    case 'mediaTS': return state.mediaButtons.includes('Copy link at current time');
+    case 'mediaTS': return state.mediaButtons.includes('Copy video link and time');
     case 'mediaClip': return state.mediaButtons.includes('Download a media segment');
     case 'sndDisp': return state.mediaButtons.includes('Open in a separate window');
     case 'transcCreate': return state.mediaButtons.includes('Transcript');
@@ -2601,7 +2625,9 @@ async function runStudyNavScenario(executablePath, port) {
       blocks: document.querySelectorAll('.studynav-alt').length,
       blankHasMarker: document.getElementById('blank-alt-image')?.hasAttribute('data-sn-alt') || false,
       blankHasDescription: document.getElementById('blank-alt-image')?.nextElementSibling?.classList.contains('studynav-alt') || false,
-      articleDescription: document.querySelector('#article-image + .studynav-alt')?.textContent?.trim() || '',
+      articleDescription: document.querySelector('figure + .studynav-alt')?.textContent?.trim() || '',
+      compactHasMarker: document.getElementById('compact-card-image')?.hasAttribute('data-sn-alt') || false,
+      compactHasDescription: !!document.querySelector('#compact-publication-card .studynav-alt, #compact-publication-card + .studynav-alt'),
     }));
     await jwPage.evaluate(() => document.getElementById('blank-alt-image')?.remove());
 
@@ -2836,12 +2862,17 @@ async function runStudyNavScenario(executablePath, port) {
     await jwPage.click('#studynav-tr-x');
     await jwPage.waitForFunction(() => document.getElementById('studynav-transcript')?.classList.contains('hidden'));
     await jwPage.evaluate(() => document.getElementById('fixture-transcript')?.remove());
-    await jwPage.waitForFunction(() => !document.getElementById('studynav-transcript-button'));
-    const transcriptSourceRemoved = await jwPage.evaluate(() => {
-      const panel = document.getElementById('studynav-transcript');
-      return !document.getElementById('studynav-transcript-button') &&
-        (!panel || panel.classList.contains('hidden'));
-    });
+    await openStudyNavMediaMenu(jwPage);
+    await jwPage.locator('#studynav-transcript-button').click();
+    await jwPage.waitForFunction(() => /No transcript text was detected/i.test(
+      document.getElementById('studynav-tr-body')?.textContent || '',
+    ));
+    const transcriptMissingState = await jwPage.evaluate(() => ({
+      buttonPresent: !!document.getElementById('studynav-transcript-button'),
+      panelVisible: !document.getElementById('studynav-transcript')?.classList.contains('hidden'),
+      text: document.getElementById('studynav-tr-body')?.textContent?.trim() || '',
+    }));
+    await jwPage.click('#studynav-tr-x');
 
     const mediaClock = await jwPage.locator('#jw-video').evaluate(async (video) => {
       if (video.readyState < 1) {
@@ -2858,10 +2889,10 @@ async function runStudyNavScenario(executablePath, port) {
       return { currentTime: video.currentTime, duration: video.duration, target };
     });
     await openStudyNavMediaMenu(jwPage);
-    await jwPage.locator('#studynav-media-bar button', { hasText: 'Copy link at current time' }).click();
-    await jwPage.waitForFunction(() => document.getElementById('studynav-toast')?.textContent === 'Page link and time copied');
+    await jwPage.locator('#studynav-media-bar button', { hasText: 'Copy video link and time' }).click();
+    await jwPage.waitForFunction(() => document.getElementById('studynav-toast')?.textContent === 'Video link and time copied');
     const pageAndTimeCopied = await jwPage.evaluate(() =>
-      document.getElementById('studynav-toast')?.textContent === 'Page link and time copied');
+      document.getElementById('studynav-toast')?.textContent === 'Video link and time copied');
     const timestampPageUrl = jwPage.url();
 
     await openStudyNavMediaMenu(jwPage);
@@ -2872,8 +2903,8 @@ async function runStudyNavScenario(executablePath, port) {
       labels: Array.from(document.querySelectorAll('#studynav-clip-panel label')).map((label) => label.childNodes[0]?.textContent?.trim()),
       formats: Array.from(document.querySelectorAll('#studynav-clip-panel select option')).map((option) => option.textContent?.trim()),
       values: Array.from(document.querySelectorAll('#studynav-clip-panel input')).map((input) => input.value),
-      maxLengthHint: /2 minutes/.test(document.getElementById('studynav-clip-panel')?.textContent || '') &&
-        /1 minute/.test(document.getElementById('studynav-clip-panel')?.textContent || ''),
+      maxLengthHint: /5 minutes/.test(document.getElementById('studynav-clip-panel')?.textContent || '') &&
+        /3 minutes/.test(document.getElementById('studynav-clip-panel')?.textContent || ''),
     }));
     await captureScreenshot(jwPage, '17-audio-segment.png');
     const clipInputs = jwPage.locator('#studynav-clip-panel input');
@@ -2884,11 +2915,47 @@ async function runStudyNavScenario(executablePath, port) {
     const clipInvalidError = await jwPage.locator('.studynav-clip-error').textContent();
     await jwPage.locator('#studynav-clip-panel button[type="button"]').click();
 
+    const secondDisplayNetwork = [];
+    const recordSecondDisplayRequest = (request) => {
+      if (request.url().includes('/media/fixture.mp4')) {
+        secondDisplayNetwork.push({ event: 'request', url: request.url(), headers: request.headers() });
+      }
+    };
+    const recordSecondDisplayResponse = (response) => {
+      if (response.url().includes('/media/fixture.mp4')) {
+        secondDisplayNetwork.push({ event: 'response', url: response.url(), status: response.status() });
+      }
+    };
+    const recordSecondDisplayFailure = (request) => {
+      if (request.url().includes('/media/fixture.mp4')) {
+        secondDisplayNetwork.push({ event: 'failed', url: request.url(), failure: request.failure() });
+      }
+    };
+    context.on('request', recordSecondDisplayRequest);
+    context.on('response', recordSecondDisplayResponse);
+    context.on('requestfailed', recordSecondDisplayFailure);
+    const transferSourceState = await jwPage.locator('#jw-video').evaluate(async (video) => {
+      if (video.readyState < 1) {
+        await new Promise((resolve) => {
+          video.addEventListener('loadedmetadata', resolve, { once: true });
+          setTimeout(resolve, 1_000);
+        });
+      }
+      const target = Number.isFinite(video.duration) && video.duration > 0
+        ? Math.min(0.5, video.duration / 4)
+        : 0;
+      try { video.currentTime = target; } catch { /* fixture media may not be seekable */ }
+      await video.play();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      return { currentTime: video.currentTime, playing: !video.paused, target };
+    });
     const secondDisplayPromise = context.waitForEvent('page');
     await openStudyNavMediaMenu(jwPage);
     await jwPage.locator('#studynav-media-bar button', { hasText: 'Open in a separate window' }).click();
     const secondDisplay = await secondDisplayPromise;
     await secondDisplay.waitForLoadState('domcontentloaded');
+    await secondDisplay.bringToFront();
+    await secondDisplay.waitForTimeout(1_500);
     const secondDisplayUrl = secondDisplay.url();
     const secondDisplayState = await secondDisplay.evaluate(() => ({
       name: window.name,
@@ -2897,11 +2964,50 @@ async function runStudyNavScenario(executablePath, port) {
       playerTag: document.querySelector('video, audio')?.tagName || null,
       playerSource: document.querySelector('video, audio')?.src || null,
       autoplay: document.querySelector('video, audio')?.autoplay ?? null,
+      currentTime: document.querySelector('video, audio')?.currentTime ?? null,
+      paused: document.querySelector('video, audio')?.paused ?? null,
+      readyState: document.querySelector('video, audio')?.readyState ?? null,
+      networkState: document.querySelector('video, audio')?.networkState ?? null,
+      errorCode: document.querySelector('video, audio')?.error?.code ?? null,
+    }));
+    const transferOriginalState = await jwPage.locator('#jw-video').evaluate((video) => ({
+      paused: video.paused,
+      currentTime: video.currentTime,
     }));
     await secondDisplay.close();
 
+    await jwPage.evaluate(() => {
+      const video = document.getElementById('jw-video');
+      if (!(video instanceof HTMLVideoElement)) return;
+      video.src = URL.createObjectURL(new Blob(['temporary player stream'], { type: 'video/mp4' }));
+      video.load();
+    });
+    const recoveredDisplayPromise = context.waitForEvent('page');
+    await openStudyNavMediaMenu(jwPage);
+    await jwPage.locator('#studynav-media-bar button', { hasText: 'Open in a separate window' }).click();
+    const recoveredDisplay = await recoveredDisplayPromise;
+    await recoveredDisplay.waitForLoadState('domcontentloaded');
+    const recoveredDisplaySource = await recoveredDisplay.locator('video, audio').getAttribute('src');
+    await recoveredDisplay.close();
+    context.off('request', recordSecondDisplayRequest);
+    context.off('response', recordSecondDisplayResponse);
+    context.off('requestfailed', recordSecondDisplayFailure);
+    await jwPage.evaluate((officialSource) => {
+      const video = document.getElementById('jw-video');
+      if (!(video instanceof HTMLVideoElement)) return;
+      if (video.src.startsWith('blob:')) URL.revokeObjectURL(video.src);
+      video.src = officialSource;
+      video.load();
+    }, `https://${HOSTS.jwMedia}/media/fixture.mp4`);
+
     await setStudyNavFlags(worker, { ...DEFAULT_STUDYNAV_FLAGS, imgGet: true });
     await jwPage.waitForFunction(() => document.querySelectorAll('.studynav-imgdl').length === 1);
+    const compactImageState = await jwPage.evaluate(() => ({
+      markedForDownload: document.getElementById('compact-card-image')?.hasAttribute('data-sn-dl') || false,
+      helperInside: !!document.querySelector('#compact-publication-card .studynav-imgdl, #compact-publication-card .studynav-alt'),
+      helperAfter: !!document.querySelector('#compact-publication-card + .studynav-imgdl, #compact-publication-card + .studynav-alt'),
+      text: document.querySelector('#compact-publication-card p')?.textContent?.trim() || '',
+    }));
     const imageButton = jwPage.locator('.studynav-imgdl');
     await imageButton.scrollIntoViewIfNeeded();
     await captureScreenshot(jwPage, '14-image-download.png');
@@ -3074,6 +3180,7 @@ async function runStudyNavScenario(executablePath, port) {
         'StudyNav image descriptions stay idempotent and ignore images without alt text or captions',
         altTextEdgeState.blocks === 1 && altTextEdgeState.blankHasMarker === false &&
           altTextEdgeState.blankHasDescription === false &&
+          altTextEdgeState.compactHasMarker === false && altTextEdgeState.compactHasDescription === false &&
           altTextEdgeState.articleDescription === 'A mountain trail at sunrise - A clear path through the hills.',
         altTextEdgeState,
       ),
@@ -3138,13 +3245,13 @@ async function runStudyNavScenario(executablePath, port) {
       makeAssertion(
         'StudyNav media actions use one compact player-anchored menu and follow player idle state',
         jwState.imageButtons === 0 &&
-          ['Copy link at current time', 'Download a media segment', 'Open in a separate window', 'Transcript']
+          ['Copy video link and time', 'Download a media segment', 'Open in a separate window', 'Transcript']
             .every((label) => jwState.mediaButtons.includes(label)) &&
           mediaAnchorState.parentId === 'jw-player' && mediaAnchorState.placement === 'player' &&
           mediaAnchorState.position === 'absolute' && mediaAnchorState.insidePlayer === true &&
-          mediaAnchorState.summaryText === 'StudyNav · Media tools' && mediaAnchorState.summaryTitle === 'Media tools' &&
-          mediaAnchorState.summaryRect?.width <= 120 && mediaAnchorState.summaryRect?.height <= 40 &&
-          mediaMenuState.open === true && mediaMenuState.heading === 'Media tools' &&
+          mediaAnchorState.summaryText === 'StudyNav video · Video tools' && mediaAnchorState.summaryTitle === 'Video tools' &&
+          mediaAnchorState.summaryRect?.width <= 150 && mediaAnchorState.summaryRect?.height <= 40 &&
+          mediaMenuState.open === true && mediaMenuState.heading === 'Video tools' &&
           mediaMenuState.buttons.length === 4 && mediaMenuState.buttons.every((button) => button.visible) &&
           mediaMenuClosedByEscape === true && focusedInactiveVisibility === 'visible' &&
           mediaIdleState.barOpacity === '0' && mediaIdleState.barVisibility === 'hidden' &&
@@ -3183,19 +3290,25 @@ async function runStudyNavScenario(executablePath, port) {
           Number.isFinite(mediaClock.currentTime) && mediaClock.currentTime >= 0 && pageAndTimeCopied === true &&
           clipPanelState.title === 'Download an audio or video segment' &&
           clipPanelState.labels.join('|') === 'Format|Start|End' &&
-          clipPanelState.formats.join('|') === 'Audio (.wav) · up to 2 minutes|Video (.webm) · up to 1 minute' &&
+          clipPanelState.formats.join('|') === 'Audio (.wav) · up to 5 minutes|Video (.webm) · up to 3 minutes' &&
           clipPanelState.maxLengthHint === true &&
           /end must be after the start/i.test(clipInvalidError || '') &&
-          secondDisplayUrl === 'about:blank' &&
+          transferSourceState.playing === true && transferOriginalState.paused === true &&
+          secondDisplayUrl.startsWith('blob:https://www.jw.org/') &&
           secondDisplayState.name === 'studynav-second' &&
           secondDisplayState.playerTag === 'VIDEO' &&
           secondDisplayState.playerSource === `https://${HOSTS.jwMedia}/media/fixture.mp4` &&
-          secondDisplayState.autoplay === false &&
+          secondDisplayState.autoplay === true && secondDisplayState.paused === false &&
+          typeof secondDisplayState.currentTime === 'number' &&
+          secondDisplayState.currentTime >= transferSourceState.currentTime &&
+          secondDisplayState.currentTime - transferSourceState.currentTime < 2.5 &&
+          recoveredDisplaySource === `https://${HOSTS.jwMedia}/media/fixture.mp4` &&
           secondDisplayState.innerWidth > 0 && secondDisplayState.innerHeight > 0 &&
           transcriptState.panelVisible && transcriptState.text === 'Second searchable transcript line mentions lantern.' &&
           transcriptDownload.suggestedFilename() === 'transcript.txt' &&
           /First transcript line/.test(transcriptDownloadText) && /lantern/.test(transcriptDownloadText) &&
-          transcriptSourceRemoved === true,
+          transcriptMissingState.buttonPresent === true && transcriptMissingState.panelVisible === true &&
+          /No transcript text was detected/i.test(transcriptMissingState.text),
         {
           videoMutedBefore,
           videoMutedAfter,
@@ -3204,11 +3317,15 @@ async function runStudyNavScenario(executablePath, port) {
           timestampPageUrl,
           clipPanelState,
           clipInvalidError,
+          transferSourceState,
+          transferOriginalState,
           secondDisplayUrl,
           secondDisplayState,
+          recoveredDisplaySource,
+          secondDisplayNetwork,
           transcriptState,
           transcriptDownloadText,
-          transcriptSourceRemoved,
+          transcriptMissingState,
         },
       ),
       makeAssertion(
@@ -3223,8 +3340,10 @@ async function runStudyNavScenario(executablePath, port) {
           imageButtonHoverState.hovered === true &&
           imageButtonHoverState.background === 'rgb(82, 120, 179)' &&
           typeof imageDownloadName === 'string' && imageDownloadName.length > 0 &&
-          imageFallbackUrl === missingImageUrl,
-        { imageButtonState, imageButtonHoverState, imageDownloadName, imageFallbackUrl, missingImageUrl },
+          imageFallbackUrl === missingImageUrl && compactImageState.markedForDownload === false &&
+          compactImageState.helperInside === false && compactImageState.helperAfter === false &&
+          compactImageState.text === 'Small publication preview text must remain unobstructed.',
+        { imageButtonState, imageButtonHoverState, imageDownloadName, imageFallbackUrl, missingImageUrl, compactImageState },
       ),
       makeAssertion(
         'StudyNav exposes verse audio on the natively selected Bible verse',
@@ -3426,6 +3545,46 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       );
     }
 
+    const yellowHighlightPoint = await page.evaluate(() => {
+      const root = document.getElementById('p1');
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      let node;
+      while ((node = walker.nextNode())) {
+        const start = (node.nodeValue || '').indexOf('A useful');
+        if (start < 0) continue;
+        const range = document.createRange();
+        range.setStart(node, start);
+        range.setEnd(node, start + 'A useful'.length);
+        const rect = range.getBoundingClientRect();
+        return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      }
+      return null;
+    });
+    ensure(yellowHighlightPoint, 'Could not resolve a click point for the saved yellow highlight');
+    await page.mouse.click(yellowHighlightPoint.x, yellowHighlightPoint.y);
+    await page.waitForSelector('#studynav-note-editor');
+    const highlightClickEditorState = await page.evaluate(() => ({
+      insideRail: !!document.querySelector('#studynav-note-rail #studynav-note-editor'),
+      railMode: document.getElementById('studynav-note-rail')?.dataset.mode || null,
+      title: document.getElementById('studynav-editor-title')?.textContent?.trim() || '',
+      buttons: Array.from(document.querySelectorAll('#studynav-note-editor button'))
+        .map((button) => button.textContent?.trim() || ''),
+    }));
+    await page.fill('#studynav-note-text', 'Note added by clicking the highlight');
+    const clickedTagInput = page.locator('#studynav-note-tags');
+    // locator.fill triggers the same input event as a user-entered comma while
+    // avoiding cross-scenario keyboard-focus timing in the full browser matrix.
+    await clickedTagInput.fill('clicked,');
+    await page.waitForFunction(() => document.querySelectorAll('#studynav-note-editor .studynav-tag-chip').length === 1);
+    await page.locator('#studynav-note-editor button', { hasText: 'Save locally' }).click();
+    const clickedHighlightData = await waitForWorkerState(
+      worker,
+      async () => (await chrome.storage.local.get('studynavStudyDataV2')).studynavStudyDataV2,
+      (data) => data?.annotations?.some((item) =>
+        item.selector.exact === 'A useful' && item.note === 'Note added by clicking the highlight' && item.tags.includes('clicked')),
+      'StudyNav did not save a note opened from a highlight click',
+    );
+
     const markButton = page.locator('#p2 > .studynav-para-tools button', { hasText: 'Mark' });
     await page.hover('#p2');
     await markButton.click();
@@ -3440,7 +3599,39 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
     await page.hover('#p2');
     await markButton.click();
     await page.fill('#studynav-note-text', 'Private family note');
-    await page.fill('#studynav-note-tags', 'Faith, family, faith');
+    const storageRerenderProbeReady = await page.evaluate(() => {
+      const editor = document.getElementById('studynav-note-editor');
+      const card = document.querySelector('#studynav-note-rail .studynav-note-rail-item');
+      if (!editor || !(card instanceof HTMLElement)) return false;
+      editor.dataset.storageProbe = 'keep-editor';
+      card.dataset.storageProbeCard = 'replace-card';
+      return true;
+    });
+    ensure(storageRerenderProbeReady, 'Could not prepare the active note-editor storage rerender probe');
+    await worker.evaluate(async () => {
+      const key = 'studynavStudyDataV2';
+      const data = (await chrome.storage.local.get(key))[key];
+      await chrome.storage.local.set({
+        [key]: { ...data, annotations: [...data.annotations].reverse() },
+      });
+    });
+    await page.waitForFunction(() => !document.querySelector('[data-storage-probe-card="replace-card"]'));
+    const editorStorageRerenderState = await page.evaluate(() => ({
+      sameEditor: document.getElementById('studynav-note-editor')?.dataset.storageProbe === 'keep-editor',
+      noteValue: document.getElementById('studynav-note-text')?.value || '',
+    }));
+    const familyTagInput = page.locator('#studynav-note-tags');
+    await familyTagInput.fill('Faith,');
+    await familyTagInput.fill(' family');
+    await familyTagInput.press('Enter');
+    await familyTagInput.fill('faith,');
+    const tagChipState = await page.evaluate(() => ({
+      values: Array.from(document.querySelectorAll('#studynav-note-editor .studynav-tag-chip'))
+        .map((chip) => chip.firstChild?.textContent?.trim() || ''),
+      removeLabels: Array.from(document.querySelectorAll('#studynav-note-editor .studynav-tag-chip button'))
+        .map((button) => button.getAttribute('aria-label')),
+      inputValue: document.getElementById('studynav-note-tags')?.value || '',
+    }));
     await page.check('#studynav-note-editor input[value="pink"]');
     await page.locator('#studynav-note-editor button', { hasText: 'Save locally' }).click();
     const fourColorData = await waitForWorkerState(
@@ -3473,8 +3664,26 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
         overlapsBadge: overlaps(railRect, badgeRect),
         scrollWidth: document.documentElement.scrollWidth,
         clientWidth: document.documentElement.clientWidth,
+        cards: document.querySelectorAll('#studynav-note-rail .studynav-note-rail-item').length,
+        explicitEditButtons: Array.from(document.querySelectorAll('#studynav-note-rail .studynav-note-rail-item button'))
+          .filter((button) => ['Edit', 'Add note'].includes(button.textContent?.trim() || '')).length,
+        explicitDeleteButtons: Array.from(document.querySelectorAll('#studynav-note-rail .studynav-note-rail-item button'))
+          .filter((button) => button.textContent?.trim() === 'Delete').length,
       };
     });
+    const pinkRailCard = page.locator('.studynav-note-rail-item', {
+      has: page.locator('strong', { hasText: 'A precise link returns to the same place without searching again.' }),
+    });
+    await pinkRailCard.locator('button', { hasText: 'Edit' }).click();
+    await page.waitForSelector('#studynav-note-editor');
+    const railEditorState = await page.evaluate(() => ({
+      insideRail: !!document.querySelector('#studynav-note-rail #studynav-note-editor'),
+      railMode: document.getElementById('studynav-note-rail')?.dataset.mode || null,
+      buttons: Array.from(document.querySelectorAll('#studynav-note-editor .studynav-panel-actions button'))
+        .map((button) => button.textContent?.trim() || ''),
+    }));
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(() => !document.getElementById('studynav-note-editor'));
     await captureScreenshot(page, '19-note-rail.png');
     await page.setViewportSize({ width: 1280, height: 720 });
 
@@ -3695,6 +3904,9 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
         item.id === 'fixture-external-note' && item.note === 'Edited from another page'),
       'StudyNav cross-page note edit did not persist',
     );
+    await sendStudyNavPageAction(worker, page.url(), 'OPEN_STUDY_PANEL');
+    await page.waitForSelector('#studynav-study-panel');
+    await page.waitForFunction(() => document.getElementById('studynav-note-count')?.textContent === '5 notes');
     await page.fill('#studynav-note-search', 'Private family note');
     await page.waitForFunction(() => document.querySelectorAll('.studynav-note-card').length === 1);
     const searchResultCount = await page.locator('.studynav-note-card').count();
@@ -3723,9 +3935,11 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       'StudyNav panel edit did not persist',
     );
 
+    await page.setViewportSize({ width: 1600, height: 900 });
+    await page.waitForFunction(() => document.getElementById('studynav-note-rail')?.dataset.mode === 'rail');
     page.once('dialog', (dialog) => void dialog.accept());
-    const blueCard = page.locator('.studynav-note-card', {
-      has: page.locator('blockquote', { hasText: /^text\.$/ }),
+    const blueCard = page.locator('.studynav-note-rail-item', {
+      has: page.locator('strong', { hasText: /^text\.$/ }),
     });
     await blueCard.locator('button', { hasText: 'Delete' }).click();
     const afterDeleteData = await waitForWorkerState(
@@ -3734,6 +3948,10 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       (data) => data?.annotations?.length === 4 && !data.annotations.some((item) => item.selector.exact === 'text.'),
       'StudyNav panel delete did not persist',
     );
+    await page.setViewportSize({ width: 1280, height: 720 });
+
+    await sendStudyNavPageAction(worker, page.url(), 'OPEN_STUDY_PANEL');
+    await page.waitForSelector('#studynav-study-panel');
 
     const exportPromise = page.waitForEvent('download');
     await page.locator('#studynav-study-panel button', { hasText: 'Export JSON' }).click();
@@ -4415,22 +4633,51 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
     await wolPage.waitForFunction(() =>
       document.documentElement.dataset.studynav === '1' &&
       document.querySelectorAll('.studynav-para-tools').length === 2);
+    const wolMediaState = await wolPage.evaluate(() => {
+      const bar = document.getElementById('studynav-media-bar');
+      const summary = bar?.querySelector('summary');
+      const icon = summary?.querySelector('svg');
+      const heading = document.querySelector('#wol-article h1');
+      const barRect = bar?.getBoundingClientRect();
+      const headingRect = heading?.getBoundingClientRect();
+      const overlaps = !!barRect && !!headingRect &&
+        barRect.left < headingRect.right && barRect.right > headingRect.left &&
+        barRect.top < headingRect.bottom && barRect.bottom > headingRect.top;
+      return {
+        parentId: bar?.parentElement?.id || null,
+        placement: bar?.dataset.placement || null,
+        kind: bar?.dataset.kind || null,
+        position: bar ? getComputedStyle(bar).position : null,
+        summary: summary?.textContent?.replace(/\s+/g, ' ').trim() || '',
+        title: summary?.getAttribute('title') || '',
+        summaryColor: summary ? getComputedStyle(summary).color : null,
+        iconStroke: icon ? getComputedStyle(icon).stroke : null,
+        buttons: Array.from(bar?.querySelectorAll('button') || []).map((button) => button.textContent?.trim() || ''),
+        insideHeader: !!bar?.closest('#regionHeader'),
+        overlapsHeading: overlaps,
+      };
+    });
     const wolLayout = async () => wolPage.evaluate(() => {
       const rect = (selector) => {
         const value = document.querySelector(selector)?.getBoundingClientRect();
         return value ? { x: value.x, y: value.y, width: value.width, height: value.height } : null;
       };
       const table = document.getElementById('wol-table');
+      const cell = table?.querySelector('td');
       const header = document.getElementById('regionHeader');
       return {
         header: rect('#regionHeader'),
         shell: rect('#wol-shell'),
+        nav: rect('#wol-nav'),
+        articleOuter: rect('#article'),
         article: rect('#wol-article'),
         table: rect('#wol-table'),
         headerPosition: header ? getComputedStyle(header).position : null,
-        tableBorder: table ? getComputedStyle(table).borderTopStyle : null,
+        cellBorderBottom: cell ? getComputedStyle(cell).borderBottomStyle : null,
+        cellPaddingTop: cell ? getComputedStyle(cell).paddingTop : null,
         tableCollapse: table ? getComputedStyle(table).borderCollapse : null,
-        articleMaxWidth: getComputedStyle(document.getElementById('wol-article')).maxWidth,
+        tableSpacing: table ? getComputedStyle(table).borderSpacing : null,
+        articleMaxWidth: getComputedStyle(document.getElementById('article')).maxWidth,
         scrollWidth: document.documentElement.scrollWidth,
         clientWidth: document.documentElement.clientWidth,
       };
@@ -4477,10 +4724,15 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
     await wolPage.waitForSelector('#studynav-note-editor');
     await captureScreenshot(wolPage, '09-mobile-note-editor.png');
     const narrowEditor = await wolPage.evaluate(() => {
-      const rect = document.querySelector('#studynav-note-editor .studynav-overlay-panel')?.getBoundingClientRect();
+      const rail = document.getElementById('studynav-note-rail');
+      const rect = rail?.getBoundingClientRect();
+      const formRect = document.getElementById('studynav-note-editor')?.getBoundingClientRect();
       const buttons = Array.from(document.querySelectorAll('#studynav-note-editor button'));
       return {
         rect: rect ? { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom } : null,
+        formRect: formRect ? { left: formRect.left, right: formRect.right } : null,
+        mode: rail?.dataset.mode || null,
+        insideRail: !!document.querySelector('#studynav-note-rail #studynav-note-editor'),
         minButtonHeight: Math.min(...buttons.map((button) => button.getBoundingClientRect().height)),
         scrollWidth: document.documentElement.scrollWidth,
         clientWidth: document.documentElement.clientWidth,
@@ -4537,13 +4789,32 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
         { masterOffState, localBeforeMasterOff, localAfterMasterOff, masterRestoredState },
       ),
       makeAssertion(
-        'StudyNav leaves WOL header, article, navigation, and table geometry unchanged with layout flags enabled',
-        rectsMatch(wolBefore.header, wolAfter.header) && rectsMatch(wolBefore.shell, wolAfter.shell) &&
-          rectsMatch(wolBefore.article, wolAfter.article) && rectsMatch(wolBefore.table, wolAfter.table) &&
-          wolAfter.headerPosition === wolBefore.headerPosition && wolAfter.tableBorder === wolBefore.tableBorder &&
-          wolAfter.tableCollapse === wolBefore.tableCollapse && wolAfter.articleMaxWidth === wolBefore.articleMaxWidth &&
-          wolAfter.scrollWidth === wolBefore.scrollWidth && wolAfter.clientWidth === wolBefore.clientWidth,
-        { wolBefore, wolAfter },
+        'StudyNav makes WOL reading and tables visibly wider while leaving its header and navigation in place',
+        rectsMatch(wolBefore.header, wolAfter.header) &&
+          wolBefore.shell?.x === wolAfter.shell?.x && wolBefore.shell?.width === wolAfter.shell?.width &&
+          rectsMatch(wolBefore.nav, wolAfter.nav) &&
+          (wolAfter.article?.width || 0) > (wolBefore.article?.width || 0) &&
+          (wolAfter.table?.width || 0) > (wolBefore.table?.width || 0) &&
+          wolAfter.headerPosition === wolBefore.headerPosition &&
+          wolBefore.cellBorderBottom !== 'solid' && wolAfter.cellBorderBottom === 'solid' &&
+          parseFloat(wolAfter.cellPaddingTop || '0') > parseFloat(wolBefore.cellPaddingTop || '0') &&
+          wolAfter.tableCollapse === 'separate' && /^0px(?: 0px)?$/.test(wolAfter.tableSpacing || '') &&
+          wolAfter.articleMaxWidth !== wolBefore.articleMaxWidth &&
+          wolAfter.scrollWidth <= wolAfter.clientWidth,
+        { wolBefore, wolAfter, wolMediaState },
+      ),
+      makeAssertion(
+        'StudyNav places WOL audio actions in the article with audio-specific wording and no transcript action',
+        wolMediaState.parentId === 'article' && wolMediaState.placement === 'inline' &&
+          wolMediaState.kind === 'audio' && wolMediaState.position === 'relative' &&
+          wolMediaState.summary === 'StudyNav audio · Audio tools' && wolMediaState.title === 'Audio tools' &&
+          wolMediaState.buttons.includes('Copy audio link and time') &&
+          wolMediaState.buttons.includes('Download a media segment') &&
+          wolMediaState.buttons.includes('Open in a separate window') &&
+          !wolMediaState.buttons.includes('Transcript') && wolMediaState.insideHeader === false &&
+          wolMediaState.overlapsHeading === false && wolMediaState.summaryColor === 'rgb(24, 24, 24)' &&
+          wolMediaState.iconStroke === 'rgb(67, 102, 159)',
+        wolMediaState,
       ),
       makeAssertion(
         'StudyNav notes, selection editor, and QR stay usable and add no overflow at 360px',
@@ -4554,6 +4825,8 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
           narrowToolbar?.top >= 0 && narrowToolbar?.bottom <= 720 &&
           narrowEditor.rect?.left >= 0 && narrowEditor.rect?.right <= 360 &&
           narrowEditor.rect?.top >= 0 && narrowEditor.rect?.bottom <= 720 &&
+          narrowEditor.formRect?.left >= narrowEditor.rect?.left && narrowEditor.formRect?.right <= narrowEditor.rect?.right &&
+          narrowEditor.mode === 'drawer' && narrowEditor.insideRail === true &&
           narrowEditor.minButtonHeight >= 36 && narrowEditor.scrollWidth === narrowBase.scrollWidth &&
           narrowQr.rect?.left >= 0 && narrowQr.rect?.right <= 360 &&
           narrowQr.rect?.top >= 0 && narrowQr.rect?.bottom <= 720 &&
@@ -4574,19 +4847,32 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
         { fourColorData, annotationRenderState, selectionColors, editorColors },
       ),
       makeAssertion(
-        'StudyNav shows page notes beside the article without covering text or the language badge',
+        'StudyNav shows page notes with explicit edit/delete controls beside the article without covering content',
         noteRailLayoutState.mode === 'rail' && noteRailLayoutState.overlapsArticle === false &&
           noteRailLayoutState.overlapsBadge === false &&
-          noteRailLayoutState.scrollWidth <= noteRailLayoutState.clientWidth,
-        noteRailLayoutState,
+          noteRailLayoutState.scrollWidth <= noteRailLayoutState.clientWidth &&
+          noteRailLayoutState.cards === 4 && noteRailLayoutState.explicitEditButtons === 4 &&
+          noteRailLayoutState.explicitDeleteButtons === 4 && railEditorState.insideRail === true &&
+          railEditorState.railMode === 'rail' &&
+          ['Delete', 'Cancel', 'Save locally'].every((label) => railEditorState.buttons.includes(label)),
+        { noteRailLayoutState, railEditorState },
       ),
       makeAssertion(
-        'StudyNav editor keeps Escape active after unrelated input and normalizes private tags',
+        'StudyNav opens a clicked highlight in the side editor and turns comma-separated tags into chips',
         annotationRenderState.editorOpen === false &&
+          highlightClickEditorState.insideRail === true && highlightClickEditorState.railMode === 'drawer' &&
+          highlightClickEditorState.title === 'Edit highlight' && highlightClickEditorState.buttons.includes('Delete') &&
+          clickedHighlightData.annotations.some((item) =>
+            item.selector.exact === 'A useful' && item.note === 'Note added by clicking the highlight' &&
+            JSON.stringify(item.tags) === JSON.stringify(['clicked'])) &&
+          JSON.stringify(tagChipState.values) === JSON.stringify(['faith', 'family']) &&
+          tagChipState.removeLabels.every((label) => /^Remove tag /.test(label || '')) && tagChipState.inputValue === '' &&
+          editorStorageRerenderState.sameEditor === true &&
+          editorStorageRerenderState.noteValue === 'Private family note' &&
           fourColorData.annotations.some((item) => item.color === 'pink' &&
             item.note === 'Private family note' &&
             JSON.stringify(item.tags) === JSON.stringify(['faith', 'family'])),
-        fourColorData,
+        { highlightClickEditorState, clickedHighlightData, editorStorageRerenderState, tagChipState, fourColorData },
       ),
       makeAssertion(
         'StudyNav CSS highlights do not wrap or resize official text DOM',
@@ -4653,7 +4939,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
         crossPageEditedData.annotations.find((item) => item.id === 'fixture-external-note'),
       ),
       makeAssertion(
-        'StudyNav panel edit and delete preserve unrelated local notes',
+        'StudyNav side-rail edit and delete preserve unrelated local notes',
         editedData.annotations.some((item) => item.note === 'Updated local note' && item.tags.includes('hope')) &&
           afterDeleteData.annotations.length === 4 &&
           afterDeleteData.annotations.some((item) => item.id === 'fixture-external-note') &&
@@ -4965,10 +5251,10 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
             contentLocaleState.toolbarAria === 'Инструменты изучения' &&
             contentLocaleState.audioText === 'Скачать аудио' &&
             contentLocaleState.audioTitle === 'Скачать аудио только этого стиха' &&
-            mediaLocaleState.heading === 'Аудио и видео' &&
-            mediaLocaleState.trigger === 'StudyNav · Аудио и видео' &&
+            mediaLocaleState.heading === 'Инструменты видео' &&
+            mediaLocaleState.trigger === 'StudyNav · видео · Инструменты видео' &&
             mediaLocaleState.buttons.join('|') ===
-              'Копировать ссылку с текущим временем|Скачать фрагмент медиа|Открыть в отдельном окне|Стенограмма' &&
+              'Скопировать ссылку и время видео|Скачать фрагмент медиа|Открыть в отдельном окне|Транскрипт' &&
             mediaLocaleState.languageCount === '6' && mediaLocaleState.languageLabel === 'Языков: 6' &&
             rangeLocaleState.selected === 3 &&
             rangeLocaleState.audioText === 'Скачать аудио 1–3' &&
@@ -5097,7 +5383,7 @@ async function runStudyNavLiveSmokeScenario(executablePath) {
   const scenario = createScenario('studynav-live-smoke', ['StudyNav']);
   const unsupportedUrl = 'https://www.jw.org/en/';
   const supportedUrl = 'https://www.jw.org/en/library/books/enjoy-life-forever/section-1/lesson-01/';
-  const wolUrl = 'https://wol.jw.org/ru/wol/d/r2/lp-u/1102015142';
+  const wolUrl = 'https://wol.jw.org/uk/wol/d/r15/lp-k/2026443';
 
   try {
     await withContext(
@@ -5160,12 +5446,6 @@ async function runStudyNavLiveSmokeScenario(executablePath) {
           supportedState = await getStudyNavState(supported);
         }
 
-        await setStudyNavFlags(worker, {
-          ...DEFAULT_STUDYNAV_FLAGS,
-          actionBar: true,
-          cstblView: true,
-          expandWidth: true,
-        });
         const wol = await openPage(context, scenario, 'wol-layout-live', wolUrl);
         await wol.waitForTimeout(3000);
         const wolNav = getPageNavigation(wol);
@@ -5175,9 +5455,17 @@ async function runStudyNavLiveSmokeScenario(executablePath) {
         if (wolBlocker) {
           scenario.notes.push(`SKIP: live WOL layout slice unavailable (${wolBlocker})`);
         } else {
-          wolState = await wol.evaluate(() => {
+          const readWolState = () => wol.evaluate(() => {
             const article = document.querySelector('#article, .bodyTxt, article');
             const articleRect = article?.getBoundingClientRect();
+            const reading = article?.querySelector(':scope > .scalableui') || article;
+            const readingRect = reading?.getBoundingClientRect();
+            const bar = document.getElementById('studynav-media-bar');
+            const barRect = bar?.getBoundingClientRect();
+            const headingRect = article?.querySelector('h1')?.getBoundingClientRect();
+            const overlapsHeading = !!barRect && !!headingRect &&
+              barRect.left < headingRect.right && barRect.right > headingRect.left &&
+              barRect.top < headingRect.bottom && barRect.bottom > headingRect.top;
             const dynamicCss = document.getElementById('studynav-dynamic-style')?.textContent || '';
             return {
               dataset: document.documentElement.dataset.studynav || null,
@@ -5189,11 +5477,36 @@ async function runStudyNavLiveSmokeScenario(executablePath) {
                 right: articleRect.right,
                 width: articleRect.width,
               } : null,
-              regionHeaderPosition: getComputedStyle(document.getElementById('regionHeader')).position,
-              regionMainPosition: getComputedStyle(document.getElementById('regionMain')).position,
+              readingRect: readingRect ? {
+                left: readingRect.left,
+                right: readingRect.right,
+                width: readingRect.width,
+              } : null,
+              articleMaxWidth: article ? getComputedStyle(article).maxWidth : null,
+              regionHeaderPosition: document.getElementById('regionHeader')
+                ? getComputedStyle(document.getElementById('regionHeader')).position
+                : null,
+              mediaParentInHeader: !!bar?.closest('#regionHeader'),
+              mediaPlacement: bar?.dataset.placement || null,
+              mediaKind: bar?.dataset.kind || null,
+              mediaSummary: bar?.querySelector('summary')?.textContent?.replace(/\s+/g, ' ').trim() || null,
+              mediaButtons: Array.from(bar?.querySelectorAll('button') || []).map((button) => button.textContent?.trim() || ''),
+              mediaOverlapsHeading: overlapsHeading,
               dynamicCss,
             };
           });
+          const before = await readWolState();
+          await setStudyNavFlags(worker, {
+            ...DEFAULT_STUDYNAV_FLAGS,
+            actionBar: true,
+            cstblView: true,
+            expandWidth: true,
+          });
+          await wol.waitForFunction(() =>
+            (document.getElementById('studynav-dynamic-style')?.textContent || '').includes('padding-left: 48px'));
+          await wol.waitForTimeout(400);
+          const after = await readWolState();
+          wolState = { before, after };
         }
 
         scenario.assertions.push(
@@ -5218,16 +5531,22 @@ async function runStudyNavLiveSmokeScenario(executablePath) {
         );
         if (wolState) {
           scenario.assertions.push(makeAssertion(
-            'Live WOL keeps native geometry even when legacy layout flags are stored on',
-            wolState.dataset === '1' &&
-              wolState.paraTools >= 1 &&
-              wolState.documentScrollWidth <= wolState.documentClientWidth &&
-              wolState.articleRect?.left >= 0 &&
-              wolState.articleRect?.right <= wolState.documentClientWidth &&
-              wolState.regionHeaderPosition !== 'sticky' &&
-              wolState.regionMainPosition !== 'sticky' &&
-              !wolState.dynamicCss.includes('max-width: min(1100px, 96vw)') &&
-              !wolState.dynamicCss.includes('border-collapse: collapse'),
+            'Live Ukrainian WOL keeps audio tools out of the title and makes the reading column visibly wider',
+            wolState.before.dataset === '1' && wolState.after.dataset === '1' &&
+              wolState.after.paraTools >= 1 &&
+              wolState.after.documentScrollWidth <= wolState.after.documentClientWidth &&
+              wolState.after.articleRect?.left >= 0 &&
+              wolState.after.articleRect?.right <= wolState.after.documentClientWidth &&
+              (wolState.after.readingRect?.width || 0) > (wolState.before.readingRect?.width || 0) &&
+              wolState.after.articleMaxWidth !== wolState.before.articleMaxWidth &&
+              wolState.after.regionHeaderPosition === wolState.before.regionHeaderPosition &&
+              wolState.after.mediaPlacement === 'inline' && wolState.after.mediaKind === 'audio' &&
+              wolState.after.mediaSummary?.includes('StudyNav') &&
+              wolState.after.mediaButtons.some((label) => /audio/i.test(label)) &&
+              !wolState.after.mediaButtons.includes('Transcript') &&
+              wolState.after.mediaParentInHeader === false && wolState.after.mediaOverlapsHeading === false &&
+              wolState.after.dynamicCss.includes('padding-left: 48px') &&
+              wolState.after.dynamicCss.includes('border-bottom: 1px solid rgba(67,102,159,.32)'),
             wolState,
           ));
         }

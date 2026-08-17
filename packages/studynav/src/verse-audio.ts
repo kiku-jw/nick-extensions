@@ -6,9 +6,11 @@ const MEDIA_API_PATH = '/apis/pub-media/getpubmedialinks';
 const MAX_CHAPTER_AUDIO_BYTES = 64 * 1024 * 1024;
 const MAX_VERSE_SECONDS = 120;
 const MAX_VERSES_PER_CLIP = 200;
-const MAX_WAV_BYTES = 24 * 1024 * 1024;
-export const MAX_MEDIA_CLIP_SECONDS = 120;
-export const MAX_MEDIA_VIDEO_CLIP_SECONDS = 60;
+export const MAX_WAV_BYTES = 64 * 1024 * 1024;
+export const MAX_WAV_BASE64_CHARS = Math.ceil(MAX_WAV_BYTES / 3) * 4 + 4;
+export const MAX_MEDIA_VIDEO_BYTES = 64 * 1024 * 1024;
+export const MAX_MEDIA_CLIP_SECONDS = 300;
+export const MAX_MEDIA_VIDEO_CLIP_SECONDS = 180;
 
 export type BibleVerse = {
   book: number;

@@ -42,6 +42,11 @@ type SelectionCandidate = {
   range: Range;
 };
 
+type AnnotationEditorState = {
+  candidate: SelectionCandidate | null;
+  existing: AnnotationRecord | null;
+};
+
 type HighlightRegistryLike = {
   delete(name: string): boolean;
   set(name: string, value: unknown): void;
@@ -57,12 +62,15 @@ let selectionTimer: number | null = null;
 let renderGeneration = 0;
 let storageListening = false;
 let railResizeListening = false;
+let highlightClickListening = false;
 let panelScope: 'page' | 'all' = 'page';
 let panelView: 'notes' | 'bookmarks' = 'notes';
 let panelReturnFocus: HTMLElement | null = null;
 let editorReturnFocus: HTMLElement | null = null;
+let editorState: AnnotationEditorState | null = null;
 let unresolvedIds = new Set<string>();
 let resolvedElements = new Map<string, HTMLElement>();
+let resolvedRanges = new Map<string, Range>();
 let lastSelectionError = '';
 
 function registry(): HighlightRegistryLike | null {
@@ -389,11 +397,15 @@ const selectionChangeHandler = () => {
   }, 0);
 };
 
-function closeEditor() {
+function closeEditor(rerender = true) {
+  editorState = null;
   document.getElementById(EDITOR_ID)?.remove();
   window.removeEventListener('keydown', editorEscapeHandler, true);
   if (editorReturnFocus?.isConnected) editorReturnFocus.focus();
   editorReturnFocus = null;
+  if (rerender && enabled) {
+    void loadStudyData().then(renderPageNoteRail).catch(storageFailure);
+  }
 }
 
 function editorEscapeHandler(event: KeyboardEvent) {
@@ -403,21 +415,13 @@ function editorEscapeHandler(event: KeyboardEvent) {
   }
 }
 
-function openAnnotationEditor(candidate: SelectionCandidate | null, existing?: AnnotationRecord | null) {
-  if (!candidate && !existing) return;
-  closeEditor();
-  hideSelectionTools();
-  editorReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-  const overlay = document.createElement('div');
-  overlay.id = EDITOR_ID;
-  overlay.className = 'studynav-overlay';
-  overlay.setAttribute('data-studynav-owned', '1');
-  overlay.setAttribute('role', 'dialog');
-  overlay.setAttribute('aria-modal', 'true');
-  overlay.setAttribute('aria-labelledby', 'studynav-editor-title');
-
+function annotationEditorForm(state: AnnotationEditorState): HTMLFormElement {
+  const existing = state.existing;
   const form = document.createElement('form');
-  form.className = 'studynav-overlay-panel studynav-editor-panel';
+  form.id = EDITOR_ID;
+  form.className = 'studynav-note-rail-editor';
+  form.setAttribute('data-studynav-owned', '1');
+  form.setAttribute('aria-labelledby', 'studynav-editor-title');
   const head = document.createElement('div');
   head.className = 'studynav-panel-head';
   const title = document.createElement('strong');
@@ -428,7 +432,7 @@ function openAnnotationEditor(candidate: SelectionCandidate | null, existing?: A
   close.className = 'studynav-icon-button';
   close.textContent = t('close');
   close.setAttribute('aria-label', t('close_highlight_editor_aria'));
-  close.addEventListener('click', closeEditor);
+  close.addEventListener('click', () => closeEditor());
   head.append(title, close);
 
   const colors = document.createElement('fieldset');
@@ -466,41 +470,107 @@ function openAnnotationEditor(candidate: SelectionCandidate | null, existing?: A
   const tagsLabel = document.createElement('label');
   tagsLabel.className = 'studynav-field';
   tagsLabel.textContent = t('tags');
-  const tags = document.createElement('input');
-  tags.id = 'studynav-note-tags';
-  tags.type = 'text';
-  tags.placeholder = t('tags_placeholder');
-  tags.value = existing?.tags.join(', ') || '';
-  tagsLabel.appendChild(tags);
+  const tagEditor = document.createElement('div');
+  tagEditor.className = 'studynav-tag-editor';
+  const chips = document.createElement('div');
+  chips.className = 'studynav-tag-chips';
+  const tagInput = document.createElement('input');
+  tagInput.id = 'studynav-note-tags';
+  tagInput.type = 'text';
+  tagInput.placeholder = t('tags_placeholder');
+  tagInput.setAttribute('aria-label', t('tag_input_aria'));
+  let tagValues = [...(existing?.tags || [])];
+  const renderChips = () => {
+    chips.replaceChildren();
+    for (const [index, value] of tagValues.entries()) {
+      const chip = document.createElement('span');
+      chip.className = 'studynav-tag-chip';
+      chip.append(document.createTextNode(value));
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.textContent = '×';
+      remove.setAttribute('aria-label', t('remove_tag_aria', value));
+      remove.addEventListener('click', () => {
+        tagValues.splice(index, 1);
+        renderChips();
+        tagInput.focus();
+      });
+      chip.appendChild(remove);
+      chips.appendChild(chip);
+    }
+  };
+  renderChips();
+  tagEditor.append(chips, tagInput);
+  tagsLabel.appendChild(tagEditor);
 
   const error = document.createElement('p');
   error.className = 'studynav-form-error';
   error.setAttribute('aria-live', 'polite');
+  const commitTagText = (value: string): boolean => {
+    const normalized = normalizeTags([...tagValues, value].join(','));
+    if (!normalized) {
+      error.textContent = t('tags_error');
+      return false;
+    }
+    tagValues = normalized;
+    error.textContent = '';
+    renderChips();
+    return true;
+  };
+  tagInput.addEventListener('keydown', (event) => {
+    if (event.key === ',' || event.key === 'Enter') {
+      event.preventDefault();
+      if (!tagInput.value.trim()) return;
+      if (commitTagText(tagInput.value)) tagInput.value = '';
+      return;
+    }
+    if (event.key === 'Backspace' && !tagInput.value && tagValues.length) {
+      tagValues = tagValues.slice(0, -1);
+      renderChips();
+    }
+  });
+  tagInput.addEventListener('input', () => {
+    tagInput.value = tagInput.value.replace(/^\s+/u, '');
+    const lastComma = tagInput.value.lastIndexOf(',');
+    if (lastComma < 0) return;
+    const completed = tagInput.value.slice(0, lastComma);
+    const remainder = tagInput.value.slice(lastComma + 1).replace(/^\s+/u, '');
+    if (commitTagText(completed)) tagInput.value = remainder;
+  });
   const actions = document.createElement('div');
   actions.className = 'studynav-panel-actions';
+  if (existing) {
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'studynav-danger-button';
+    remove.textContent = t('delete');
+    remove.addEventListener('click', async () => {
+      if (await deleteAnnotation(existing)) {
+        closeEditor(false);
+        void renderStudyState();
+      }
+    });
+    actions.appendChild(remove);
+  }
   const cancel = document.createElement('button');
   cancel.type = 'button';
   cancel.className = 'studynav-secondary-button';
   cancel.textContent = t('cancel');
-  cancel.addEventListener('click', closeEditor);
+  cancel.addEventListener('click', () => closeEditor());
   const save = document.createElement('button');
   save.type = 'submit';
   save.textContent = t('save_locally');
   actions.append(cancel, save);
   form.append(head, colors, noteLabel, tagsLabel, error, actions);
-  overlay.appendChild(form);
-  overlay.addEventListener('click', (event) => {
-    if (event.target === overlay) closeEditor();
-  });
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const normalizedTags = normalizeTags(tags.value);
+    const normalizedTags = normalizeTags([...tagValues, tagInput.value].join(','));
     const color = new FormData(form).get('color');
     if (!normalizedTags || !HIGHLIGHT_COLORS.includes(color as HighlightColor)) {
       error.textContent = t('tags_error');
       return;
     }
-    const activeTarget = candidate || (existing ? {
+    const activeTarget = state.candidate || (existing ? {
       root: existing.root,
       selector: existing.selector,
       range: document.createRange(),
@@ -510,13 +580,28 @@ function openAnnotationEditor(candidate: SelectionCandidate | null, existing?: A
     const saved = await saveCandidate(activeTarget, color as HighlightColor, note.value, normalizedTags, existing);
     save.disabled = false;
     if (saved) {
-      closeEditor();
+      closeEditor(false);
       void renderStudyState();
     }
   });
-  document.documentElement.appendChild(overlay);
+  return form;
+}
+
+function openAnnotationEditor(candidate: SelectionCandidate | null, existing?: AnnotationRecord | null) {
+  if (!candidate && !existing) return;
+  closeEditor(false);
+  hideSelectionTools();
+  closeStudyPanel();
+  editorReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  editorState = { candidate, existing: existing || null };
   window.addEventListener('keydown', editorEscapeHandler, true);
-  note.focus();
+  void loadStudyData().then((data) => {
+    if (!editorState) return;
+    renderPageNoteRail(data);
+    window.requestAnimationFrame(() => {
+      document.getElementById('studynav-note-text')?.focus();
+    });
+  }).catch(storageFailure);
 }
 
 export function openAnnotationEditorForElement(element: HTMLElement): boolean {
@@ -555,6 +640,7 @@ async function renderStudyState(dataValue?: StudyDataV2) {
     const rangesByColor = new Map<HighlightColor, Range[]>(HIGHLIGHT_COLORS.map((color) => [color, []]));
     const nextUnresolved = new Set<string>();
     const nextElements = new Map<string, HTMLElement>();
+    const nextRanges = new Map<string, Range>();
     const recovered: AnnotationRecord[] = [];
 
     for (const annotation of annotationsEnabled
@@ -567,6 +653,7 @@ async function renderStudyState(dataValue?: StudyDataV2) {
       }
       rangesByColor.get(annotation.color)?.push(dom.range);
       nextElements.set(annotation.id, dom.element);
+      nextRanges.set(annotation.id, dom.range.cloneRange());
       if (dom.resolution.recovered) {
         recovered.push({
           ...annotation,
@@ -588,6 +675,7 @@ async function renderStudyState(dataValue?: StudyDataV2) {
     }
     unresolvedIds = nextUnresolved;
     resolvedElements = nextElements;
+    resolvedRanges = nextRanges;
     renderPageNoteRail(data);
     if (document.getElementById(PANEL_ID)) await renderStudyPanel(data);
     if (recovered.length) await persistRecoveredTargets(recovered);
@@ -596,22 +684,88 @@ async function renderStudyState(dataValue?: StudyDataV2) {
   }
 }
 
+function highlightIdAtPoint(x: number, y: number): string | null {
+  for (const [id, range] of resolvedRanges) {
+    try {
+      if (Array.from(range.getClientRects()).some((rect) =>
+        x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
+      )) return id;
+    } catch {
+      /* A route update can detach a saved range between render and click. */
+    }
+  }
+  return null;
+}
+
+const highlightClickHandler = (event: MouseEvent) => {
+  if (!enabled || !annotationsEnabled || event.button !== 0) return;
+  const target = event.target instanceof Element ? event.target : null;
+  if (!target || target.closest('[data-studynav-owned], a, button, input, textarea, select, summary')) return;
+  const selection = window.getSelection();
+  if (selection && !selection.isCollapsed) return;
+  const annotationId = highlightIdAtPoint(event.clientX, event.clientY);
+  if (!annotationId) return;
+  void loadStudyData().then((data) => {
+    const annotation = data.annotations.find((item) => item.id === annotationId);
+    if (annotation) openAnnotationEditor(null, annotation);
+  }).catch(storageFailure);
+};
+
 function positionPageNoteRail() {
   const rail = document.getElementById(NOTE_RAIL_ID);
   if (!rail) return;
   const rightEdge = Math.max(0, ...activeParagraphRoots().map((root) => root.getBoundingClientRect().right));
   const fitsWithoutTextOverlap = window.innerWidth >= 980 && window.innerWidth - rightEdge >= 356;
-  rail.dataset.mode = fitsWithoutTextOverlap ? 'rail' : 'button';
+  rail.dataset.mode = fitsWithoutTextOverlap ? 'rail' : editorState ? 'drawer' : 'button';
+}
+
+function pageRailCard(annotation: AnnotationRecord): HTMLElement {
+  const card = document.createElement('article');
+  card.className = 'studynav-note-rail-item';
+  card.dataset.annotationId = annotation.id;
+  const head = document.createElement('div');
+  head.className = 'studynav-note-rail-item-head';
+  const swatch = document.createElement('span');
+  swatch.className = 'studynav-note-swatch';
+  swatch.dataset.color = annotation.color;
+  const quote = document.createElement('strong');
+  quote.textContent = annotation.selector.exact;
+  head.append(swatch, quote);
+  card.appendChild(head);
+  if (annotation.note.trim()) {
+    const note = document.createElement('p');
+    note.textContent = annotation.note;
+    card.appendChild(note);
+  }
+  if (annotation.tags.length) {
+    const tags = document.createElement('div');
+    tags.className = 'studynav-note-tags';
+    for (const value of annotation.tags) {
+      const tag = document.createElement('span');
+      tag.textContent = value;
+      tags.appendChild(tag);
+    }
+    card.appendChild(tags);
+  }
+  const actions = document.createElement('div');
+  actions.className = 'studynav-note-actions';
+  actions.append(
+    panelButton(t('locate'), () => openAnnotationSource(annotation), 'studynav-secondary-button'),
+    panelButton(t(annotation.note.trim() ? 'edit' : 'add_note'), () => openAnnotationEditor(null, annotation)),
+    panelButton(t('delete'), async () => { await deleteAnnotation(annotation); }, 'studynav-danger-button'),
+  );
+  card.appendChild(actions);
+  return card;
 }
 
 function renderPageNoteRail(data: StudyDataV2) {
   const pageUrl = currentPageUrl();
   const notes = annotationsEnabled
     ? data.annotations
-      .filter((annotation) => annotation.pageUrl === pageUrl && !!annotation.note.trim())
+      .filter((annotation) => annotation.pageUrl === pageUrl)
       .sort((a, b) => b.updatedAt - a.updatedAt)
     : [];
-  if (!notes.length) {
+  if (!notes.length && !editorState) {
     document.getElementById(NOTE_RAIL_ID)?.remove();
     return;
   }
@@ -625,35 +779,31 @@ function renderPageNoteRail(data: StudyDataV2) {
     rail.setAttribute('aria-label', t('page_notes'));
     document.documentElement.appendChild(rail);
   }
-  rail.replaceChildren();
 
-  const open = panelButton(t('page_notes'), () => { void openStudyPanel(); });
-  open.className = 'studynav-note-rail-open';
+  let head = rail.querySelector<HTMLElement>(':scope > .studynav-note-rail-head');
+  if (!head) {
+    head = document.createElement('div');
+    head.className = 'studynav-note-rail-head';
+    rail.prepend(head);
+  }
+  const heading = document.createElement('strong');
+  heading.textContent = t('page_notes');
   const count = document.createElement('span');
   count.textContent = String(notes.length);
-  open.appendChild(count);
-  rail.appendChild(open);
+  const open = panelButton(t('open_all_notes'), () => { void openStudyPanel(); }, 'studynav-secondary-button');
+  head.replaceChildren(heading, count, open);
 
-  const list = document.createElement('div');
-  list.className = 'studynav-note-rail-list';
-  for (const annotation of notes.slice(0, 12)) {
-    const item = document.createElement('button');
-    item.type = 'button';
-    item.className = 'studynav-note-rail-item';
-    item.addEventListener('click', () => openAnnotationSource(annotation));
-    const swatch = document.createElement('span');
-    swatch.className = 'studynav-note-swatch';
-    swatch.dataset.color = annotation.color;
-    const copy = document.createElement('span');
-    const quote = document.createElement('strong');
-    quote.textContent = annotation.selector.exact;
-    const note = document.createElement('span');
-    note.textContent = annotation.note;
-    copy.append(quote, note);
-    item.append(swatch, copy);
-    list.appendChild(item);
+  let list = rail.querySelector<HTMLElement>(':scope > .studynav-note-rail-list');
+  if (!list) {
+    list = document.createElement('div');
+    list.className = 'studynav-note-rail-list';
+    rail.appendChild(list);
   }
-  rail.appendChild(list);
+  list.querySelectorAll(':scope > .studynav-note-rail-item').forEach((card) => card.remove());
+  if (editorState && !list.querySelector(`#${EDITOR_ID}`)) {
+    list.prepend(annotationEditorForm(editorState));
+  }
+  for (const annotation of notes.slice(0, 50)) list.appendChild(pageRailCard(annotation));
   positionPageNoteRail();
 }
 
@@ -687,16 +837,18 @@ function beginReattach(annotation: AnnotationRecord) {
   toast(t('reattach_instruction'));
 }
 
-async function deleteAnnotation(annotation: AnnotationRecord) {
-  if (!window.confirm(t('delete_highlight_confirm'))) return;
+async function deleteAnnotation(annotation: AnnotationRecord): Promise<boolean> {
+  if (!window.confirm(t('delete_highlight_confirm'))) return false;
   try {
     await mutateStudyData((current) => ({
       ...current,
       annotations: current.annotations.filter((item) => item.id !== annotation.id),
     }));
     toast(t('highlight_deleted'));
+    return true;
   } catch (error) {
     storageFailure(error);
+    return false;
   }
 }
 
@@ -756,7 +908,7 @@ function annotationCard(annotation: AnnotationRecord): HTMLElement {
   actions.append(
     panelButton(annotation.pageUrl === currentPageUrl() ? t('locate') : t('open_page'), () => openAnnotationSource(annotation)),
     panelButton(t('edit'), () => openAnnotationEditor(null, annotation)),
-    panelButton(t('delete'), () => deleteAnnotation(annotation), 'studynav-danger-button'),
+    panelButton(t('delete'), async () => { await deleteAnnotation(annotation); }, 'studynav-danger-button'),
   );
   if (unresolvedIds.has(annotation.id) && annotation.pageUrl === currentPageUrl()) {
     actions.appendChild(panelButton(t('reattach'), () => beginReattach(annotation)));
@@ -1081,14 +1233,23 @@ export function applyStudyRuntime(
   }
   if (annotationsEnabled) {
     document.addEventListener('selectionchange', selectionChangeHandler, true);
+    if (!highlightClickListening) {
+      highlightClickListening = true;
+      document.addEventListener('click', highlightClickHandler, true);
+    }
   } else if (annotationStateChanged) {
     document.removeEventListener('selectionchange', selectionChangeHandler, true);
+    if (highlightClickListening) {
+      highlightClickListening = false;
+      document.removeEventListener('click', highlightClickHandler, true);
+    }
     pendingReattachId = null;
     hideSelectionTools();
-    closeEditor();
+    closeEditor(false);
     clearHighlightRegistry();
     unresolvedIds = new Set();
     resolvedElements = new Map();
+    resolvedRanges = new Map();
   }
   if (!storageListening) {
     storageListening = true;
@@ -1112,6 +1273,10 @@ export function teardownStudyRuntime() {
   if (selectionTimer != null) window.clearTimeout(selectionTimer);
   selectionTimer = null;
   document.removeEventListener('selectionchange', selectionChangeHandler, true);
+  if (highlightClickListening) {
+    highlightClickListening = false;
+    document.removeEventListener('click', highlightClickHandler, true);
+  }
   if (storageListening) {
     storageListening = false;
     chrome.storage.onChanged.removeListener(localStorageChangeHandler);
@@ -1121,12 +1286,13 @@ export function teardownStudyRuntime() {
     window.removeEventListener('resize', positionPageNoteRail);
   }
   hideSelectionTools();
-  closeEditor();
+  closeEditor(false);
   closeStudyPanel();
   document.getElementById(NOTE_RAIL_ID)?.remove();
   clearHighlightRegistry();
   unresolvedIds = new Set();
   resolvedElements = new Map();
+  resolvedRanges = new Map();
 }
 
 export function studyRuntimeStatus() {

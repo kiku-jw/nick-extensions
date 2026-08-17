@@ -2,7 +2,13 @@ import { describe, expect, test } from 'bun:test';
 
 import { createApplyCoordinator } from '../packages/studynav/src/apply-coordinator.ts';
 import { DEFAULT_FLAGS, migrateFlagsForInstall } from '../packages/studynav/src/features.ts';
-import { cssFor, deriveFeaturePlan, readTranscriptFromTracks } from '../packages/studynav/src/feature-impl.ts';
+import {
+  cssFor,
+  deriveFeaturePlan,
+  officialMediaSourceFromCandidates,
+  onlyOfficialMediaSourceFromCandidates,
+  readTranscriptFromTracks,
+} from '../packages/studynav/src/feature-impl.ts';
 import { resolveQueryForLang, wolRouteForLang, wolSearchUrl } from '../packages/studynav/src/mnemonics.ts';
 import { isAllowedStudyNavPageUrl, STUDYNAV_PAGE_HOSTS } from '../packages/studynav/src/page-origin.ts';
 import {
@@ -329,7 +335,7 @@ describe('StudyNav feature planning', () => {
     expect(browserUpdate.actionBar).toBe(true);
   });
 
-  test('suppresses layout CSS on WOL even when old stored flags are enabled', () => {
+  test('keeps WOL header native while applying scoped article width and table helpers', () => {
     const forcedLayout = {
       ...DEFAULT_FLAGS,
       actionBar: true,
@@ -338,8 +344,11 @@ describe('StudyNav feature planning', () => {
     };
     const css = cssFor(forcedLayout, 'wol.jw.org');
     expect(css).not.toContain('position: sticky');
-    expect(css).not.toContain('max-width: min(1100px, 96vw)');
-    expect(css).not.toContain('border-collapse: collapse');
+    expect(css).toContain('width: 100% !important');
+    expect(css).toContain('max-width: none !important');
+    expect(css).toContain('padding-left: 48px');
+    expect(css).toContain('border-collapse: separate');
+    expect(css).toContain('border-bottom: 1px solid rgba(67,102,159,.32)');
   });
 
   test('uses narrow, border-box layout CSS on jw.org opt-in', () => {
@@ -723,8 +732,8 @@ describe('StudyNav verse audio boundaries', () => {
     expect(selectVerseClipSource(nonMonotonic, verses, 'Genesis')).toBeNull();
 
     const tooLong = structuredClone(payload);
-    tooLong.files.E.MP3[0].duration = 240;
-    tooLong.files.E.MP3[0].markers.markers[2].startTime = '00:02:30.000';
+    tooLong.files.E.MP3[0].duration = 600;
+    tooLong.files.E.MP3[0].markers.markers[2].startTime = '00:05:30.000';
     expect(selectVerseClipSource(tooLong, verses, 'Genesis')).toBeNull();
     expect(selectVerseClipSource(payload, [verses[0], verses[2]], 'Genesis')).toBeNull();
   });
@@ -794,8 +803,8 @@ describe('StudyNav manual media clips', () => {
       endSeconds: 42,
       filename: 'Sample video_0012-0042.wav',
     });
-    expect(validateMediaAudioClipRequest({ ...request, endSeconds: 132 }, page)).not.toBeNull();
-    expect(validateMediaAudioClipRequest({ ...request, endSeconds: 132.1 }, page)).toBeNull();
+    expect(validateMediaAudioClipRequest({ ...request, endSeconds: 312 }, page)).not.toBeNull();
+    expect(validateMediaAudioClipRequest({ ...request, endSeconds: 312.1 }, page)).toBeNull();
     expect(validateMediaAudioClipRequest({ ...request, mediaUrl: 'https://example.com/video.mp4' }, page)).toBeNull();
     expect(validateMediaAudioClipRequest(request, 'http://www.jw.org/ru/biblioteka/video/sample/')).toBeNull();
     expect(validateMediaAudioClipRequest(request, 'https://stream.jw.org/media/sample/')).toBeNull();
@@ -807,12 +816,32 @@ describe('StudyNav manual media clips', () => {
       endSeconds: 60,
       filename: 'Sample video_0012-0060.webm',
     });
-    expect(validateMediaVideoClipRequest({ ...videoRequest, endSeconds: 72 }, page)).not.toBeNull();
-    expect(validateMediaVideoClipRequest({ ...videoRequest, endSeconds: 72.1 }, page)).toBeNull();
+    expect(validateMediaVideoClipRequest({ ...videoRequest, endSeconds: 192 }, page)).not.toBeNull();
+    expect(validateMediaVideoClipRequest({ ...videoRequest, endSeconds: 192.1 }, page)).toBeNull();
     expect(validateMediaVideoClipRequest({ ...videoRequest, mediaUrl: 'https://example.com/video.mp4' }, page)).toBeNull();
     expect(validateMediaVideoClipRequest(videoRequest, 'http://www.jw.org/ru/biblioteka/video/sample/')).toBeNull();
     expect(validateMediaVideoClipRequest(videoRequest, 'https://stream.jw.org/media/sample/')).toBeNull();
     expect(validateMediaVideoClipRequest(videoRequest, 'https://hub.jw.org/media/sample/')).toBeNull();
+  });
+
+  test('recovers the official source after a player switches to a transient blob URL', () => {
+    expect(officialMediaSourceFromCandidates([
+      'blob:https://www.jw.org/transient-player-source',
+      '',
+      'https://cfp2.jw-cdn.org/a/example/1/o/sample.mp4',
+    ])).toBe('https://cfp2.jw-cdn.org/a/example/1/o/sample.mp4');
+    expect(officialMediaSourceFromCandidates([
+      'blob:https://www.jw.org/transient-player-source',
+      'https://example.com/not-official.mp4',
+    ])).toBeNull();
+    expect(onlyOfficialMediaSourceFromCandidates([
+      'https://cfp2.jw-cdn.org/a/example/1/o/sample.mp4',
+      'https://cfp2.jw-cdn.org/a/example/1/o/sample.mp4',
+    ])).toBe('https://cfp2.jw-cdn.org/a/example/1/o/sample.mp4');
+    expect(onlyOfficialMediaSourceFromCandidates([
+      'https://cfp2.jw-cdn.org/a/example/1/o/sample.mp4',
+      'https://cfp2.jw-cdn.org/a/example/2/o/another.mp4',
+    ])).toBeNull();
   });
 });
 
