@@ -1,11 +1,27 @@
-# Suno prompt — StudyNav tutorial bed
+# Suno setup — StudyNav tutorial music
 
-Create one 4-minute-40-second instrumental background for a software tutorial at 92 BPM. It must work under either Russian or English narration. Use soft muted percussion, light marimba or plucked mallets, restrained electric piano, subtle bass, and a thin airy synth texture. Keep a steady pulse and add small, smooth changes every 8–12 seconds. Do not use a dramatic build, drop, trailer sound, corporate ukulele, sentimental piano, choir, vocal chops, spoken words, or a dominant melody. Leave the 1–4 kHz range open for speech. Start without a long introduction, keep the loudness even, and finish with a gentle 3-second fade out.
+Use **Custom Mode** with **V5.5**. Copy the two lists into separate fields.
 
-Suggested Suno settings:
+## Style (positive)
 
+instrumental, minimal tutorial underscore, warm modern ambient, gently optimistic, calm and focused, 92 BPM, steady 4/4 pulse, soft muted percussion, light marimba, plucked mallets, restrained electric piano, subtle rounded bass, thin airy synth texture, sparse arrangement, smooth micro-transitions every 8 to 12 seconds, even dynamics, narration-friendly mix, soft opening, gentle three-second fade-out
+
+## Exclude (negative)
+
+vocals, spoken word, choir, vocal chops, dominant lead melody, catchy hook, dramatic build, drop, trailer music, cinematic climax, sentimental solo piano, ukulele, heavy drums, aggressive bass, distorted guitars, dense arrangement, abrupt transitions, risers, impacts, excessive reverb, shrill lead instruments
+
+## Settings
+
+- Model: V5.5
+- Custom Mode: on
 - Instrumental: on
-- Style influence: medium
-- Weirdness: low
-- Target duration: 4:40
-- Target mix under narration: approximately −24 to −21 LUFS before final ducking
+- Lyrics: empty
+- Duration slider: 4:40
+- Style Influence: medium-high, about 70%
+- Weirdness: low, about 20%
+- Title: StudyNav tutorial bed
+
+Generate at least two versions. Choose the one that stays in the background and
+does not pull attention away from the narration. If both versions are too busy,
+add the distracting instrument or effect to **Exclude** instead of adding a
+negative instruction to **Style**.

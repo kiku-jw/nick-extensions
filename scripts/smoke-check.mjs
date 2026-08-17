@@ -291,11 +291,24 @@ for (const name of pkgs) {
 
 console.log('\n== public StudyNav guide ==');
 const guideCss = readFileSync(join(root, 'site', 'assets', 'site.css'), 'utf8');
+const musicPrompt = readFileSync(join(root, 'site', 'assets', 'narration', 'studynav-music-prompt.md'), 'utf8');
 ok(
   guideCss.includes('color-scheme: dark') &&
     guideCss.includes('--paper: #0b1018') &&
     guideCss.includes('--accent: #43669f'),
   'StudyNav guide uses the dark default palette and product accent',
+);
+ok(
+  musicPrompt.includes('## Style (positive)') &&
+    musicPrompt.includes('## Exclude (negative)') &&
+    musicPrompt.includes('Duration slider: 4:40') &&
+    musicPrompt.includes('Instrumental: on'),
+  'StudyNav Suno setup separates positive style, negative exclusions, duration, and instrumental controls',
+);
+const positiveMusicStyle = musicPrompt.match(/## Style \(positive\)\s+([\s\S]*?)\s+## Exclude/)?.[1] || '';
+ok(
+  !/\b(?:do not|without|exclude|no vocals?)\b/i.test(positiveMusicStyle),
+  'StudyNav Suno positive style does not contain negative instructions',
 );
 for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
   const htmlPath = join(root, relativeHtml);
