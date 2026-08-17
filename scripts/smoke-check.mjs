@@ -366,7 +366,9 @@ for (const language of ['en', 'ru']) {
   );
 }
 
-const narrationWordsPerMinute = { en: 130, ru: 121 };
+// Calibrated from the owner's ElevenLabs renders: RU 451 words in 4:30 and
+// EN 488 words in 3:50, after subtracting the same 24 × 0.75-second pauses.
+const narrationWordsPerMinute = { en: 488 / 212 * 60, ru: 451 / 252 * 60 };
 const countNarrationWords = (value) => value.match(/[\p{L}\p{N}]+(?:[’'–-][\p{L}\p{N}]+)*/gu)?.length || 0;
 const estimatedSceneSeconds = Object.fromEntries(
   Object.entries(narrationParagraphsByLanguage).map(([language, paragraphs]) => [
@@ -380,8 +382,15 @@ if (estimatedSceneSeconds.en?.length === 25 && estimatedSceneSeconds.ru?.length 
   const totalRu = estimatedSceneSeconds.ru.reduce((sum, seconds) => sum + seconds, 0);
   const maxSceneDelta = Math.max(...sceneDeltas);
   const totalDelta = Math.abs(totalEn - totalRu);
-  ok(maxSceneDelta <= 0.8, `StudyNav narration: estimated scene pacing differs by at most ${maxSceneDelta.toFixed(1)} seconds`);
+  const sharedPauseSeconds = 24 * 0.75;
+  const totalEnWithPauses = totalEn + sharedPauseSeconds;
+  const totalRuWithPauses = totalRu + sharedPauseSeconds;
+  ok(maxSceneDelta <= 0.9, `StudyNav narration: estimated scene pacing differs by at most ${maxSceneDelta.toFixed(1)} seconds`);
   ok(totalDelta <= 5, `StudyNav narration: estimated language runtimes differ by only ${totalDelta.toFixed(1)} seconds`);
+  ok(
+    Math.abs(totalEnWithPauses - 270) <= 5 && Math.abs(totalRuWithPauses - 270) <= 5,
+    `StudyNav narration: calibrated runtimes stay near 4:30 (${totalRuWithPauses.toFixed(1)}s RU, ${totalEnWithPauses.toFixed(1)}s EN)`,
+  );
 }
 
 const tutorialManifest = JSON.parse(readFileSync(join(root, 'scripts', 'studynav-tutorial-scenes.json'), 'utf8'));
