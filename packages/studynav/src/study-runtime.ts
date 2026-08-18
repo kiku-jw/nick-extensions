@@ -28,7 +28,7 @@ import {
 import { loadStudyData, mutateStudyData, studyDataChanged } from './study-storage';
 import { canonicalStudyUrl, cleanCitationText } from './document-actions';
 import { t, type MessageKey } from './i18n';
-import { paragraphNodes, qs, toast } from './util';
+import { copy, deepestLinkFor, paragraphNodes, qs, toast } from './util';
 
 const SELECTION_TOOLS_ID = 'studynav-selection-tools';
 const EDITOR_ID = 'studynav-note-editor';
@@ -55,6 +55,8 @@ type HighlightRegistryLike = {
 let enabled = false;
 let annotationsEnabled = false;
 let bookmarksEnabled = false;
+let copyTextEnabled = false;
+let parLinkEnabled = false;
 let articleRoots: HTMLElement[] = [];
 let currentCandidate: SelectionCandidate | null = null;
 let pendingReattachId: string | null = null;
@@ -340,7 +342,7 @@ function showSelectionTools(candidate: SelectionCandidate) {
   tools.className = 'studynav-selection-tools';
   tools.setAttribute('data-studynav-owned', '1');
   tools.setAttribute('role', 'toolbar');
-  tools.setAttribute('aria-label', t(pendingReattachId ? 'reattach_note_aria' : 'highlight_selection_aria'));
+  tools.setAttribute('aria-label', t(pendingReattachId ? 'reattach_note_aria' : 'selection_actions_aria'));
 
   if (pendingReattachId) {
     const reattach = document.createElement('button');
@@ -360,15 +362,46 @@ function showSelectionTools(candidate: SelectionCandidate) {
     });
     tools.append(reattach, cancel);
   } else {
-    for (const color of HIGHLIGHT_COLORS) {
-      tools.appendChild(colorButton(color, () => void saveCandidate(candidate, color, '', [])));
+    if (annotationsEnabled) {
+      for (const color of HIGHLIGHT_COLORS) {
+        tools.appendChild(colorButton(color, () => void saveCandidate(candidate, color, '', [])));
+      }
+      const note = document.createElement('button');
+      note.type = 'button';
+      note.textContent = t('add_note');
+      preserveSelectionOnPointerDown(note);
+      note.addEventListener('click', () => openAnnotationEditor(candidate));
+      tools.appendChild(note);
     }
-    const note = document.createElement('button');
-    note.type = 'button';
-    note.textContent = t('add_note');
-    preserveSelectionOnPointerDown(note);
-    note.addEventListener('click', () => openAnnotationEditor(candidate));
-    tools.appendChild(note);
+
+    if (copyTextEnabled) {
+      const copyButton = document.createElement('button');
+      copyButton.type = 'button';
+      copyButton.className = 'studynav-secondary-button';
+      copyButton.textContent = t('copy');
+      preserveSelectionOnPointerDown(copyButton);
+      copyButton.addEventListener('click', () => {
+        void copy(cleanCitationText(candidate.selector.exact));
+        window.getSelection()?.removeAllRanges();
+        hideSelectionTools();
+      });
+      tools.appendChild(copyButton);
+    }
+
+    if (parLinkEnabled) {
+      const linkButton = document.createElement('button');
+      linkButton.type = 'button';
+      linkButton.className = 'studynav-secondary-button';
+      linkButton.textContent = t('link');
+      preserveSelectionOnPointerDown(linkButton);
+      linkButton.addEventListener('click', () => {
+        const root = selectionRoot(candidate.range);
+        if (root) void copy(deepestLinkFor(root), t('link_copied'));
+        window.getSelection()?.removeAllRanges();
+        hideSelectionTools();
+      });
+      tools.appendChild(linkButton);
+    }
   }
 
   document.documentElement.appendChild(tools);
@@ -376,7 +409,7 @@ function showSelectionTools(candidate: SelectionCandidate) {
 }
 
 function updateSelectionTools() {
-  if (!enabled || !annotationsEnabled || document.getElementById(EDITOR_ID)) return;
+  if (!enabled || (!annotationsEnabled && !copyTextEnabled && !parLinkEnabled) || document.getElementById(EDITOR_ID)) return;
   const candidate = candidateFromSelection();
   if (!candidate) {
     hideSelectionTools();
@@ -1218,33 +1251,47 @@ const localStorageChangeHandler = (
 export type StudyRuntimeOptions = {
   annotations: boolean;
   bookmarks: boolean;
+  copyText?: boolean;
+  parLink?: boolean;
 };
 
 export function applyStudyRuntime(
   nextArticleRoots: HTMLElement[],
-  options: StudyRuntimeOptions = { annotations: true, bookmarks: false },
+  options: StudyRuntimeOptions = { annotations: true, bookmarks: false, copyText: false, parLink: false },
 ) {
   articleRoots = [...nextArticleRoots];
   const annotationStateChanged = annotationsEnabled !== options.annotations;
+  const selectionConfigChanged = annotationsEnabled !== options.annotations ||
+    copyTextEnabled !== (options.copyText === true) ||
+    parLinkEnabled !== (options.parLink === true);
+  const selectionWasEnabled = annotationsEnabled || copyTextEnabled || parLinkEnabled;
   annotationsEnabled = options.annotations;
   bookmarksEnabled = options.bookmarks;
+  copyTextEnabled = options.copyText === true;
+  parLinkEnabled = options.parLink === true;
+  const selectionIsEnabled = annotationsEnabled || copyTextEnabled || parLinkEnabled;
   if (!enabled) {
     enabled = true;
   }
-  if (annotationsEnabled) {
+  if (selectionConfigChanged) hideSelectionTools();
+  if (selectionIsEnabled) {
     document.addEventListener('selectionchange', selectionChangeHandler, true);
+  } else if (selectionWasEnabled) {
+    document.removeEventListener('selectionchange', selectionChangeHandler, true);
+    pendingReattachId = null;
+    hideSelectionTools();
+  }
+  if (annotationsEnabled) {
     if (!highlightClickListening) {
       highlightClickListening = true;
       document.addEventListener('click', highlightClickHandler, true);
     }
   } else if (annotationStateChanged) {
-    document.removeEventListener('selectionchange', selectionChangeHandler, true);
     if (highlightClickListening) {
       highlightClickListening = false;
       document.removeEventListener('click', highlightClickHandler, true);
     }
     pendingReattachId = null;
-    hideSelectionTools();
     closeEditor(false);
     clearHighlightRegistry();
     unresolvedIds = new Set();
@@ -1266,6 +1313,8 @@ export function teardownStudyRuntime() {
   enabled = false;
   annotationsEnabled = false;
   bookmarksEnabled = false;
+  copyTextEnabled = false;
+  parLinkEnabled = false;
   articleRoots = [];
   pendingReattachId = null;
   lastSelectionError = '';
@@ -1300,6 +1349,8 @@ export function studyRuntimeStatus() {
     enabled,
     annotationsEnabled,
     bookmarksEnabled,
+    copyTextEnabled,
+    parLinkEnabled,
     panelOpen: !!document.getElementById(PANEL_ID),
     noteRailOpen: !!document.getElementById(NOTE_RAIL_ID),
     selectionToolsOpen: !!document.getElementById(SELECTION_TOOLS_ID),

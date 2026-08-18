@@ -1,6 +1,6 @@
-# Local-first Chromium extensions
+# Local-first Chromium and Edge extensions
 
-Три локальных Manifest V3 расширения для Brave/Chromium. Код и сборка остаются под контролем владельца: без телеметрии, remote code и магазинного auto-update. InkShade использует явно закреплённый MIT-лицензированный upstream source fork с отдельным брендом и квитанцией происхождения.
+Три локальных Manifest V3 расширения для Brave/Chromium и отдельная осторожная сборка StudyNav для Edge Mobile. Код и сборка остаются под контролем владельца: без телеметрии и remote code. InkShade использует явно закреплённый MIT-лицензированный upstream source fork с отдельным брендом и квитанцией происхождения.
 
 ## Philosophy
 
@@ -15,6 +15,7 @@
 | `packages/clearshield` / ClearShield | **Ad & Tracker Blocker (ClearShield)** | DNR blocker: локальные списки, per-site allowlist, косметическая фильтрация, счётчик блокировок |
 | `packages/inkshade` / InkShade | **InkShade – Dark Mode for Every Site** | Store-oriented local-first fork of the Dark Reader v4.9.129 MV3 engine and bundled site fixes; distinct branding, no news/telemetry/premium/remote config |
 | `packages/studynav` / StudyNav | **StudyNav — Unofficial Study Tools** | Локальные подсветки/заметки/теги и сохранённые места, цитаты и QR, continue-watching, выбор одного или нескольких стихов подряд → один локальный WAV, copy/link и reading/media helpers |
+| `packages/studynav` / StudyNav Mobile | **StudyNav Mobile — Unofficial Study Tools** | Отдельный пакет для Edge на телефонах: подсветки, заметки и теги, сохранённые места, цитаты, QR, чистое копирование, точные ссылки, описания изображений и число языков; без медиазагрузок и изменений вёрстки |
 
 StudyNav — **неофициальный** helper, не связан с JW.org / Watch Tower / JW PubMedia One / JW Web Add-on.
 
@@ -46,6 +47,15 @@ Artifacts:
 - `packages/clearshield/dist`
 - `packages/inkshade/dist`
 - `packages/studynav/dist`
+- `packages/studynav/dist-edge-mobile`
+
+Мобильный пакет и ZIP для отправки в Edge Add-ons:
+
+```bash
+bun run package:studynav:edge-mobile
+```
+
+Результат: `packages/studynav/studynav-edge-mobile.zip`. Это пакет для проверки и отправки в магазин, а не готовый способ установки на телефон. Друзья смогут поставить расширение на мобильный Edge после публикации в Edge Add-ons.
 
 ## Load in Brave
 
@@ -62,6 +72,23 @@ Artifacts:
 4. On a JW.org Bible chapter, select one verse or a contiguous range. **Download audio** saves the selected narration as one WAV. The extension reads JW.org's official timing markers and processes the official chapter audio locally; no audio is uploaded. English and canonical Russian/Ukrainian routes are covered by live end-to-end checks.
 5. On articles, hover or keyboard-focus supported text for Copy and Link. Image downloads are off by default; enable **Download article images** to add a labeled button only to full article images, not compact publication previews. The popup can also open the dedicated Google image search for JW.org. On media pages, copy the page and current time, save up to five minutes of audio as WAV or three minutes of video as WebM, move playback to a separate window at the same point, use reliable Space play/pause, remove hover shading, and resume from locally saved progress. **Transcript** remains visible for video and explains when captions are unavailable.
 6. Layout-changing helpers are off by default. Updating from StudyNav 1.2.3 resets those three old defaults once; later explicit choices are preserved. The sticky-header option changes JW.org articles; WOL already pins its own header. Wider text and clearer tables work on JW.org and WOL articles with narrow selectors.
+
+## StudyNav Mobile for Edge
+
+Мобильная версия собирается из того же кода, но имеет отдельный manifest и жёсткий список из девяти проверяемых функций:
+
+- выделения шести цветов, заметки и теги;
+- сохранённые места;
+- оформленные цитаты и QR;
+- чистое копирование выделенного текста и точная ссылка;
+- чистая ссылка публикации;
+- описания крупных изображений и число доступных языков.
+
+Поиск картинок JW через Google остаётся отдельной кнопкой в меню. На сенсорном экране после выделения текста появляются **Цвет**, **Добавить заметку**, **Копировать** и **Ссылка**. Заметка открывается на весь экран, а её теги превращаются в отдельные чипы после запятой или Enter.
+
+В мобильный пакет намеренно не входят аудио стихов, обрезка аудио/видео, функции плеера, транскрипт, отдельное окно, скачивание изображений, клавиатурный поиск и изменения ширины/шапки/таблиц. Manifest запрашивает только `storage` и доступ к `jw.org`, `www.jw.org` и `wol.jw.org`; медиадомен и offscreen-документ отсутствуют.
+
+Microsoft публикует мобильные расширения Edge для Android и iOS. Официальная таблица API явно перечисляет Android для `action`, `runtime`, `storage`, `tabs` и `i18n`, но не содержит отдельной колонки iOS. Поэтому автоматическая Chromium-проверка не заменяет финальный smoke на настоящем Android и iPhone. Публичную инструкцию и магазинную ссылку нужно добавлять только после этих двух проверок и одобрения владельца на отправку в Edge Add-ons.
 
 ## Updates policy
 

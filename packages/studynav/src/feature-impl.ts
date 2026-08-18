@@ -1,4 +1,5 @@
 import type { FeatureFlags } from './features';
+import { EDGE_MOBILE_BUILD } from './build-profile';
 import { resolveQuery } from './mnemonics';
 import {
   buildOfficialFinderUrl,
@@ -133,7 +134,7 @@ function removeStyle() {
 export function cssFor(flags: FeatureFlags, hostname: string): string {
   const bits: string[] = [];
   const isWol = hostname.toLowerCase() === 'wol.jw.org';
-  if (flags.actionBar && !isWol) {
+  STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD && flags.actionBar && !isWol) {
     bits.push(`
       #regionHeader {
         position: sticky !important; top: 0 !important; z-index: 9990 !important;
@@ -141,7 +142,7 @@ export function cssFor(flags: FeatureFlags, hostname: string): string {
       }
     `);
   }
-  if (flags.expandWidth) {
+  STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD && flags.expandWidth) {
     bits.push(isWol ? `
       @media (min-width: 980px) {
         [${ARTICLE_MARKER}="1"] {
@@ -170,7 +171,7 @@ export function cssFor(flags: FeatureFlags, hostname: string): string {
       }
     `);
   }
-  if (flags.cstblView) {
+  STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD && flags.cstblView) {
     bits.push(isWol ? `
       [${ARTICLE_MARKER}="1"] table {
         border-collapse: separate !important; border-spacing: 0 !important; width: 100% !important;
@@ -196,7 +197,7 @@ export function cssFor(flags: FeatureFlags, hostname: string): string {
       }
     `);
   }
-  if (flags.mediaPlayerUI) {
+  STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD && flags.mediaPlayerUI) {
     bits.push(`
       .video-js .vjs-control-bar {
         background: transparent !important;
@@ -205,7 +206,7 @@ export function cssFor(flags: FeatureFlags, hostname: string): string {
       }
     `);
   }
-  if (flags.customSub) {
+  STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD && flags.customSub) {
     bits.push(`
       .vjs-text-track-cue > div, .vjs-text-track-display .vjs-text-track-cue div,
       ::cue {
@@ -396,7 +397,7 @@ export function deriveFeaturePlan(flags: FeatureFlags, support: SupportState): F
       mediaToolbar: !support.media || !(
         flags.mediaTS || flags.mediaClip || flags.sndDisp || flags.transcCreate || flags.continueWatching
       ),
-      annotations: !flags.annotations && !flags.bookmarks,
+      annotations: !flags.annotations && !flags.bookmarks && !flags.copyText && !flags.parLink,
       continueWatching: !flags.continueWatching || !support.media,
     },
     styleFlags: {
@@ -412,17 +413,19 @@ export function deriveFeaturePlan(flags: FeatureFlags, support: SupportState): F
 }
 
 export function teardownFeatures() {
-  teardownPalette();
   teardownAltText();
   teardownCopyAndLinks();
-  teardownImgGet();
   teardownLanguageBadge();
-  teardownMediaToolbar();
-  teardownTranscript();
   teardownToast();
   teardownQrOverlay();
-  teardownMediaCtrl();
-  teardownContinueWatching();
+  STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD) {
+    teardownPalette();
+    teardownImgGet();
+    teardownMediaToolbar();
+    teardownTranscript();
+    teardownMediaCtrl();
+    teardownContinueWatching();
+  }
   teardownStudyRuntime();
   clearArticleMarkers();
   removeStyle();
@@ -1012,7 +1015,9 @@ async function downloadVerseAudio(verseElements: readonly HTMLElement[], button:
 
 function runCopyAndLinks(articleRoots: HTMLElement[], flags: FeatureFlags) {
   const hasBibleVerses = articleRoots.some((root) => !!root.querySelector('.verse[id^="v"]'));
-  syncVerseSelectionListener(hasBibleVerses && !!(flags.verseAudio || flags.copyText || flags.parLink || flags.annotations));
+  syncVerseSelectionListener(hasBibleVerses && !!(
+    (!EDGE_MOBILE_BUILD && flags.verseAudio) || flags.copyText || flags.parLink || flags.annotations
+  ));
   paragraphNodes(articleRoots).forEach((el) => {
     const existing = el.querySelector(':scope > .studynav-para-tools');
     if (existing) existing.remove();
@@ -1023,7 +1028,7 @@ function runCopyAndLinks(articleRoots: HTMLElement[], flags: FeatureFlags) {
     bar.setAttribute('data-studynav-owned', '1');
     bar.setAttribute('aria-label', t('study_tools_aria'));
 
-    if (flags.verseAudio && parseBibleVerseId(el.id)) {
+    STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD && flags.verseAudio && parseBibleVerseId(el.id)) {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'studynav-verse-audio';
@@ -1039,7 +1044,7 @@ function runCopyAndLinks(articleRoots: HTMLElement[], flags: FeatureFlags) {
       bar.appendChild(button);
     }
 
-    if ((flags.verseAudio || flags.copyText || flags.parLink) && parseBibleVerseId(el.id)) {
+    if (((!EDGE_MOBILE_BUILD && flags.verseAudio) || flags.copyText || flags.parLink) && parseBibleVerseId(el.id)) {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'studynav-verse-range-control';
@@ -1964,15 +1969,17 @@ export function applyFeatures(flags: FeatureFlags) {
     if (!flags.qrShare) teardownQrOverlay();
 
     if (plan.teardown.languageBadge) teardownLanguageBadge();
-    if (plan.teardown.mediaToolbar) teardownMediaToolbar();
-    if (plan.teardown.transcript) teardownTranscript();
     if (plan.teardown.altText) teardownAltText();
     if (plan.teardown.copyAndLinks) teardownCopyAndLinks();
-    if (plan.teardown.imgGet) teardownImgGet();
-    if (plan.teardown.palette) teardownPalette();
-    if (plan.teardown.mediaCtrl) teardownMediaCtrl();
     if (plan.teardown.annotations) teardownStudyRuntime();
-    if (plan.teardown.continueWatching) teardownContinueWatching();
+    STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD) {
+      if (plan.teardown.mediaToolbar) teardownMediaToolbar();
+      if (plan.teardown.transcript) teardownTranscript();
+      if (plan.teardown.imgGet) teardownImgGet();
+      if (plan.teardown.palette) teardownPalette();
+      if (plan.teardown.mediaCtrl) teardownMediaCtrl();
+      if (plan.teardown.continueWatching) teardownContinueWatching();
+    }
 
     markArticleRoots(support.article ? support.articleRoots : []);
 
@@ -1983,31 +1990,35 @@ export function applyFeatures(flags: FeatureFlags) {
     document.documentElement.classList.add('studynav-on');
     document.documentElement.dataset.studynav = '1';
 
-    if (flags.annotations || flags.bookmarks) {
+    if (flags.annotations || flags.bookmarks || flags.copyText || flags.parLink) {
       applyStudyRuntime(support.article ? support.articleRoots : [], {
         annotations: flags.annotations,
         bookmarks: flags.bookmarks,
+        copyText: flags.copyText,
+        parLink: flags.parLink,
       });
     }
 
-    if (flags.advSearch && support.palette) {
-      mountPalette();
-      window.addEventListener('keydown', paletteHotkeyHandler, true);
-    }
     if (flags.altText && support.article) runAltText(support.articleRoots);
     if (!flags.parLink) clearOwnedAnchors();
-    if ((flags.copyText || flags.parLink || flags.verseAudio || flags.annotations) && support.article) {
+    if ((flags.copyText || flags.parLink || (!EDGE_MOBILE_BUILD && flags.verseAudio) || flags.annotations) && support.article) {
       runCopyAndLinks(support.articleRoots, flags);
     }
     if (flags.langCount && support.language) runLangCount(support.articleRoots);
-    if (flags.imgGet && support.article) runImgGet(support.articleRoots);
-    if (flags.mediaCtrl && support.media) window.addEventListener('keydown', mediaKeyHandler, true);
-    const mediaToolbar = mountMediaToolbar(flags, support.media);
-    if (flags.continueWatching && support.media) {
-      applyContinueWatching(
-        qsa<HTMLVideoElement>('video').filter((video) => !video.closest('[data-studynav-owned]')),
-        mediaToolbar,
-      );
+    STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD) {
+      if (flags.advSearch && support.palette) {
+        mountPalette();
+        window.addEventListener('keydown', paletteHotkeyHandler, true);
+      }
+      if (flags.imgGet && support.article) runImgGet(support.articleRoots);
+      if (flags.mediaCtrl && support.media) window.addEventListener('keydown', mediaKeyHandler, true);
+      const mediaToolbar = mountMediaToolbar(flags, support.media);
+      if (flags.continueWatching && support.media) {
+        applyContinueWatching(
+          qsa<HTMLVideoElement>('video').filter((video) => !video.closest('[data-studynav-owned]')),
+          mediaToolbar,
+        );
+      }
     }
   } catch (e) {
     console.warn('StudyNav feature error', e);

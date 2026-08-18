@@ -1,12 +1,16 @@
 import {
   DEFAULT_FLAGS,
+  EDGE_MOBILE_DEFAULT_FLAGS,
+  edgeMobileFlags,
   FEATURE_META,
+  isEdgeMobileFeature,
   type FeatureFlags,
   type FeatureGroup,
   type FeatureId,
 } from './features';
 import { featureBlurbKey, featureNameKey, localizeDocument, t, type MessageKey } from './i18n';
 import { buildImageSearchUrl } from './document-actions';
+import { EDGE_MOBILE_BUILD } from './build-profile';
 
 const list = document.getElementById('list')!;
 const filterEl = document.getElementById('filter') as HTMLInputElement;
@@ -19,13 +23,22 @@ const actionFeedbackEl = document.getElementById('action-feedback')!;
 const actionButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('.action-grid button'));
 let currentFlags: FeatureFlags = { ...DEFAULT_FLAGS };
 let currentPageStatus: PageStatus | null = null;
+const BUILD_DEFAULT_FLAGS = EDGE_MOBILE_BUILD ? EDGE_MOBILE_DEFAULT_FLAGS : DEFAULT_FLAGS;
+const BUILD_FEATURE_META = EDGE_MOBILE_BUILD
+  ? FEATURE_META.filter((meta) => isEdgeMobileFeature(meta.id))
+  : FEATURE_META;
+
+function normalizeBuildFlags(value: Partial<FeatureFlags> | undefined): FeatureFlags {
+  const flags = { ...BUILD_DEFAULT_FLAGS, ...value };
+  return EDGE_MOBILE_BUILD ? edgeMobileFlags(flags) : flags;
+}
 
 async function load(): Promise<FeatureFlags> {
-  return chrome.runtime.sendMessage({ type: 'GET_FLAGS' });
+  return normalizeBuildFlags(await chrome.runtime.sendMessage({ type: 'GET_FLAGS' }));
 }
 
 function enabledCount(flags: FeatureFlags): number {
-  return FEATURE_META.filter((meta) => flags[meta.id]).length;
+  return BUILD_FEATURE_META.filter((meta) => flags[meta.id]).length;
 }
 
 function updateEnabledCount() {
@@ -113,7 +126,9 @@ async function renderPageStatus() {
   if (!status || status.supported !== true || status.active !== true) {
     statusEl.dataset.state = 'idle';
     statusTitleEl.textContent = t('status_unavailable_title');
-    statusHintEl.textContent = t('status_unavailable_hint');
+    statusHintEl.textContent = t(EDGE_MOBILE_BUILD
+      ? 'status_mobile_unavailable_hint'
+      : 'status_unavailable_hint');
     return;
   }
 
@@ -124,7 +139,7 @@ async function renderPageStatus() {
     statusTitleEl.textContent = t('status_bible_title');
     statusHintEl.textContent = selectedRange && typeof selectedRange === 'object' &&
       'chapter' in selectedRange && 'startVerse' in selectedRange && 'endVerse' in selectedRange
-      ? t('status_bible_range', [
+      ? t(EDGE_MOBILE_BUILD ? 'status_bible_range_mobile' : 'status_bible_range', [
           String(selectedRange.chapter),
           String(selectedRange.startVerse),
           String(selectedRange.endVerse),
@@ -132,13 +147,13 @@ async function renderPageStatus() {
       : selected && typeof selected === 'object' &&
       'chapter' in selected && 'verse' in selected
       ? t('status_bible_selected', [String(selected.chapter), String(selected.verse)])
-      : t('status_bible_hint');
+      : t(EDGE_MOBILE_BUILD ? 'status_bible_hint_mobile' : 'status_bible_hint');
   } else if (status.kind === 'media') {
-    statusTitleEl.textContent = t('status_media_title');
-    statusHintEl.textContent = t('status_media_hint');
+    statusTitleEl.textContent = t(EDGE_MOBILE_BUILD ? 'status_media_mobile_title' : 'status_media_title');
+    statusHintEl.textContent = t(EDGE_MOBILE_BUILD ? 'status_media_mobile_hint' : 'status_media_hint');
   } else if (status.kind === 'article') {
     statusTitleEl.textContent = t('status_article_title');
-    statusHintEl.textContent = t('status_article_hint');
+    statusHintEl.textContent = t(EDGE_MOBILE_BUILD ? 'status_article_hint_mobile' : 'status_article_hint');
   } else {
     statusTitleEl.textContent = t('status_palette_title');
     statusHintEl.textContent = t('status_palette_hint');
@@ -194,7 +209,13 @@ async function runPageAction(button: HTMLButtonElement) {
 
 (async () => {
   localizeDocument();
-  currentFlags = { ...DEFAULT_FLAGS, ...(await load()) };
+  if (EDGE_MOBILE_BUILD) {
+    document.title = t('extension_mobile_name');
+    document.querySelector<HTMLElement>('[data-i18n="popup_header_subtitle"]')!.textContent = t('popup_mobile_header_subtitle');
+    document.getElementById('guide-bible-text')!.textContent = t('guide_bible_mobile_text');
+    document.getElementById('guide-articles-text')!.textContent = t('guide_articles_mobile_text');
+  }
+  currentFlags = normalizeBuildFlags(await load());
   masterEl.checked = currentFlags.masterEnabled !== false;
   masterEl.addEventListener('change', async () => {
     await chrome.runtime.sendMessage({ type: 'SET_FLAG', id: 'masterEnabled', value: masterEl.checked });
@@ -210,11 +231,13 @@ async function runPageAction(button: HTMLButtonElement) {
     { key: 'media', title: 'group_media' },
   ];
   for (const g of groups) {
+    const items = BUILD_FEATURE_META.filter((meta) => meta.group === g.key);
+    if (!items.length) continue;
     const h = document.createElement('div');
     h.className = 'group';
     h.textContent = t(g.title);
     list.appendChild(h);
-    for (const meta of FEATURE_META.filter((m) => m.group === g.key)) {
+    for (const meta of items) {
       list.appendChild(row(meta, !!currentFlags[meta.id]));
     }
   }
@@ -227,8 +250,8 @@ async function runPageAction(button: HTMLButtonElement) {
     if (url) void chrome.tabs.create({ url });
   });
   document.getElementById('reset-defaults')?.addEventListener('click', async () => {
-    await chrome.runtime.sendMessage({ type: 'SET_FLAGS', flags: DEFAULT_FLAGS });
-    currentFlags = { ...DEFAULT_FLAGS };
+    await chrome.runtime.sendMessage({ type: 'SET_FLAGS', flags: BUILD_DEFAULT_FLAGS });
+    currentFlags = { ...BUILD_DEFAULT_FLAGS };
     masterEl.checked = true;
     list.querySelectorAll<HTMLInputElement>('input[data-id]').forEach((input) => {
       input.checked = !!currentFlags[input.dataset.id as FeatureId];

@@ -1,4 +1,11 @@
-import { DEFAULT_FLAGS, migrateFlagsForInstall, type FeatureFlags } from './features';
+import {
+  DEFAULT_FLAGS,
+  EDGE_MOBILE_DEFAULT_FLAGS,
+  edgeMobileFlags,
+  migrateFlagsForInstall,
+  type FeatureFlags,
+} from './features';
+import { EDGE_MOBILE_BUILD } from './build-profile';
 import { t } from './i18n';
 import {
   validateMediaAudioClipRequest,
@@ -6,13 +13,15 @@ import {
 } from './verse-audio';
 
 const OFFSCREEN_URL = 'offscreen.html';
+const BUILD_DEFAULT_FLAGS = EDGE_MOBILE_BUILD ? EDGE_MOBILE_DEFAULT_FLAGS : DEFAULT_FLAGS;
 let creatingOffscreen: Promise<void> | null = null;
 let audioJob: Promise<unknown> | null = null;
 let flagMutationQueue: Promise<void> = Promise.resolve();
 
 async function load(): Promise<FeatureFlags> {
-  const s = await chrome.storage.sync.get({ flags: DEFAULT_FLAGS });
-  return { ...DEFAULT_FLAGS, ...(s.flags as FeatureFlags) };
+  const s = await chrome.storage.sync.get({ flags: BUILD_DEFAULT_FLAGS });
+  const flags = { ...BUILD_DEFAULT_FLAGS, ...(s.flags as FeatureFlags) };
+  return EDGE_MOBILE_BUILD ? edgeMobileFlags(flags) : flags;
 }
 
 function paletteEnabled(flags: FeatureFlags): boolean {
@@ -21,7 +30,8 @@ function paletteEnabled(flags: FeatureFlags): boolean {
 
 function mutateFlags(change: Partial<FeatureFlags>): Promise<FeatureFlags> {
   const task = flagMutationQueue.then(async () => {
-    const next = { ...(await load()), ...change };
+    const changed = { ...(await load()), ...change };
+    const next = EDGE_MOBILE_BUILD ? edgeMobileFlags(changed) : changed;
     await chrome.storage.sync.set({ flags: next });
     return next;
   });
@@ -109,13 +119,16 @@ async function processVerseAudio(message: unknown, senderUrl: string) {
 
 chrome.runtime.onInstalled.addListener(async (details) => {
   const cur = await chrome.storage.sync.get('flags');
+  const migrated = migrateFlagsForInstall(cur.flags as Partial<FeatureFlags> | undefined, details);
   await chrome.storage.sync.set({
-    flags: migrateFlagsForInstall(cur.flags as Partial<FeatureFlags> | undefined, details),
+    flags: EDGE_MOBILE_BUILD ? edgeMobileFlags(migrated) : migrated,
   });
 });
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg?.target === 'studynav-offscreen') return false;
+  STUDYNAV_DESKTOP_ONLY: {
+    if (!EDGE_MOBILE_BUILD && msg?.target === 'studynav-offscreen') return false;
+  }
   (async () => {
     if (msg?.type === 'GET_FLAGS') {
       sendResponse(await load());
@@ -129,13 +142,15 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       sendResponse(await mutateFlags({ [msg.id]: !!msg.value }));
       return;
     }
-    if (msg?.type === 'DOWNLOAD_VERSE_AUDIO') {
-      sendResponse(await processVerseAudio(msg, sender.tab?.url || ''));
-      return;
-    }
-    if (msg?.type === 'DOWNLOAD_MEDIA_AUDIO_CLIP') {
-      sendResponse(await processMediaAudioClip(msg, sender.tab?.url || ''));
-      return;
+    STUDYNAV_DESKTOP_ONLY: {
+      if (!EDGE_MOBILE_BUILD && msg?.type === 'DOWNLOAD_VERSE_AUDIO') {
+        sendResponse(await processVerseAudio(msg, sender.tab?.url || ''));
+        return;
+      }
+      if (!EDGE_MOBILE_BUILD && msg?.type === 'DOWNLOAD_MEDIA_AUDIO_CLIP') {
+        sendResponse(await processMediaAudioClip(msg, sender.tab?.url || ''));
+        return;
+      }
     }
   })().catch((error: unknown) => {
     const text = error instanceof Error ? error.message : t('verse_processing_failed');
@@ -144,10 +159,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   return true;
 });
 
-chrome.commands?.onCommand?.addListener(async (command) => {
-  if (command !== 'adv-search') return;
-  const flags = await load();
-  if (!paletteEnabled(flags)) return;
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tab?.id) chrome.tabs.sendMessage(tab.id, { type: 'OPEN_PALETTE' }).catch(() => {});
-});
+STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD) {
+  chrome.commands?.onCommand?.addListener(async (command) => {
+    if (command !== 'adv-search') return;
+    const flags = await load();
+    if (!paletteEnabled(flags)) return;
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab?.id) chrome.tabs.sendMessage(tab.id, { type: 'OPEN_PALETTE' }).catch(() => {});
+  });
+}

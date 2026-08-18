@@ -1,4 +1,9 @@
-import { DEFAULT_FLAGS, type FeatureFlags } from './features';
+import {
+  DEFAULT_FLAGS,
+  EDGE_MOBILE_DEFAULT_FLAGS,
+  edgeMobileFlags,
+  type FeatureFlags,
+} from './features';
 import { createApplyCoordinator } from './apply-coordinator';
 import {
   applyFeatures,
@@ -19,21 +24,29 @@ import { t } from './i18n';
 import { openStudyPanel } from './study-runtime';
 import { continueWatchingStatus } from './media-progress-runtime';
 import { isAllowedStudyNavPageUrl } from './page-origin';
+import { EDGE_MOBILE_BUILD } from './build-profile';
+
+const BUILD_DEFAULT_FLAGS = EDGE_MOBILE_BUILD ? EDGE_MOBILE_DEFAULT_FLAGS : DEFAULT_FLAGS;
+
+function normalizeBuildFlags(value: Partial<FeatureFlags> | undefined): FeatureFlags {
+  const flags = { ...BUILD_DEFAULT_FLAGS, ...value };
+  return EDGE_MOBILE_BUILD ? edgeMobileFlags(flags) : flags;
+}
 
 async function flags(): Promise<FeatureFlags> {
   try {
     const f = await chrome.runtime.sendMessage({ type: 'GET_FLAGS' });
-    if (f && typeof f === 'object') return { ...DEFAULT_FLAGS, ...f };
+    if (f && typeof f === 'object') return normalizeBuildFlags(f as Partial<FeatureFlags>);
   } catch { /* fall through */ }
   try {
-    const s = await chrome.storage.sync.get({ flags: DEFAULT_FLAGS });
-    return { ...DEFAULT_FLAGS, ...(s.flags as FeatureFlags) };
+    const s = await chrome.storage.sync.get({ flags: BUILD_DEFAULT_FLAGS });
+    return normalizeBuildFlags(s.flags as Partial<FeatureFlags> | undefined);
   } catch {
-    return { ...DEFAULT_FLAGS };
+    return { ...BUILD_DEFAULT_FLAGS };
   }
 }
 
-let latest: FeatureFlags = DEFAULT_FLAGS;
+let latest: FeatureFlags = BUILD_DEFAULT_FLAGS;
 let observer: MutationObserver | null = null;
 let navListening = false;
 let routeTimer: number | null = null;
@@ -135,16 +148,28 @@ async function currentPageStatus() {
     .filter((verse): verse is NonNullable<typeof verse> => !!verse);
   const kind = verseNodes.length
     ? 'bible'
-    : support.media
-      ? 'media'
-      : support.article
+    : EDGE_MOBILE_BUILD
+      ? support.article
         ? 'article'
-        : support.palette
-          ? 'search'
-          : 'unsupported';
+        : support.media
+          ? 'media'
+          : 'unsupported'
+      : support.media
+        ? 'media'
+        : support.article
+          ? 'article'
+          : support.palette
+            ? 'search'
+            : 'unsupported';
+  const mobilePageSupported = kind === 'bible' || kind === 'article';
   const bookmarkCandidate = currentStudyBookmarkCandidate();
+  let continueWatching = null;
+  STUDYNAV_DESKTOP_ONLY: {
+    if (!EDGE_MOBILE_BUILD) continueWatching = continueWatchingStatus();
+  }
   return {
-    active: latest.masterEnabled !== false && support.supported,
+    active: latest.masterEnabled !== false && support.supported &&
+      (!EDGE_MOBILE_BUILD || mobilePageSupported),
     enabledCount: Object.entries(latest).filter(([key, value]) => key !== 'masterEnabled' && value === true).length,
     kind,
     masterEnabled: latest.masterEnabled !== false,
@@ -157,8 +182,8 @@ async function currentPageStatus() {
     officialOpenAvailable: !!currentOfficialFinderUrl(),
     bookmarkAvailable: latest.bookmarks && !!bookmarkCandidate,
     bookmarkSaved: latest.bookmarks && bookmarkCandidate ? await currentStudyBookmarkSaved() : false,
-    continueWatching: continueWatchingStatus(),
-    supported: support.supported,
+    continueWatching,
+    supported: support.supported && (!EDGE_MOBILE_BUILD || mobilePageSupported),
     verseCount: verseNodes.length,
   };
 }
@@ -170,7 +195,7 @@ if (isAllowedStudyNavPageUrl(location.href)) chrome.runtime.onMessage.addListene
       .catch(() => sendResponse({ active: false, supported: false }));
     return true;
   }
-  if (msg?.type === 'OPEN_PALETTE') {
+  STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD && msg?.type === 'OPEN_PALETTE') {
     if (latest.masterEnabled === false || !latest.advSearch) return;
     try {
       openPalette();

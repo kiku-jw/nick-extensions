@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node ../../scripts/build-extension.mjs studynav"
+    "build": "node ../../scripts/build-extension.mjs studynav",
+    "build:edge-mobile": "node ../../scripts/build-extension.mjs studynav --target=edge-mobile"
   },
   "dependencies": {
     "@nick/shared": "1.1.3",

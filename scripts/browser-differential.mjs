@@ -17,11 +17,13 @@ const EXTENSIONS = {
   ClearShield: path.join(ROOT, 'packages', 'clearshield', 'dist'),
   InkShade: path.join(ROOT, 'packages', 'inkshade', 'dist'),
   StudyNav: path.join(ROOT, 'packages', 'studynav', 'dist'),
+  StudyNavMobile: path.join(ROOT, 'packages', 'studynav', 'dist-edge-mobile'),
 };
 const DISPLAY_NAMES = {
   ClearShield: 'Ad & Tracker Blocker (ClearShield)',
   InkShade: 'InkShade – Dark Mode for Every Site',
   StudyNav: 'StudyNav — Unofficial Study Tools',
+  StudyNavMobile: 'StudyNav Mobile — Unofficial Study Tools',
 };
 const HOSTS = {
   ordinary: 'fixture.test',
@@ -105,6 +107,23 @@ const DEFAULT_STUDYNAV_FLAGS = {
   mediaClip: true,
   sndDisp: true,
   transcCreate: true,
+};
+const DEFAULT_STUDYNAV_MOBILE_FLAGS = {
+  ...DEFAULT_STUDYNAV_FLAGS,
+  advSearch: false,
+  actionBar: false,
+  continueWatching: false,
+  cstblView: false,
+  expandWidth: false,
+  verseAudio: false,
+  mediaPlayerUI: false,
+  customSub: false,
+  imgGet: false,
+  mediaCtrl: false,
+  mediaTS: false,
+  mediaClip: false,
+  sndDisp: false,
+  transcCreate: false,
 };
 const LIVE_CHROME_USER_AGENT =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36';
@@ -5079,6 +5098,372 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
   return scenario;
 }
 
+async function runStudyNavEdgeMobileScenario(executablePath, port) {
+  const scenario = createScenario('studynav-edge-mobile', ['StudyNavMobile']);
+  await withContext(
+    { executablePath, extensions: ['StudyNavMobile'], deviceScaleFactor: 2 },
+    async (context, launchMeta) => {
+      scenario.launchMode = launchMeta.launchMode;
+      const workers = await waitForNamedWorkers(context, ['StudyNavMobile']);
+      scenario.serviceWorkers = workers;
+      const worker = await getWorkerByName(context, 'StudyNavMobile');
+      await routeStudyNavFixtures(context);
+      await context.route(`https://${HOSTS.jwMedia}/media/fixture.mp4`, fulfillFixtureVideo);
+      await context.route('https://cse.google.com/**', (route) => route.fulfill({
+        status: 200,
+        contentType: 'text/html; charset=utf-8',
+        body: '<!doctype html><title>JW image-search fixture</title>',
+      }));
+
+      // Simulate settings carried over from the desktop package. The mobile
+      // runtime must still expose only its conservative feature allowlist.
+      await setStudyNavFlags(worker, { ...DEFAULT_STUDYNAV_FLAGS, imgGet: true });
+
+      const page = await openPage(
+        context,
+        scenario,
+        'studynav-edge-mobile-jw',
+        httpsUrl(HOSTS.jw, STUDYNAV_FIXTURE_PATH),
+      );
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.reload({ waitUntil: 'load' });
+      await page.waitForFunction(() =>
+        document.documentElement.dataset.studynav === '1' &&
+        document.querySelectorAll('.studynav-para-tools').length >= 5);
+      await installCopyCapture(page);
+
+      const initialState = await getStudyNavState(page);
+      const mobilePageState = await page.evaluate(() => ({
+        overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+        dynamicCss: document.getElementById('studynav-dynamic-style')?.textContent || '',
+        paragraphHoverToolsHidden: getComputedStyle(
+          document.querySelector('#p1 > .studynav-para-tools'),
+        ).display === 'none',
+      }));
+
+      await selectFixtureText(page, '#p1', 'A useful');
+      const selectionToolbar = await page.evaluate(() => {
+        const toolbar = document.getElementById('studynav-selection-tools');
+        const rect = toolbar?.getBoundingClientRect();
+        return {
+          labels: Array.from(toolbar?.querySelectorAll('button') || []).map((button) =>
+            button.textContent?.trim() || button.getAttribute('aria-label') || ''),
+          buttonHeights: Array.from(toolbar?.querySelectorAll('button') || []).map((button) =>
+            button.getBoundingClientRect().height),
+          inViewport: !!rect && rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom <= innerHeight,
+        };
+      });
+      await captureScreenshot(page, 'edge-mobile-selection-tools.png');
+      await page.locator('#studynav-selection-tools button').filter({ hasText: /^Copy$/ }).click();
+      const copiedSelection = await waitForCopiedText(
+        page,
+        (value) => value === 'A useful',
+        'StudyNav Mobile did not copy selected text',
+      );
+
+      await selectFixtureText(page, '#p2', 'precise link');
+      await page.locator('#studynav-selection-tools button').filter({ hasText: /^Link$/ }).click();
+      const copiedLink = await waitForCopiedText(
+        page,
+        (value) => value === `${STUDYNAV_FIXTURE_CANONICAL}#p2`,
+        'StudyNav Mobile did not copy the selected paragraph link',
+      );
+
+      await selectFixtureText(page, '#p2', 'A precise link');
+      const bookmarkResponse = await sendStudyNavPageAction(
+        worker,
+        page.url(),
+        'TOGGLE_STUDY_BOOKMARK',
+      );
+      const bookmarkedData = await waitForWorkerState(
+        worker,
+        async () => (await chrome.storage.local.get('studynavStudyDataV2')).studynavStudyDataV2,
+        (data) => data?.bookmarks?.some((item) => item.targetUrl === `${STUDYNAV_FIXTURE_CANONICAL}#p2`),
+        'StudyNav Mobile did not persist the selected paragraph place',
+      );
+      const citationResponse = await sendStudyNavPageAction(
+        worker,
+        page.url(),
+        'COPY_STUDY_CITATION',
+      );
+      const copiedCitation = await waitForCopiedText(
+        page,
+        (value) => value.includes('“A precise link”') && value.includes(`${STUDYNAV_FIXTURE_CANONICAL}#p2`),
+        'StudyNav Mobile did not copy the selected-text citation',
+      );
+      const qrResponse = await sendStudyNavPageAction(worker, page.url(), 'SHOW_STUDY_QR');
+      await page.waitForSelector('#studynav-qr-overlay');
+      const qrState = await page.evaluate(() => {
+        const overlay = document.getElementById('studynav-qr-overlay');
+        const panel = overlay?.querySelector('.studynav-overlay-panel');
+        const rect = panel?.getBoundingClientRect();
+        return {
+          target: overlay?.querySelector('.studynav-target-url')?.textContent?.trim() || null,
+          inViewport: !!rect && rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom <= innerHeight,
+          buttonHeights: Array.from(overlay?.querySelectorAll('button') || []).map((button) =>
+            button.getBoundingClientRect().height),
+        };
+      });
+      await page.locator('#studynav-qr-overlay button').filter({ hasText: /^Close$/ }).click();
+
+      await selectFixtureText(page, '#p1', 'easier to revisit');
+      await page.locator('#studynav-selection-tools button').filter({ hasText: /^Add note$/ }).click();
+      await page.waitForSelector('#studynav-note-editor');
+      await page.fill('#studynav-note-text', 'Review this thought on the phone.');
+      await page.fill('#studynav-note-tags', 'phone,');
+      await page.waitForFunction(() =>
+        document.querySelector('.studynav-tag-chip')?.textContent?.includes('phone'));
+      const editorState = await page.evaluate(() => {
+        const rail = document.getElementById('studynav-note-rail');
+        const editor = document.getElementById('studynav-note-editor');
+        const rect = rail?.getBoundingClientRect();
+        return {
+          mode: rail?.dataset.mode || null,
+          fillsViewport: !!rect && rect.left === 0 && rect.right === innerWidth && rect.top === 0 && rect.bottom === innerHeight,
+          overflow: !!editor && editor.scrollWidth > editor.clientWidth,
+          chip: document.querySelector('.studynav-tag-chip')?.textContent?.replace('×', '').trim() || null,
+          actionHeights: Array.from(editor?.querySelectorAll('button') || []).map((button) =>
+            button.getBoundingClientRect().height),
+        };
+      });
+      await captureScreenshot(page, 'edge-mobile-note-editor.png');
+      await page.locator('#studynav-note-editor button').filter({ hasText: /^Save locally$/ }).click();
+      const mobileStudyData = await waitForWorkerState(
+        worker,
+        async () => (await chrome.storage.local.get('studynavStudyDataV2')).studynavStudyDataV2,
+        (data) => data?.annotations?.some((item) =>
+          item.selector.exact === 'easier to revisit' &&
+          item.note === 'Review this thought on the phone.' &&
+          item.tags?.includes('phone')),
+        'StudyNav Mobile did not persist the phone note and tag',
+      );
+
+      const panelResponse = await sendStudyNavPageAction(worker, page.url(), 'OPEN_STUDY_PANEL');
+      await page.waitForSelector('#studynav-study-panel');
+      const studyPanelState = await page.evaluate(() => {
+        const panel = document.getElementById('studynav-study-panel');
+        const rect = panel?.getBoundingClientRect();
+        return {
+          responseVisible: !!panel,
+          fillsViewport: !!rect && rect.left === 0 && rect.right === innerWidth && rect.top === 0 && rect.bottom === innerHeight,
+          overflow: !!panel && panel.scrollWidth > panel.clientWidth,
+          phoneNoteVisible: panel?.textContent?.includes('Review this thought on the phone.') || false,
+        };
+      });
+      await page.locator('#studynav-study-panel button').filter({ hasText: /^Close$/ }).click();
+
+      const popup = await openPage(
+        context,
+        scenario,
+        'studynav-edge-mobile-popup',
+        extensionPageUrl(workerInfoFor(workers, 'StudyNavMobile').id, 'popup.html'),
+      );
+      await popup.setViewportSize({ width: 390, height: 844 });
+      await activateTabByUrl(worker, page.url());
+      await popup.reload({ waitUntil: 'load' });
+      await popup.waitForFunction(() =>
+        document.querySelectorAll('.row').length === 9 &&
+        document.getElementById('status-title')?.textContent === 'Ready on this Bible chapter');
+      await popup.click('#settings > summary');
+      const popupState = await popup.evaluate(() => ({
+        title: document.title,
+        rowIds: Array.from(document.querySelectorAll('.row input[data-id]')).map((input) => input.dataset.id),
+        groups: Array.from(document.querySelectorAll('.group')).map((group) => group.textContent?.trim()),
+        enabledCount: document.getElementById('enabled-count')?.textContent?.trim(),
+        overflows: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+        mediaGuideVisible: getComputedStyle(document.querySelector('.guide-media')).display !== 'none',
+        desktopFooterVisible: getComputedStyle(document.querySelector('.desktop-footer')).display !== 'none',
+        actionHeights: Array.from(document.querySelectorAll('.action-grid button')).map((button) =>
+          button.getBoundingClientRect().height),
+        switchHeights: Array.from(document.querySelectorAll('.switch')).map((control) =>
+          control.getBoundingClientRect().height),
+        inputFontSizes: Array.from(document.querySelectorAll('input[type="search"]')).map((input) =>
+          parseFloat(getComputedStyle(input).fontSize)),
+      }));
+      await captureScreenshot(popup, 'edge-mobile-popup.png', { fullPage: true });
+
+      await popup.click('#open-official');
+      const officialTab = await waitForWorkerState(
+        worker,
+        async () => (await chrome.tabs.query({})).find((tab) =>
+          String(tab.url || '').startsWith('https://www.jw.org/finder?')) || null,
+        (tab) => !!tab?.id,
+        'StudyNav Mobile did not open the page-derived official Finder link',
+      );
+      await worker.evaluate(async (tabId) => { await chrome.tabs.remove(tabId); }, officialTab.id);
+
+      await popup.fill('#image-search-query', 'peaceful paradise');
+      await popup.locator('#image-search button').click();
+      let imageSearchPage = null;
+      await waitFor(() => {
+        imageSearchPage = context.pages().find((candidate) =>
+          candidate.url().startsWith('https://cse.google.com/cse?cx=3c6c549b8ed4c34fe') &&
+          candidate.url().includes('gsc.q=peaceful+paradise')) || null;
+        return !!imageSearchPage;
+      }, 5_000, 'StudyNav Mobile image-search action did not open the expected Google CSE query');
+      const imageSearchTab = { url: imageSearchPage.url() };
+      await imageSearchPage.close();
+
+      await selectFixtureText(page, '#p1', 'A useful');
+      await popup.evaluate(() => document.querySelector('[data-id="copyText"]').click());
+      await waitForWorkerState(
+        worker,
+        async () => (await chrome.storage.sync.get('flags')).flags,
+        (flags) => flags?.copyText === false,
+        'StudyNav Mobile did not disable selection copy',
+      );
+      await page.waitForFunction(() => !document.getElementById('studynav-selection-tools'));
+      await page.evaluate(() => document.dispatchEvent(new Event('selectionchange')));
+      await page.waitForFunction(() => !!document.getElementById('studynav-selection-tools'));
+      const copyDisabledSelectionLabels = await page.locator('#studynav-selection-tools button').allTextContents();
+      await popup.evaluate(() => document.querySelector('[data-id="copyText"]').click());
+      await waitForWorkerState(
+        worker,
+        async () => (await chrome.storage.sync.get('flags')).flags,
+        (flags) => flags?.copyText === true,
+        'StudyNav Mobile did not restore selection copy',
+      );
+
+      await popup.evaluate(() => {
+        const input = document.querySelector('[data-id="annotations"]');
+        input.click();
+        input.click();
+      });
+      const sanitizedFlags = await waitForWorkerState(
+        worker,
+        async () => (await chrome.storage.sync.get('flags')).flags,
+        (flags) => flags?.annotations === true && flags?.verseAudio === false &&
+          flags?.mediaClip === false && flags?.imgGet === false && flags?.actionBar === false,
+        'StudyNav Mobile did not sanitize desktop-only stored flags after a setting change',
+      );
+
+      const wolPage = await openPage(
+        context,
+        scenario,
+        'studynav-edge-mobile-wol',
+        httpsUrl(HOSTS.wol, '/en/wol/d/r1/lp-e/999'),
+      );
+      await wolPage.setViewportSize({ width: 390, height: 844 });
+      await wolPage.reload({ waitUntil: 'load' });
+      await wolPage.waitForFunction(() =>
+        document.documentElement.dataset.studynav === '1' &&
+        document.querySelectorAll('.studynav-para-tools').length >= 2);
+      await selectFixtureText(wolPage, '#p2', 'local notes');
+      const wolState = await wolPage.evaluate(() => ({
+        selectionTools: !!document.getElementById('studynav-selection-tools'),
+        mediaBar: !!document.getElementById('studynav-media-bar'),
+        audioAction: !!document.querySelector('.studynav-verse-audio, .studynav-media-action'),
+        overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+        clientWidth: document.documentElement.clientWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+        overflowers: Array.from(document.querySelectorAll('*')).map((element) => {
+          const rect = element.getBoundingClientRect();
+          return { selector: element.id ? `#${element.id}` : element.className || element.tagName, left: rect.left, right: rect.right };
+        }).filter((item) => item.left < -1 || item.right > document.documentElement.clientWidth + 1).slice(0, 8),
+        ownedOverflowers: Array.from(document.querySelectorAll('[data-studynav-owned]')).map((element) => {
+          const rect = element.getBoundingClientRect();
+          return { selector: element.id ? `#${element.id}` : element.className || element.tagName, left: rect.left, right: rect.right };
+        }).filter((item) => item.left < -1 || item.right > document.documentElement.clientWidth + 1),
+      }));
+
+      const activeMobileFlags = Object.entries(sanitizedFlags)
+        .filter(([key, value]) => key !== 'masterEnabled' && value === true)
+        .map(([key]) => key)
+        .sort();
+      const expectedMobileFlags = Object.entries(DEFAULT_STUDYNAV_MOBILE_FLAGS)
+        .filter(([key, value]) => key !== 'masterEnabled' && value === true)
+        .map(([key]) => key)
+        .sort();
+
+      scenario.assertions.push(
+        makeAssertion(
+          'StudyNav Mobile worker uses the separate Edge package identity',
+          workers.some((item) => workerMatchesExtension(item, 'StudyNavMobile')),
+          workers,
+        ),
+        makeAssertion(
+          'StudyNav Mobile keeps only the nine reliable tools even with desktop settings present',
+          initialState.palettePresent === false && initialState.mediaBar === false &&
+            initialState.imageButtons === 0 && initialState.verseAudioButtons === 0 &&
+            initialState.mediaClipPanelPresent === false && initialState.transcriptPresent === false &&
+            !mobilePageState.dynamicCss.includes('#regionHeader') &&
+            !mobilePageState.dynamicCss.includes('.video-js') &&
+            mobilePageState.paragraphHoverToolsHidden === true && mobilePageState.overflow === false &&
+            json(activeMobileFlags) === json(expectedMobileFlags),
+          { initialState, mobilePageState, activeMobileFlags },
+        ),
+        makeAssertion(
+          'StudyNav Mobile selection toolbar fits the phone and copies text plus precise links',
+          selectionToolbar.labels.length === 9 &&
+            selectionToolbar.labels.includes('Add note') && selectionToolbar.labels.includes('Copy') &&
+            selectionToolbar.labels.includes('Link') && selectionToolbar.inViewport === true &&
+            selectionToolbar.buttonHeights.every((height) => height >= 44) &&
+            copiedSelection === 'A useful' && copiedLink === `${STUDYNAV_FIXTURE_CANONICAL}#p2`,
+          { selectionToolbar, copiedSelection, copiedLink },
+        ),
+        makeAssertion(
+          'StudyNav Mobile saves places, copies citations, and shows a viewport-safe local QR',
+          bookmarkResponse?.ok === true && bookmarkResponse?.saved === true &&
+            bookmarkedData.bookmarks.some((item) => item.targetUrl === `${STUDYNAV_FIXTURE_CANONICAL}#p2`) &&
+            citationResponse?.ok === true && copiedCitation.includes('“A precise link”') &&
+            qrResponse?.ok === true && qrState.target === `${STUDYNAV_FIXTURE_CANONICAL}#p2` &&
+            qrState.inViewport === true && qrState.buttonHeights.every((height) => height >= 44),
+          { bookmarkResponse, citationResponse, copiedCitation, qrResponse, qrState },
+        ),
+        makeAssertion(
+          'StudyNav Mobile saves a tagged note in a full-screen touch editor and library',
+          editorState.mode === 'drawer' && editorState.fillsViewport === true &&
+            editorState.overflow === false && editorState.chip === 'phone' &&
+            editorState.actionHeights.every((height) => height >= 44) &&
+            mobileStudyData.annotations.some((item) => item.tags?.includes('phone')) &&
+            panelResponse?.ok === true && studyPanelState.fillsViewport === true &&
+            studyPanelState.overflow === false && studyPanelState.phoneNoteVisible === true,
+          { editorState, studyPanelState, panelResponse },
+        ),
+        makeAssertion(
+          'StudyNav Mobile popup shows nine phone-safe settings with touch-sized controls',
+          popupState.title === 'StudyNav Mobile — Unofficial Study Tools' &&
+            json([...popupState.rowIds].sort()) === json(expectedMobileFlags) &&
+            json(popupState.groups) === json(['Study & sharing', 'Bible & articles']) &&
+            popupState.enabledCount === '9 on' && popupState.overflows === false &&
+            popupState.mediaGuideVisible === false && popupState.desktopFooterVisible === false &&
+            popupState.actionHeights.every((height) => height >= 48) &&
+            popupState.switchHeights.every((height) => height >= 44) &&
+            popupState.inputFontSizes.every((size) => size >= 16),
+          popupState,
+        ),
+        makeAssertion(
+          'StudyNav Mobile opens only the page-derived Finder target and the requested JW image search',
+          String(officialTab.url).startsWith('https://www.jw.org/finder?') &&
+            String(officialTab.url).includes('wtlocale=E') &&
+            String(imageSearchTab.url).includes('gsc.q=peaceful+paradise'),
+          { officialTab, imageSearchTab },
+        ),
+        makeAssertion(
+          'StudyNav Mobile removes a disabled selection action without leaving a stale button',
+          !copyDisabledSelectionLabels.some((label) => label.trim() === 'Copy') &&
+            copyDisabledSelectionLabels.some((label) => label.trim() === 'Link'),
+          copyDisabledSelectionLabels,
+        ),
+        makeAssertion(
+          'StudyNav Mobile keeps WOL notes available without adding audio controls or overflow',
+          wolState.selectionTools === true && wolState.mediaBar === false &&
+            wolState.audioAction === false && wolState.ownedOverflowers.length === 0,
+          wolState,
+        ),
+        makeAssertion('StudyNav Mobile pages emit no uncaught errors', scenario.pageErrors.length === 0, scenario.pageErrors),
+        makeAssertion(
+          'StudyNav Mobile extension pages emit no console errors',
+          scenario.consoleErrors.filter((entry) =>
+            String(entry.location?.url || '').startsWith('chrome-extension://')).length === 0,
+          scenario.consoleErrors,
+        ),
+      );
+    },
+  );
+  return scenario;
+}
+
 async function runStudyNavRussianLocaleScenario(executablePath, port) {
   const scenario = createScenario('studynav-russian-locale', ['StudyNav']);
   await withContext(
@@ -6008,6 +6393,7 @@ async function main() {
     if (scenarioRequested('inkshade-only')) report.scenarios.push(await runInkShadeForkScenario(executable.executablePath, fixture.port));
     if (scenarioRequested('studynav-only')) report.scenarios.push(await runStudyNavScenario(executable.executablePath, fixture.port));
     if (scenarioRequested('studynav-study-suite')) report.scenarios.push(await runStudyNavStudySuiteScenario(executable.executablePath, fixture.port));
+    if (scenarioRequested('studynav-edge-mobile')) report.scenarios.push(await runStudyNavEdgeMobileScenario(executable.executablePath, fixture.port));
     if (scenarioRequested('studynav-russian-locale')) report.scenarios.push(await runStudyNavRussianLocaleScenario(executable.executablePath, fixture.port));
     if (scenarioRequested('combined')) report.scenarios.push(await runCombinedScenario(executable.executablePath, fixture.port));
     if (scenarioRequested('studynav-live-smoke')) report.scenarios.push(await runStudyNavLiveSmokeScenario(executable.executablePath));

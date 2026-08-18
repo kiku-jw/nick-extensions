@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>StudyNav — Unofficial Study Tools</title>
   <link rel="stylesheet" href="popup.css" />
 </head>
@@ -50,10 +51,10 @@
 
     <section class="guide" aria-labelledby="guide-title">
       <h2 id="guide-title" data-i18n="what_it_gives_you">What it gives you</h2>
-      <p><strong data-i18n="guide_bible_label">Bible:</strong> <span data-i18n="guide_bible_text">select one verse, or choose Select several and then the last verse. Download audio saves the selection as one WAV file.</span></p>
+      <p><strong data-i18n="guide_bible_label">Bible:</strong> <span id="guide-bible-text" data-i18n="guide_bible_text">select one verse, or choose Select several and then the last verse. Download audio saves the selection as one WAV file.</span></p>
       <p><strong data-i18n="guide_study_label">Study:</strong> <span data-i18n="guide_study_text">select text to highlight it, add a note, or save an exact place.</span></p>
-      <p><strong data-i18n="guide_articles_label">Articles:</strong> <span data-i18n="guide_articles_text">hover or focus text for Copy, Link, and Mark actions.</span></p>
-      <p><strong data-i18n="guide_media_label">Media:</strong> <span data-i18n="guide_media_text">choose StudyNav on the player for links with time, media segments, a separate window, and captions.</span></p>
+      <p><strong data-i18n="guide_articles_label">Articles:</strong> <span id="guide-articles-text" data-i18n="guide_articles_text">hover or focus text for Copy, Link, and Mark actions.</span></p>
+      <p class="guide-media"><strong data-i18n="guide_media_label">Media:</strong> <span data-i18n="guide_media_text">choose StudyNav on the player for links with time, media segments, a separate window, and captions.</span></p>
     </section>
 
     <details id="settings">
@@ -69,7 +70,7 @@
     </details>
   </main>
   <footer>
-    <span data-i18n="footer_quick_search">Quick search: Ctrl/Cmd+Shift+K</span>
+    <span class="desktop-footer" data-i18n="footer_quick_search">Quick search: Ctrl/Cmd+Shift+K</span>
     <span class="muted" data-i18n="footer_privacy">No telemetry · no uploads</span>
   </footer>
   <script src="popup.js"></script>

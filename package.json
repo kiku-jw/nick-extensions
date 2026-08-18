@@ -10,7 +10,8 @@
   "scripts": {
     "bootstrap:inkshade": "bun run --cwd packages/inkshade bootstrap",
     "build:inkshade": "bun run --cwd packages/inkshade build",
-    "build": "bun scripts/build-shared.mjs && bun scripts/build-extension.mjs clearshield && bun run build:inkshade && bun scripts/build-extension.mjs studynav",
+    "build:studynav": "bun scripts/build-extension.mjs studynav && bun scripts/build-extension.mjs studynav --target=edge-mobile",
+    "build": "bun scripts/build-shared.mjs && bun scripts/build-extension.mjs clearshield && bun run build:inkshade && bun run build:studynav",
     "typecheck": "bunx tsc -p tsconfig.json",
     "test": "bun test test",
     "test:inkshade-upstream": "bun run --cwd packages/inkshade test",
@@ -23,6 +24,7 @@
     "media:studynav": "node scripts/build-studynav-tutorial.mjs",
     "package:dist": "bun run build && zip -qrFS dist-smoke.zip packages/clearshield/dist packages/inkshade/dist packages/studynav/dist -x '*/_metadata/*'",
     "package:inkshade": "bun run build:inkshade && (cd packages/inkshade/dist && zip -qrFS ../inkshade-store.zip . -x '_metadata/*')",
+    "package:studynav:edge-mobile": "bun run build:studynav && (cd packages/studynav/dist-edge-mobile && zip -qrFS ../studynav-edge-mobile.zip . -x '_metadata/*' '*.map')",
     "verify": "bun run typecheck && bun run test && bun run test:inkshade-upstream && bun run build && bun run smoke-check && bun run smoke:browser && bun run smoke-check"
   },
   "devDependencies": {

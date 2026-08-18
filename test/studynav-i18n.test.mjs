@@ -78,4 +78,21 @@ describe('StudyNav localization contract', () => {
     expect(manifest.action.default_title).toBe('__MSG_extension_name__');
     expect(manifest.commands['adv-search'].description).toBe('__MSG_command_adv_search__');
   });
+
+  test('ships a separate localized Edge Mobile manifest without desktop APIs', async () => {
+    const manifest = await json('packages/studynav/manifest.edge-mobile.json');
+    expect(manifest.version).toBe('1.6.0');
+    expect(manifest.version_name).toBe('1.6.0 Edge Mobile');
+    expect(manifest.name).toBe('__MSG_extension_mobile_name__');
+    expect(manifest.description).toBe('__MSG_extension_mobile_description__');
+    expect(manifest.permissions).toEqual(['storage']);
+    expect(manifest.host_permissions).toEqual([
+      'https://jw.org/*',
+      'https://www.jw.org/*',
+      'https://wol.jw.org/*',
+    ]);
+    expect(manifest.commands).toBeUndefined();
+    expect(JSON.stringify(manifest)).not.toContain('offscreen');
+    expect(JSON.stringify(manifest)).not.toContain('jw-cdn.org');
+  });
 });

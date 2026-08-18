@@ -21,3 +21,21 @@ StudyNav uses `#43669F` as its restrained primary action and selection accent ac
 Pages rendered as JW.org `PageNotFound` are treated as unsupported, so StudyNav does not attach controls or dynamic styles to an error document.
 
 Run `bun run build` at the repository root, then load `packages/studynav/dist` as an unpacked extension. Use `bun run verify` before relying on a new build. The public guide is at <https://kiku-jw.github.io/nick-extensions/>.
+
+## Edge Mobile package
+
+`bun run build:studynav` now creates both `dist/` and `dist-edge-mobile/`. Run `bun run package:studynav:edge-mobile` to create the store-ready code archive `studynav-edge-mobile.zip`.
+
+The mobile package intentionally includes only:
+
+- highlights, notes, tag chips, and saved places;
+- citations, local QR, and a page-derived clean publication link;
+- clean selection copy and precise paragraph/verse links;
+- full-article image descriptions and the available-language count;
+- the external JW image-search shortcut in the popup.
+
+It compiles out verse audio, media clipping, player controls, transcript, continue-watching, separate-window playback, image downloads, the keyboard palette, and all page-layout modifiers. Its only API permission is `storage`, and its host scope is exactly `jw.org`, `www.jw.org`, and `wol.jw.org`.
+
+The popup and injected panels use safe-area padding, 44–48 px touch targets, 16 px mobile inputs, and full-screen note/library layouts. Text selection exposes Copy and Link alongside the six highlight colors and Add note, so article actions do not depend on hover.
+
+The ZIP is a submission and QA artifact. Phone users need a Microsoft Edge Add-ons listing; mobile sideloading is not part of the supported installation flow documented here. Android API coverage is documented by Microsoft. iOS appears in Microsoft's mobile extension collection but is absent from the detailed API-platform matrix, so release requires a real Android smoke and a real iPhone smoke.

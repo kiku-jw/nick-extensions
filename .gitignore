@@ -14,5 +14,7 @@ dist-smoke.zip
 output/transcribe/
 packages/clearshield/rules-raw
 packages/inkshade/inkshade-store.zip
+packages/studynav/dist-edge-mobile/
+packages/studynav/studynav-edge-mobile.zip
 packages/inkshade/upstream/build/
 .tmp

@@ -61,6 +61,43 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   transcCreate: true,
 };
 
+/**
+ * Edge Mobile is a separate store package. Keep this list conservative: a
+ * feature belongs here only after its complete touch workflow is reliable
+ * without desktop-only browser APIs.
+ */
+export const EDGE_MOBILE_FEATURE_IDS: readonly FeatureId[] = [
+  'annotations',
+  'bookmarks',
+  'citations',
+  'qrShare',
+  'officialOpen',
+  'copyText',
+  'parLink',
+  'altText',
+  'langCount',
+];
+
+const EDGE_MOBILE_FEATURE_SET = new Set<FeatureId>(EDGE_MOBILE_FEATURE_IDS);
+
+export function edgeMobileFlags(flags: Partial<FeatureFlags> = DEFAULT_FLAGS): FeatureFlags {
+  const merged: FeatureFlags = { ...DEFAULT_FLAGS, ...flags };
+  const next: FeatureFlags = {
+    ...DEFAULT_FLAGS,
+    masterEnabled: merged.masterEnabled !== false,
+  };
+  for (const { id } of FEATURE_META) {
+    next[id] = EDGE_MOBILE_FEATURE_SET.has(id) && merged[id] !== false;
+  }
+  return next;
+}
+
+export const EDGE_MOBILE_DEFAULT_FLAGS = edgeMobileFlags();
+
+export function isEdgeMobileFeature(id: FeatureId): boolean {
+  return EDGE_MOBILE_FEATURE_SET.has(id);
+}
+
 export type StudyNavInstallDetails = {
   reason?: string;
   previousVersion?: string;

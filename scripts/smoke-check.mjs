@@ -269,9 +269,9 @@ for (const name of pkgs) {
     );
     ok(
       featureImplSource.includes('flags.actionBar && !isWol') &&
-        featureImplSource.includes('if (flags.expandWidth)') &&
+        featureImplSource.includes('flags.expandWidth)') &&
         featureImplSource.includes('padding-left: 48px') &&
-        featureImplSource.includes('if (flags.cstblView)') &&
+        featureImplSource.includes('flags.cstblView)') &&
         featureImplSource.includes('border-bottom: 1px solid rgba(67,102,159,.32)') &&
         featureImplSource.includes('box-sizing: border-box') &&
         !runtimeJs.includes('.jsLockedChrome') &&
@@ -304,6 +304,68 @@ for (const name of pkgs) {
       `${name}: audited local QR notice, study schema, and explicit resume runtime are bundled`,
     );
     ok(iconSource.includes('fill="#43669F"'), `${name}: toolbar icon source uses the primary accent`);
+  }
+}
+
+console.log('\n== studynav Edge Mobile ==');
+{
+  const dist = join(root, 'packages', 'studynav', 'dist-edge-mobile');
+  const manifestPath = join(dist, 'manifest.json');
+  ok(existsSync(manifestPath), 'studynav mobile: dist-edge-mobile/manifest.json exists');
+  if (existsSync(manifestPath)) {
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    const expectedHosts = [
+      'https://jw.org/*',
+      'https://www.jw.org/*',
+      'https://wol.jw.org/*',
+    ];
+    const backgroundJs = readFileSync(join(dist, 'background.js'), 'utf8');
+    const contentJs = readFileSync(join(dist, 'content.js'), 'utf8');
+    const popupJs = readFileSync(join(dist, 'popup.js'), 'utf8');
+    const contentCss = readFileSync(join(dist, 'content.css'), 'utf8');
+    const popupCss = readFileSync(join(dist, 'popup.css'), 'utf8');
+    const popupHtml = readFileSync(join(dist, 'popup.html'), 'utf8');
+    const runtimeJs = `${backgroundJs}\n${contentJs}\n${popupJs}`;
+    const resolvedName = resolveManifestString(manifest.name, manifest, dist);
+    const resolvedDescription = resolveManifestString(manifest.description, manifest, dist);
+
+    ok(manifest.manifest_version === 3 && manifest.version === '1.6.0',
+      'studynav mobile: MV3 release version');
+    ok(manifest.version_name === '1.6.0 Edge Mobile',
+      'studynav mobile: distinct package identity');
+    ok(resolvedName === 'StudyNav Mobile — Unofficial Study Tools' && /unofficial/i.test(resolvedDescription),
+      'studynav mobile: clear non-affiliated English store identity');
+    ok(JSON.stringify(manifest.permissions) === JSON.stringify(['storage']),
+      'studynav mobile: storage is the only API permission');
+    ok(JSON.stringify(manifest.host_permissions) === JSON.stringify(expectedHosts),
+      'studynav mobile: exact jw.org and WOL host boundary');
+    ok(JSON.stringify(manifest.content_scripts?.[0]?.matches) === JSON.stringify(expectedHosts),
+      'studynav mobile: content script uses the same exact host boundary');
+    ok(!manifest.commands && !JSON.stringify(manifest).includes('offscreen') &&
+      !JSON.stringify(manifest).includes('jw-cdn.org'),
+      'studynav mobile: no commands, offscreen document, or media CDN permission');
+    ok(!existsSync(join(dist, 'offscreen.html')) && !existsSync(join(dist, 'offscreen.js')) &&
+      !readdirSync(dist).some((name) => name.endsWith('.map')),
+      'studynav mobile: no offscreen files or source maps');
+    ok(!/chrome\.offscreen|chrome\.commands|DOWNLOAD_VERSE_AUDIO|DOWNLOAD_MEDIA_(?:AUDIO|VIDEO)_CLIP|MediaRecorder/.test(runtimeJs),
+      'studynav mobile: no desktop media, offscreen, or command handlers in runtime');
+    ok(!/mountMediaToolbar|downloadVerseAudio|studynav-media-bar|studynav-clip-panel|studynav-imgdl/.test(contentJs),
+      'studynav mobile: no media toolbar, verse audio, clipping, or image-download surface');
+    ok(!/mountPalette|studynav-palette-panel/.test(contentJs),
+      'studynav mobile: no keyboard palette surface');
+    ok(contentJs.includes('paulmillr-qr') && contentJs.includes('Apache 2.0 OR MIT'),
+      'studynav mobile: local QR license notice survives minification');
+    ok(popupHtml.includes('data-studynav-target="edge-mobile"') &&
+      popupHtml.includes('viewport-fit=cover'),
+      'studynav mobile: touch popup target and safe-area viewport');
+    ok(popupCss.includes('min-height: 48px') && popupCss.includes('safe-area-inset-bottom') &&
+      contentCss.includes('min-width: 44px') && contentCss.includes('100dvh'),
+      'studynav mobile: touch targets and safe-area layouts are bundled');
+    ok(!contentCss.includes('STUDYNAV_DESKTOP_MEDIA') &&
+      !contentCss.includes('STUDYNAV_DESKTOP_PALETTE') &&
+      !contentCss.includes('.studynav-media-bar {') &&
+      !contentCss.includes('.studynav-palette {'),
+      'studynav mobile: desktop media and keyboard-palette CSS are stripped');
   }
 }
 

@@ -1,7 +1,13 @@
 import { describe, expect, test } from 'bun:test';
 
 import { createApplyCoordinator } from '../packages/studynav/src/apply-coordinator.ts';
-import { DEFAULT_FLAGS, migrateFlagsForInstall } from '../packages/studynav/src/features.ts';
+import {
+  DEFAULT_FLAGS,
+  EDGE_MOBILE_DEFAULT_FLAGS,
+  EDGE_MOBILE_FEATURE_IDS,
+  edgeMobileFlags,
+  migrateFlagsForInstall,
+} from '../packages/studynav/src/features.ts';
 import {
   cssFor,
   deriveFeaturePlan,
@@ -293,6 +299,40 @@ describe('StudyNav root and paragraph scope', () => {
 });
 
 describe('StudyNav feature planning', () => {
+  test('keeps the Edge Mobile profile to the nine touch-safe study tools', () => {
+    expect(EDGE_MOBILE_FEATURE_IDS).toEqual([
+      'annotations',
+      'bookmarks',
+      'citations',
+      'qrShare',
+      'officialOpen',
+      'copyText',
+      'parLink',
+      'altText',
+      'langCount',
+    ]);
+    expect(Object.entries(EDGE_MOBILE_DEFAULT_FLAGS)
+      .filter(([key, value]) => key !== 'masterEnabled' && value)
+      .map(([key]) => key)
+      .sort()).toEqual([...EDGE_MOBILE_FEATURE_IDS].sort());
+
+    const normalized = edgeMobileFlags({
+      masterEnabled: false,
+      annotations: false,
+      mediaClip: true,
+      verseAudio: true,
+      actionBar: true,
+      unknownMobileFlag: true,
+    });
+    expect(normalized.masterEnabled).toBe(false);
+    expect(normalized.annotations).toBe(false);
+    expect(normalized.bookmarks).toBe(true);
+    expect(normalized.mediaClip).toBe(false);
+    expect(normalized.verseAudio).toBe(false);
+    expect(normalized.actionBar).toBe(false);
+    expect('unknownMobileFlag' in normalized).toBe(false);
+  });
+
   test('keeps layout-changing helpers off by default', () => {
     expect(DEFAULT_FLAGS.actionBar).toBe(false);
     expect(DEFAULT_FLAGS.expandWidth).toBe(false);
