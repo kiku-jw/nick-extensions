@@ -8,7 +8,7 @@ privacy behavior, store copy, testing boundary, or certification state changes.
 
 - Name: **StudyNav Mobile — Unofficial Study Tools**
 - Publisher: **KikuAI Lab**
-- Platform: **Microsoft Edge on Android**
+- Submitted target: **Microsoft Edge on Android**
 - Category: **Productivity**
 - Website: `https://kiku-jw.github.io/nick-extensions/`
 - Privacy: `https://kiku-jw.github.io/nick-extensions/privacy/`
@@ -16,13 +16,22 @@ privacy behavior, store copy, testing boundary, or certification state changes.
 - Independent product: not produced, maintained, supported, or endorsed by
   Jehovah's Witnesses.
 
+## Current availability
+
+The listing is published in Edge Add-ons, but a physical Android check on
+August 18, 2026 reported that the browser is unsupported. Microsoft exposes a
+separate collection of extensions for mobile Edge, and StudyNav is not listed
+there. Store publication and mobile eligibility are therefore separate states;
+the Android package is not currently installable by ordinary users.
+
 The August 18, 2026 physical-iPhone check opened Edge's Extensions catalog and
-showed “Coming soon.” iPhone is not a supported or testable release target.
+showed “Coming soon.” Neither Android nor iPhone is a supported release target
+until installation and the included workflows pass on a physical device.
 
 ## Single purpose
 
-Add local annotation, navigation, copying, and sharing tools to public JW.org
-and WOL reading pages in Microsoft Edge on Android.
+If Microsoft enables the listing for mobile Edge, add local annotation,
+navigation, copying, and sharing tools to public JW.org and WOL reading pages.
 
 ## Included behavior
 
@@ -57,7 +66,12 @@ website content and user-provided notes. For a form that asks only what the
 publisher collects, select no collection. Never claim that no data is handled:
 the extension necessarily handles the page and user-created study text locally.
 
-## Store listing copy
+## Submitted store listing copy
+
+The text below records the submitted Android positioning. It must not be used
+as a current compatibility claim while mobile Edge reports the listing as
+unsupported. Correct the live Store metadata in a separate owner-approved
+Partner Center update.
 
 ### English description
 
@@ -102,7 +116,9 @@ StudyNav — независимый неофициальный проект с �
 
 ## Certification notes
 
-1. Install on Microsoft Edge for Android.
+1. After Microsoft enables the listing for mobile Edge, install it on a
+   physical Android device. Until then, stop: Store publication alone does not
+   satisfy this step.
 2. Open a public Bible chapter or article at `https://www.jw.org/`, or an
    article at `https://wol.jw.org/`.
 3. Select article text. Verify six highlight colors, Add note, Copy, and Link.
@@ -125,6 +141,8 @@ shasum -a 256 packages/studynav/studynav-edge-mobile.zip
 ```
 
 Before submission, verify the public privacy URL, inspect every ZIP entry, and
-run the `studynav-edge-mobile` browser scenario. Submission, certification, and
-public availability are three separate states. Do not call the extension
-published until Microsoft certifies it and the Edge Add-ons listing is public.
+run the `studynav-edge-mobile` browser scenario. Submission, certification,
+public Store availability, mobile-catalog eligibility, physical-device
+installation, and working product behavior are separate states. A published
+listing must not be described as mobile-supported until the last three states
+are verified.

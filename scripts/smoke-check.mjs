@@ -428,10 +428,12 @@ for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
     `${relativeHtml}: interactive preview shows tag chips plus visible note actions`,
   );
   ok(/several consecutive verses|несколько стихов подряд/i.test(html), `${relativeHtml}: consecutive verse audio is explained`);
+  const mobileBoundaryTokens = relativeHtml.includes('/ru/')
+    ? ['Скачать для компьютера', 'На смартфонах пока недоступно', 'Android или iPhone', 'неподдерживаемое', 'отдельный список расширений']
+    : ['Download for computer', 'Not available on smartphones', 'Android or iPhone', 'unsupported', 'separate list of extensions'];
   ok(
-    /Android/.test(html) && /Coming soon|Ожидается в ближайшее время/.test(html) &&
-      html.includes('privacy/'),
-    `${relativeHtml}: states the verified Android and iPhone mobile boundary and links privacy`,
+    mobileBoundaryTokens.every((token) => html.includes(token)) && html.includes('privacy/'),
+    `${relativeHtml}: states the verified computer-only boundary and links privacy`,
   );
   ok(
     !/slower learning|red (?:ring|circle)|product choices|production note|animation direction|focus marker|render pipeline|более медленное(?: и понятное)? обучение|красное кольцо|продуктовые решения|внутренн(?:ий|его) беклог|указани[ея] для анимации|маркер показывает, куда смотреть|процесс монтажа/i.test(html),
