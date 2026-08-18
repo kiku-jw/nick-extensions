@@ -6,7 +6,7 @@ Owner sources: `manifest.edge-mobile.json`, `src/features.ts`, `src/build-profil
 
 Update this note whenever the Edge Mobile feature boundary, manifest permissions, build profile, or device-release gate changes.
 
-## Edge Mobile decision
+## Edge on Android decision
 
 StudyNav Mobile is a second build target of the existing StudyNav codebase, not a fork, web app, or runtime device mode. Both packages share the study-data schema and core study tools. The separate manifest and compile-time profile keep unsupported desktop behavior out of the mobile archive.
 
@@ -41,4 +41,4 @@ Automated acceptance requires:
 - the `studynav-edge-mobile` browser scenario at a 390 × 844 viewport on JW and WOL fixtures;
 - the existing full desktop verification to catch shared-code regressions.
 
-Publishing is a separate owner-approved action. Before submission, smoke the store package on one current Android device and one current iPhone. Android extension API coverage is documented by Microsoft; iOS is advertised in the mobile collection but is not listed in Microsoft's detailed API platform matrix. Until both device smokes pass, describe the package as prepared for mobile testing—not released or confirmed on iPhone.
+Publishing is a separate owner-approved action. Before public availability, smoke the store package on one current Android device. Android extension API coverage is documented by Microsoft. A real Edge test on iPhone on August 18, 2026 opened its Extensions catalog and showed «Ожидается в ближайшее время» (coming soon); no extension could be installed. Do not describe StudyNav as available or testable on iPhone until Edge itself enables that catalog.

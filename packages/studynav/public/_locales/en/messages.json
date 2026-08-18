@@ -12,7 +12,7 @@
     "message": "Unofficial local study helpers for public JW.org pages. No telemetry or uploads; not affiliated with Jehovah’s Witnesses."
   },
   "extension_mobile_description": {
-    "message": "Unofficial local highlights, notes, saved places, and sharing tools for public JW.org pages in Microsoft Edge Mobile. No telemetry or uploads; not affiliated with Jehovah’s Witnesses."
+    "message": "Unofficial local highlights, notes, saved places, and exact links for public JW.org pages in Edge on Android. No telemetry."
   },
   "command_adv_search": {
     "message": "Open the StudyNav command palette"
@@ -24,7 +24,7 @@
     "message": "Unofficial · local processing · supported pages only"
   },
   "popup_mobile_header_subtitle": {
-    "message": "For Edge on phones · data stays on this device"
+    "message": "For Edge on Android · data stays on this device"
   },
   "tools": {
     "message": "Tools"
@@ -183,7 +183,7 @@
     "message": "No StudyNav tools on this media page"
   },
   "status_media_mobile_hint": {
-    "message": "Media downloads and player controls are not included on phones."
+    "message": "Media downloads and player controls are not included in the Android package."
   },
   "status_article_title": {
     "message": "Ready on this article"

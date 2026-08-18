@@ -3,7 +3,7 @@
   "name": "__MSG_extension_mobile_name__",
   "short_name": "__MSG_extension_short_name__",
   "version": "1.6.0",
-  "version_name": "1.6.0 Edge Mobile",
+  "version_name": "1.6.0 Edge Android",
   "description": "__MSG_extension_mobile_description__",
   "default_locale": "en",
   "icons": {

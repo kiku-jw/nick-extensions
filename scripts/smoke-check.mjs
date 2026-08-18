@@ -331,7 +331,7 @@ console.log('\n== studynav Edge Mobile ==');
 
     ok(manifest.manifest_version === 3 && manifest.version === '1.6.0',
       'studynav mobile: MV3 release version');
-    ok(manifest.version_name === '1.6.0 Edge Mobile',
+    ok(manifest.version_name === '1.6.0 Edge Android',
       'studynav mobile: distinct package identity');
     ok(resolvedName === 'StudyNav Mobile — Unofficial Study Tools' && /unofficial/i.test(resolvedDescription),
       'studynav mobile: clear non-affiliated English store identity');
@@ -429,10 +429,32 @@ for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
   );
   ok(/several consecutive verses|несколько стихов подряд/i.test(html), `${relativeHtml}: consecutive verse audio is explained`);
   ok(
+    /Android/.test(html) && /Coming soon|Ожидается в ближайшее время/.test(html) &&
+      html.includes('privacy/'),
+    `${relativeHtml}: states the verified Android and iPhone mobile boundary and links privacy`,
+  );
+  ok(
     !/slower learning|red (?:ring|circle)|product choices|production note|animation direction|focus marker|render pipeline|более медленное(?: и понятное)? обучение|красное кольцо|продуктовые решения|внутренн(?:ий|его) беклог|указани[ея] для анимации|маркер показывает, куда смотреть|процесс монтажа/i.test(html),
     `${relativeHtml}: internal production copy is absent`,
   );
 
+  const localRefs = [...html.matchAll(/(?:src|href)="([^"#]+)"/g)]
+    .map((match) => match[1])
+    .filter((value) => !/^(?:https?:|mailto:|data:)/.test(value));
+  for (const reference of localRefs) {
+    ok(existsSync(join(htmlDir, reference)), `${relativeHtml}: local asset ${reference}`);
+  }
+}
+
+for (const relativeHtml of ['site/privacy/index.html', 'site/ru/privacy/index.html']) {
+  const htmlPath = join(root, relativeHtml);
+  const html = readFileSync(htmlPath, 'utf8');
+  const htmlDir = dirname(htmlPath);
+  ok(/privacy policy|политика конфиденциальности/i.test(html), `${relativeHtml}: clear privacy title`);
+  ok(/browser-local storage|локальном хранилище браузера/i.test(html), `${relativeHtml}: local study-data handling`);
+  ok(/Google Custom Search/.test(html) && /KikuAI Lab/.test(html), `${relativeHtml}: third-party action and publisher disclosure`);
+  ok(/does not collect|не собирает/i.test(html) && /remote (?:executable )?code|Удалённого исполняемого кода/i.test(html),
+    `${relativeHtml}: collection and remote-code boundary`);
   const localRefs = [...html.matchAll(/(?:src|href)="([^"#]+)"/g)]
     .map((match) => match[1])
     .filter((value) => !/^(?:https?:|mailto:|data:)/.test(value));

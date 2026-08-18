@@ -22,7 +22,7 @@ Pages rendered as JW.org `PageNotFound` are treated as unsupported, so StudyNav 
 
 Run `bun run build` at the repository root, then load `packages/studynav/dist` as an unpacked extension. Use `bun run verify` before relying on a new build. The public guide is at <https://kiku-jw.github.io/nick-extensions/>.
 
-## Edge Mobile package
+## Edge on Android package
 
 `bun run build:studynav` now creates both `dist/` and `dist-edge-mobile/`. Run `bun run package:studynav:edge-mobile` to create the store-ready code archive `studynav-edge-mobile.zip`.
 
@@ -38,4 +38,4 @@ It compiles out verse audio, media clipping, player controls, transcript, contin
 
 The popup and injected panels use safe-area padding, 44–48 px touch targets, 16 px mobile inputs, and full-screen note/library layouts. Text selection exposes Copy and Link alongside the six highlight colors and Add note, so article actions do not depend on hover.
 
-The ZIP is a submission and QA artifact. Phone users need a Microsoft Edge Add-ons listing; mobile sideloading is not part of the supported installation flow documented here. Android API coverage is documented by Microsoft. iOS appears in Microsoft's mobile extension collection but is absent from the detailed API-platform matrix, so release requires a real Android smoke and a real iPhone smoke.
+The ZIP is a submission and QA artifact. Android users need a Microsoft Edge Add-ons listing; mobile sideloading is not part of the supported installation flow documented here. Android API coverage is documented by Microsoft. A real Edge test on iPhone on August 18, 2026 showed that its Extensions catalog is still marked as coming soon, so the package must not be described as available on iPhone. Release requires a real Android smoke.

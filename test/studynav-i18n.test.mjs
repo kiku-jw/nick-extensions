@@ -36,6 +36,15 @@ describe('StudyNav localization contract', () => {
     }
   });
 
+  test('keeps every localized manifest description within the 132-character platform limit', async () => {
+    const english = await json('packages/studynav/public/_locales/en/messages.json');
+    const russian = await json('packages/studynav/public/_locales/ru/messages.json');
+    for (const locale of [english, russian]) {
+      expect(locale.extension_description.message.length).toBeLessThanOrEqual(132);
+      expect(locale.extension_mobile_description.message.length).toBeLessThanOrEqual(132);
+    }
+  });
+
   test('has localized metadata keys for all 23 feature flags', () => {
     expect(FEATURE_META).toHaveLength(23);
     for (const feature of FEATURE_META) {
@@ -82,7 +91,7 @@ describe('StudyNav localization contract', () => {
   test('ships a separate localized Edge Mobile manifest without desktop APIs', async () => {
     const manifest = await json('packages/studynav/manifest.edge-mobile.json');
     expect(manifest.version).toBe('1.6.0');
-    expect(manifest.version_name).toBe('1.6.0 Edge Mobile');
+    expect(manifest.version_name).toBe('1.6.0 Edge Android');
     expect(manifest.name).toBe('__MSG_extension_mobile_name__');
     expect(manifest.description).toBe('__MSG_extension_mobile_description__');
     expect(manifest.permissions).toEqual(['storage']);
