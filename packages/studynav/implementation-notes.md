@@ -4,9 +4,16 @@ Document class: Live contract
 
 Owner sources: `manifest.edge-mobile.json`, `src/features.ts`, `src/build-profile.ts`, `src/content.edge-mobile.css`, and `scripts/build-extension.mjs`.
 
-Update this note whenever the Edge Mobile feature boundary, manifest permissions, build profile, or device-release gate changes.
+Update this note whenever the Edge Mobile feature boundary, manifest permissions, build profile, or release status changes.
 
 ## Edge on Android decision
+
+The mobile release lane was parked by owner decision on August 19, 2026. The
+normal Edge Add-ons listing is not installable in ordinary mobile Edge, and the
+iPhone browser does not expose a usable extension catalog. The build profile is
+retained as reference code and regression coverage, but it is not a supported
+release target. Reopening this lane requires a new distribution decision and
+fresh physical-device evidence.
 
 StudyNav Mobile is a second build target of the existing StudyNav codebase, not a fork, web app, or runtime device mode. Both packages share the study-data schema and core study tools. The separate manifest and compile-time profile keep unsupported desktop behavior out of the mobile archive.
 
@@ -41,4 +48,4 @@ Automated acceptance requires:
 - the `studynav-edge-mobile` browser scenario at a 390 × 844 viewport on JW and WOL fixtures;
 - the existing full desktop verification to catch shared-code regressions.
 
-Publishing is a separate owner-approved action. Before public availability, smoke the store package on one current Android device. Android extension API coverage is documented by Microsoft. A real Edge test on iPhone on August 18, 2026 opened its Extensions catalog and showed «Ожидается в ближайшее время» (coming soon); no extension could be installed. Do not describe StudyNav as available or testable on iPhone until Edge itself enables that catalog.
+The mobile target is not approved for publication or described as available. If the lane is reopened, publication will require separate owner approval plus successful installation and workflow checks on current physical Android and iPhone devices.

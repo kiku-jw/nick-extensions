@@ -2338,6 +2338,8 @@ async function runInkShadeForkScenario(executablePath, port) {
     await activateTabByUrl(worker, page.url());
     await popup.reload({waitUntil: 'load'});
     await popup.waitForFunction((host) => document.body?.innerText.includes(host), HOSTS.ordinary);
+    await popup.waitForFunction(() =>
+      /Dark theme detected/i.test(document.querySelector('.site-toggle-group__description')?.textContent || ''));
     const runtimeDetectedDescription = await popup.locator('.site-toggle-group__description').innerText();
 
     const detectorPositiveCases = [
@@ -2783,7 +2785,13 @@ async function runStudyNavScenario(executablePath, port) {
     await jwPage.waitForFunction(() => !document.getElementById('studynav-langcount'));
     const languageAbsent = await jwPage.evaluate(() => !document.getElementById('studynav-langcount'));
     await jwPage.locator('#language-shell').evaluate((shell, html) => { shell.innerHTML = html; }, languageShellHtml);
-    await jwPage.waitForFunction(() => document.getElementById('studynav-langcount')?.textContent === '6');
+    await jwPage.waitForFunction(() => {
+      const badge = document.getElementById('studynav-langcount');
+      return badge?.textContent === '6' && badge.isConnected &&
+        badge.parentElement?.id === 'language-shell' &&
+        badge.previousElementSibling?.tagName === 'SELECT' &&
+        getComputedStyle(badge).position === 'static';
+    });
     const languageRestoredBadge = await jwPage.locator('#studynav-langcount').textContent();
     const languageRestoredCount = await jwPage.locator('#studynav-langcount').count();
     const languageRestoredPlacement = await jwPage.locator('#studynav-langcount').evaluate((badge) => ({
@@ -5535,7 +5543,7 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
       await page.locator('#v1001003 .jsHighlightOnly').click();
 
       await page.hover('#p1');
-      await page.locator('#p1 > .studynav-para-tools button').first().click();
+      await page.locator('#p1 > .studynav-para-tools button').first().evaluate((button) => button.click());
       await page.waitForSelector('#studynav-note-editor');
       const editorLocaleState = await page.evaluate(() => ({
         title: document.getElementById('studynav-editor-title')?.textContent?.trim(),

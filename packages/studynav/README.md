@@ -22,9 +22,9 @@ Pages rendered as JW.org `PageNotFound` are treated as unsupported, so StudyNav 
 
 Run `bun run build` at the repository root, then load `packages/studynav/dist` as an unpacked extension. Use `bun run verify` before relying on a new build. The public guide is at <https://kiku-jw.github.io/nick-extensions/>.
 
-## Edge on Android package
+## Parked Edge on Android package
 
-`bun run build:studynav` now creates both `dist/` and `dist-edge-mobile/`. Run `bun run package:studynav:edge-mobile` to create the store-ready code archive `studynav-edge-mobile.zip`.
+`bun run build:studynav` creates both `dist/` and `dist-edge-mobile/`. The mobile release was parked by owner decision on August 19, 2026 because the normal Edge Add-ons listing is not installable through ordinary mobile Edge and iPhone support is unavailable. The build remains reproducible reference code, not a supported product. Run `bun run package:studynav:edge-mobile` only when auditing that historical target.
 
 The mobile package intentionally includes only:
 
@@ -38,4 +38,8 @@ It compiles out verse audio, media clipping, player controls, transcript, contin
 
 The popup and injected panels use safe-area padding, 44–48 px touch targets, 16 px mobile inputs, and full-screen note/library layouts. Text selection exposes Copy and Link alongside the six highlight colors and Add note, so article actions do not depend on hover.
 
-The ZIP is a submission and QA artifact. Android users need a Microsoft Edge Add-ons listing; mobile sideloading is not part of the supported installation flow documented here. Android API coverage is documented by Microsoft. A real Edge test on iPhone on August 18, 2026 showed that its Extensions catalog is still marked as coming soon, so the package must not be described as available on iPhone. Release requires a real Android smoke.
+The ZIP is a QA artifact. It must not be described as available on Android or iPhone. Any future return to this lane requires a fresh distribution decision and real-device installation evidence.
+
+## Chrome Web Store desktop package
+
+Run `bun run package:studynav:chrome` at the repository root to rebuild the desktop target and create `studynav-chrome-store.zip`. This Store archive places `manifest.json` at the root and excludes source maps and browser-owned metadata. Listing copy, permission/privacy answers, image assets, certification steps, and release-state boundaries are owned by `docs/STUDYNAV-CHROME-STORE.md`.

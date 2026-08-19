@@ -1,6 +1,6 @@
-# Local-first Chromium and Edge extensions
+# Local-first Chromium extensions
 
-Три локальных Manifest V3 расширения для настольных Brave/Chromium и отдельная экспериментальная сборка StudyNav, подготовленная для Microsoft Edge на Android. Сейчас карточка StudyNav в мобильном Edge помечается как неподдерживаемая, поэтому рабочая установка доступна только на компьютере. Код и сборка остаются под контролем владельца: без телеметрии и remote code. InkShade использует явно закреплённый MIT-лицензированный upstream source fork с отдельным брендом и квитанцией происхождения.
+Три Manifest V3 расширения для Chrome, Edge, Brave и других Chromium-браузеров на компьютере. StudyNav готовится к выпуску в Chrome Web Store; мобильная ветка отложена, потому что обычные расширения нельзя надёжно установить через мобильные магазины Chrome или Edge. Код и сборка остаются под контролем владельца: без телеметрии и remote code. InkShade использует явно закреплённый MIT-лицензированный upstream source fork с отдельным брендом и квитанцией происхождения.
 
 ## Philosophy
 
@@ -15,7 +15,7 @@
 | `packages/clearshield` / ClearShield | **Ad & Tracker Blocker (ClearShield)** | DNR blocker: локальные списки, per-site allowlist, косметическая фильтрация, счётчик блокировок |
 | `packages/inkshade` / InkShade | **InkShade – Dark Mode for Every Site** | Store-oriented local-first fork of the Dark Reader v4.9.129 MV3 engine and bundled site fixes; distinct branding, no news/telemetry/premium/remote config |
 | `packages/studynav` / StudyNav | **StudyNav — Unofficial Study Tools** | Локальные подсветки/заметки/теги и сохранённые места, цитаты и QR, continue-watching, выбор одного или нескольких стихов подряд → один локальный WAV, copy/link и reading/media helpers |
-| `packages/studynav` / StudyNav Mobile | **StudyNav Mobile — Unofficial Study Tools** | Экспериментальный пакет, отправленный в Edge Add-ons для Android; мобильный Edge пока помечает карточку как неподдерживаемую, поэтому пакет нельзя считать доступным пользователям |
+| `packages/studynav` / StudyNav Mobile | **StudyNav Mobile — Unofficial Study Tools** | Отложенная экспериментальная сборка для справки; не является поддерживаемым мобильным продуктом |
 
 StudyNav — **неофициальный** helper, не связан с JW.org / Watch Tower / JW PubMedia One / JW Web Add-on.
 
@@ -57,6 +57,14 @@ bun run package:studynav:edge-mobile
 
 Результат: `packages/studynav/studynav-edge-mobile.zip`. Это пакет для проверки и отправки в магазин, а не готовый способ установки на телефон. Публикация обычной карточки Edge Add-ons не гарантирует, что Microsoft добавит расширение в отдельный каталог мобильного Edge.
 
+Проверенный ZIP настольной версии для Chrome Web Store:
+
+```bash
+bun run package:studynav:chrome
+```
+
+Результат: `packages/studynav/studynav-chrome-store.zip`. Архив содержит `manifest.json` в корне и не включает source maps или браузерный `_metadata`. Контракт карточки и проверки: `docs/STUDYNAV-CHROME-STORE.md`.
+
 ## Load in Brave
 
 1. Open `brave://extensions`
@@ -73,9 +81,11 @@ bun run package:studynav:edge-mobile
 5. On articles, hover or keyboard-focus supported text for Copy and Link. Image downloads are off by default; enable **Download article images** to add a labeled button only to full article images, not compact publication previews. The popup can also open the dedicated Google image search for JW.org. On media pages, copy the page and current time, save up to five minutes of audio as WAV or three minutes of video as WebM, move playback to a separate window at the same point, use reliable Space play/pause, remove hover shading, and resume from locally saved progress. **Transcript** remains visible for video and explains when captions are unavailable.
 6. Layout-changing helpers are off by default. Updating from StudyNav 1.2.3 resets those three old defaults once; later explicit choices are preserved. The sticky-header option changes JW.org articles; WOL already pins its own header. Wider text and clearer tables work on JW.org and WOL articles with narrow selectors.
 
-## Experimental StudyNav Mobile package for Edge on Android
+## Parked experimental StudyNav Mobile package
 
-Мобильная версия собирается из того же кода, но имеет отдельный manifest и жёсткий список из девяти проверяемых функций:
+Мобильная версия остаётся воспроизводимой сборкой из того же кода, но её выпуск отложен решением владельца от 19 августа 2026 года. Обычная карточка Edge Add-ons не даёт надёжного пути установки на Android, а Edge на iPhone не поддерживает такие расширения. Эта сборка сохраняется для справки и возможного будущего возврата, но не является текущим продуктом.
+
+Её отдельный manifest и жёсткий список из девяти проверяемых функций включают:
 
 - выделения шести цветов, заметки и теги;
 - сохранённые места;
@@ -88,12 +98,13 @@ bun run package:studynav:edge-mobile
 
 В мобильный пакет намеренно не входят аудио стихов, обрезка аудио/видео, функции плеера, транскрипт, отдельное окно, скачивание изображений, клавиатурный поиск и изменения ширины/шапки/таблиц. Manifest запрашивает только `storage` и доступ к `jw.org`, `www.jw.org` и `wol.jw.org`; медиадомен и offscreen-документ отсутствуют.
 
-Официальная таблица API Microsoft перечисляет Android для `action`, `runtime`, `storage`, `tabs` и `i18n`, но поддержка API не означает, что обычная карточка магазина доступна для установки на смартфоне. Проверка опубликованной карточки на Android 18 августа 2026 года показала сообщение о неподдерживаемом браузере; StudyNav отсутствует в отдельном списке расширений Microsoft для мобильного Edge. Проверка Edge на iPhone в тот же день показала экран «Расширения» с сообщением «Ожидается в ближайшее время». Поэтому ни Android, ни iPhone сейчас не входят в поддерживаемые устройства.
+Официальная таблица API Microsoft перечисляет Android для `action`, `runtime`, `storage`, `tabs` и `i18n`, но поддержка API не означает, что обычная карточка магазина доступна для установки на смартфоне. Проверка опубликованной карточки на Android 18 августа 2026 года показала сообщение о неподдерживаемом браузере; StudyNav отсутствует в отдельном списке расширений Microsoft для мобильного Edge. Проверка Edge на iPhone в тот же день показала экран «Расширения» с сообщением «Ожидается в ближайшее время». Поэтому ни Android, ни iPhone не входят в поддерживаемые устройства, а GitHub Issue #8 закрыт как not planned.
 
 ## Updates policy
 
-You control the local working copy. There is no extension-store auto-update channel in this workflow. Prefer reviewing source changes before rebuilding.
+Unpacked builds update only when you rebuild and reload them. Store-installed builds update through their browser's extension-store channel after a reviewed release is published.
 
 Current test contract and interpretation: `docs/SMOKE.md`.
 InkShade store/privacy contract: `docs/INKSHADE-STORE.md`.
 StudyNav Android Edge Add-ons contract: `docs/STUDYNAV-EDGE-STORE.md`.
+StudyNav desktop Chrome Web Store contract: `docs/STUDYNAV-CHROME-STORE.md`.

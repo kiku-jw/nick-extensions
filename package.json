@@ -24,6 +24,7 @@
     "media:studynav": "node scripts/build-studynav-tutorial.mjs",
     "package:dist": "bun run build && zip -qrFS dist-smoke.zip packages/clearshield/dist packages/inkshade/dist packages/studynav/dist -x '*/_metadata/*'",
     "package:inkshade": "bun run build:inkshade && (cd packages/inkshade/dist && zip -qrFS ../inkshade-store.zip . -x '_metadata/*')",
+    "package:studynav:chrome": "bun scripts/build-extension.mjs studynav && (cd packages/studynav/dist && zip -qrFS ../studynav-chrome-store.zip . -x '_metadata/*' '*.map' 'icons/icon-source.svg' '.DS_Store')",
     "package:studynav:edge-mobile": "bun run build:studynav && (cd packages/studynav/dist-edge-mobile && zip -qrFS ../studynav-edge-mobile.zip . -x '_metadata/*' '*.map')",
     "verify": "bun run typecheck && bun run test && bun run test:inkshade-upstream && bun run build && bun run smoke-check && bun run smoke:browser && bun run smoke-check"
   },

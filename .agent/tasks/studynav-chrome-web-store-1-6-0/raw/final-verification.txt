@@ -1,0 +1,36 @@
+StudyNav Chrome Web Store 1.6.0 release verification
+Verified: 2026-08-19
+
+bun run verify
+PASS
+- 113 repository unit tests
+- 75 InkShade upstream tests
+- strict TypeScript, all extension builds, static smoke checks
+- 13 browser scenarios, 191 assertions, 0 failures, 0 skips
+- 0 page errors and 0 extension-origin console errors
+- live JW.org smoke plus EN/RU/UK verse-audio checks
+
+bun run package:studynav:chrome
+PASS
+- package: packages/studynav/studynav-chrome-store.zip
+- SHA-256: cefaa9fc4247451c795cd1ffd5ae28e2dda65cd54508765b10ea53e74deaf53e
+
+unzip -t packages/studynav/studynav-chrome-store.zip
+PASS
+- manifest.json entries: 1, at archive root
+- _metadata entries: 0
+- source maps: 0
+- source-only icon SVG: 0
+- .DS_Store entries: 0
+
+bun run smoke-check
+PASS on the final package source state
+
+Store assets
+PASS
+- promo: 440 x 280 PNG
+- English screenshots: 5 x 1280 x 800 PNG
+- Russian screenshots: 5 x 1280 x 800 PNG
+
+Known unrelated workspace state
+- packages/inkshade/upstream remains dirty and was not modified or staged by this task.

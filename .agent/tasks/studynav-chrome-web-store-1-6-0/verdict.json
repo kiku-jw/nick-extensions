@@ -1,0 +1,11 @@
+{
+  "status": "PENDING_PROVIDER_STATE",
+  "releaseReady": true,
+  "summary": "StudyNav 1.6.0 and its Chrome Web Store listing package are verified; Dashboard upload and submission are still pending.",
+  "blockers": [],
+  "ownerGates": [
+    "one-time developer registration payment if Google requires it",
+    "new legal agreement if Google presents one",
+    "credentials or 2-step verification if the active browser session requires them"
+  ]
+}

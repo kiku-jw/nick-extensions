@@ -1,8 +1,8 @@
-# StudyNav Mobile Edge Add-ons release contract
+# StudyNav Mobile Edge Add-ons archived release contract
 
-Class: live release contract. Owner: `packages/studynav`. Canonical task:
-`kiku-jw/nick-extensions#8`. Update whenever the Android package, permissions,
-privacy behavior, store copy, testing boundary, or certification state changes.
+Class: archived release contract. Owner: `packages/studynav`. Canonical task:
+`kiku-jw/nick-extensions#8` (closed as not planned on August 19, 2026). Keep for
+historical accuracy; do not use it as a current release plan.
 
 ## Product identity
 
@@ -17,6 +17,10 @@ privacy behavior, store copy, testing boundary, or certification state changes.
   Jehovah's Witnesses.
 
 ## Current availability
+
+The mobile release lane is parked. The package is not a supported product and
+no further store or device work is planned unless the owner explicitly reopens
+the decision.
 
 The listing is published in Edge Add-ons, but a physical Android check on
 August 18, 2026 reported that the browser is unsupported. Microsoft exposes a

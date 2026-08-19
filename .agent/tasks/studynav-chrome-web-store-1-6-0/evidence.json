@@ -1,0 +1,40 @@
+{
+  "task": "studynav-chrome-web-store-1-6-0",
+  "verifiedAt": "2026-08-19",
+  "overall": "PENDING_PROVIDER_STATE",
+  "acceptance": {
+    "AC1": "PASS",
+    "AC2": "PASS",
+    "AC3": "PASS",
+    "AC4": "PASS",
+    "AC5": "PASS",
+    "AC6": "PENDING",
+    "AC7": "PARTIAL"
+  },
+  "verification": {
+    "fullVerify": "PASS",
+    "unitTests": 113,
+    "upstreamTests": 75,
+    "browserScenarios": 13,
+    "browserAssertions": 191,
+    "browserFailures": 0,
+    "browserSkips": 0,
+    "pageErrors": 0,
+    "extensionConsoleErrors": 0,
+    "packageIntegrity": "PASS",
+    "staticSmoke": "PASS"
+  },
+  "artifact": {
+    "path": "packages/studynav/studynav-chrome-store.zip",
+    "version": "1.6.0",
+    "sha256": "cefaa9fc4247451c795cd1ffd5ae28e2dda65cd54508765b10ea53e74deaf53e"
+  },
+  "provider": {
+    "status": "PENDING",
+    "itemId": null,
+    "listingUrl": null
+  },
+  "unrelatedDirtyState": [
+    "packages/inkshade/upstream"
+  ]
+}
