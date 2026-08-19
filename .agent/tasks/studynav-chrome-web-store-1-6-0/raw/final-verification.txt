@@ -34,3 +34,13 @@ PASS
 
 Known unrelated workspace state
 - packages/inkshade/upstream remains dirty and was not modified or staged by this task.
+
+Chrome Web Store provider receipt
+PASS_SUBMITTED_IN_REVIEW
+- submitted: 2026-08-19
+- publisher: KikuAI Lab
+- item ID: bjgaghgbmghohpahonodejobgflpcbai
+- Dashboard package: version 1.6.0, English and Russian, storage/offscreen/host permissions
+- Dashboard state after submission: Pending review
+- public listing: not yet observed
+- Store-installed desktop smoke: not yet run

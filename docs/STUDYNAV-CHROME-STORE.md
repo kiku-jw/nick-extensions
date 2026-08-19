@@ -36,6 +36,11 @@ Record these independently; never infer a later state from an earlier one:
 The exact current provider state and item URL belong in GitHub Issue #9. Do not
 put a guessed Store URL in the public guide.
 
+Latest verified provider receipt (2026-08-19): Chrome Web Store item
+`bjgaghgbmghohpahonodejobgflpcbai` accepted the 1.6.0 package and listing and
+shows **Pending review** after submission. Approval, public installability, and
+the installed Store-build smoke test have not happened yet.
+
 ## Single purpose
 
 Add local annotation, navigation, copying, and user-requested media tools to

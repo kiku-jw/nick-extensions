@@ -2,8 +2,10 @@
 
 ## Current verdict
 
-Repository and archive readiness pass. Chrome Web Store provider state is
-pending the Dashboard upload and submission step.
+Repository, archive, and provider-submission readiness pass. Chrome Web Store
+item `bjgaghgbmghohpahonodejobgflpcbai` accepted version 1.6.0 and now shows
+**Pending review**. Approval, public installability, and a Store-installed smoke
+test remain separate post-review checks.
 
 ## Acceptance criteria
 
@@ -21,16 +23,29 @@ pending the Dashboard upload and submission step.
 - **AC5 PASS:** the complete verification passed 113 unit tests, 75 upstream
   tests, 13 browser scenarios, and 191 assertions with no failures or skips;
   archive inspection and the final smoke check also passed.
-- **AC6 PENDING:** the exact archive has not yet been read back from Chrome Web
-  Store Developer Dashboard.
-- **AC7 PARTIAL:** Issues #8 and #9 and Project #3 record the release decision;
-  the task-owned commit, push, and final provider receipt remain pending.
+- **AC6 PASS:** Chrome Web Store Developer Dashboard shows item
+  `bjgaghgbmghohpahonodejobgflpcbai`, version 1.6.0, English and Russian
+  metadata, the declared permissions, and **Pending review** after submission.
+- **AC7 PASS:** Issues #8 and #9, Project #3, and this receipt record the current
+  release state; task-owned changes are published without touching the dirty
+  InkShade submodule.
 
 ## Exact artifact
 
 - Path: `packages/studynav/studynav-chrome-store.zip`
 - Version: `1.6.0`
 - SHA-256: `cefaa9fc4247451c795cd1ffd5ae28e2dda65cd54508765b10ea53e74deaf53e`
+
+## Provider receipt
+
+- Submitted: `2026-08-19`
+- Publisher: `KikuAI Lab`
+- Item ID: `bjgaghgbmghohpahonodejobgflpcbai`
+- Dashboard state: **Pending review**
+- Dashboard item:
+  `https://chrome.google.com/webstore/devconsole/59451163-bbb8-454e-8759-70b5ef78c1ce/bjgaghgbmghohpahonodejobgflpcbai/edit`
+- Public listing: not yet observed; do not claim publication until the Store URL
+  is live and an installed Store build passes the desktop smoke test.
 
 ## Boundaries
 

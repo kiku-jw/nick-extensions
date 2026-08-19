@@ -1,15 +1,15 @@
 {
   "task": "studynav-chrome-web-store-1-6-0",
   "verifiedAt": "2026-08-19",
-  "overall": "PENDING_PROVIDER_STATE",
+  "overall": "PASS_SUBMITTED_IN_REVIEW",
   "acceptance": {
     "AC1": "PASS",
     "AC2": "PASS",
     "AC3": "PASS",
     "AC4": "PASS",
     "AC5": "PASS",
-    "AC6": "PENDING",
-    "AC7": "PARTIAL"
+    "AC6": "PASS",
+    "AC7": "PASS"
   },
   "verification": {
     "fullVerify": "PASS",
@@ -30,9 +30,14 @@
     "sha256": "cefaa9fc4247451c795cd1ffd5ae28e2dda65cd54508765b10ea53e74deaf53e"
   },
   "provider": {
-    "status": "PENDING",
-    "itemId": null,
-    "listingUrl": null
+    "status": "PENDING_REVIEW",
+    "submittedAt": "2026-08-19",
+    "publisher": "KikuAI Lab",
+    "itemId": "bjgaghgbmghohpahonodejobgflpcbai",
+    "dashboardUrl": "https://chrome.google.com/webstore/devconsole/59451163-bbb8-454e-8759-70b5ef78c1ce/bjgaghgbmghohpahonodejobgflpcbai/edit",
+    "listingUrl": null,
+    "publicInstallability": "NOT_YET_OBSERVED",
+    "storeInstalledSmoke": "NOT_YET_RUN"
   },
   "unrelatedDirtyState": [
     "packages/inkshade/upstream"

@@ -1,11 +1,11 @@
 {
-  "status": "PENDING_PROVIDER_STATE",
+  "status": "PASS_SUBMITTED_IN_REVIEW",
   "releaseReady": true,
-  "summary": "StudyNav 1.6.0 and its Chrome Web Store listing package are verified; Dashboard upload and submission are still pending.",
+  "summary": "StudyNav 1.6.0 is verified and submitted to Chrome Web Store as item bjgaghgbmghohpahonodejobgflpcbai; Google currently shows Pending review.",
   "blockers": [],
-  "ownerGates": [
-    "one-time developer registration payment if Google requires it",
-    "new legal agreement if Google presents one",
-    "credentials or 2-step verification if the active browser session requires them"
+  "remainingProviderChecks": [
+    "Chrome Web Store approval",
+    "public listing availability",
+    "desktop smoke test of the Store-installed build"
   ]
 }
