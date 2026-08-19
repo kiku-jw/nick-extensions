@@ -1,7 +1,7 @@
 import {
   DEFAULT_FLAGS,
-  EDGE_MOBILE_DEFAULT_FLAGS,
-  edgeMobileFlags,
+  MOBILE_DEFAULT_FLAGS,
+  mobileFlags,
   type FeatureFlags,
 } from './features';
 import { createApplyCoordinator } from './apply-coordinator';
@@ -24,13 +24,13 @@ import { t } from './i18n';
 import { openStudyPanel } from './study-runtime';
 import { continueWatchingStatus } from './media-progress-runtime';
 import { isAllowedStudyNavPageUrl } from './page-origin';
-import { EDGE_MOBILE_BUILD } from './build-profile';
+import { MOBILE_BUILD } from './build-profile';
 
-const BUILD_DEFAULT_FLAGS = EDGE_MOBILE_BUILD ? EDGE_MOBILE_DEFAULT_FLAGS : DEFAULT_FLAGS;
+const BUILD_DEFAULT_FLAGS = MOBILE_BUILD ? MOBILE_DEFAULT_FLAGS : DEFAULT_FLAGS;
 
 function normalizeBuildFlags(value: Partial<FeatureFlags> | undefined): FeatureFlags {
   const flags = { ...BUILD_DEFAULT_FLAGS, ...value };
-  return EDGE_MOBILE_BUILD ? edgeMobileFlags(flags) : flags;
+  return MOBILE_BUILD ? mobileFlags(flags) : flags;
 }
 
 async function flags(): Promise<FeatureFlags> {
@@ -148,7 +148,7 @@ async function currentPageStatus() {
     .filter((verse): verse is NonNullable<typeof verse> => !!verse);
   const kind = verseNodes.length
     ? 'bible'
-    : EDGE_MOBILE_BUILD
+    : MOBILE_BUILD
       ? support.article
         ? 'article'
         : support.media
@@ -165,11 +165,11 @@ async function currentPageStatus() {
   const bookmarkCandidate = currentStudyBookmarkCandidate();
   let continueWatching = null;
   STUDYNAV_DESKTOP_ONLY: {
-    if (!EDGE_MOBILE_BUILD) continueWatching = continueWatchingStatus();
+    if (!MOBILE_BUILD) continueWatching = continueWatchingStatus();
   }
   return {
     active: latest.masterEnabled !== false && support.supported &&
-      (!EDGE_MOBILE_BUILD || mobilePageSupported),
+      (!MOBILE_BUILD || mobilePageSupported),
     enabledCount: Object.entries(latest).filter(([key, value]) => key !== 'masterEnabled' && value === true).length,
     kind,
     masterEnabled: latest.masterEnabled !== false,
@@ -183,7 +183,7 @@ async function currentPageStatus() {
     bookmarkAvailable: latest.bookmarks && !!bookmarkCandidate,
     bookmarkSaved: latest.bookmarks && bookmarkCandidate ? await currentStudyBookmarkSaved() : false,
     continueWatching,
-    supported: support.supported && (!EDGE_MOBILE_BUILD || mobilePageSupported),
+    supported: support.supported && (!MOBILE_BUILD || mobilePageSupported),
     verseCount: verseNodes.length,
   };
 }
@@ -195,7 +195,7 @@ if (isAllowedStudyNavPageUrl(location.href)) chrome.runtime.onMessage.addListene
       .catch(() => sendResponse({ active: false, supported: false }));
     return true;
   }
-  STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD && msg?.type === 'OPEN_PALETTE') {
+  STUDYNAV_DESKTOP_ONLY: if (!MOBILE_BUILD && msg?.type === 'OPEN_PALETTE') {
     if (latest.masterEnabled === false || !latest.advSearch) return;
     try {
       openPalette();

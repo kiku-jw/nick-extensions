@@ -62,11 +62,11 @@ export const DEFAULT_FLAGS: FeatureFlags = {
 };
 
 /**
- * Edge Mobile is a separate store package. Keep this list conservative: a
+ * Every mobile store package uses this same conservative product boundary. A
  * feature belongs here only after its complete touch workflow is reliable
  * without desktop-only browser APIs.
  */
-export const EDGE_MOBILE_FEATURE_IDS: readonly FeatureId[] = [
+export const MOBILE_FEATURE_IDS: readonly FeatureId[] = [
   'annotations',
   'bookmarks',
   'citations',
@@ -78,24 +78,24 @@ export const EDGE_MOBILE_FEATURE_IDS: readonly FeatureId[] = [
   'langCount',
 ];
 
-const EDGE_MOBILE_FEATURE_SET = new Set<FeatureId>(EDGE_MOBILE_FEATURE_IDS);
+const MOBILE_FEATURE_SET = new Set<FeatureId>(MOBILE_FEATURE_IDS);
 
-export function edgeMobileFlags(flags: Partial<FeatureFlags> = DEFAULT_FLAGS): FeatureFlags {
+export function mobileFlags(flags: Partial<FeatureFlags> = DEFAULT_FLAGS): FeatureFlags {
   const merged: FeatureFlags = { ...DEFAULT_FLAGS, ...flags };
   const next: FeatureFlags = {
     ...DEFAULT_FLAGS,
     masterEnabled: merged.masterEnabled !== false,
   };
   for (const { id } of FEATURE_META) {
-    next[id] = EDGE_MOBILE_FEATURE_SET.has(id) && merged[id] !== false;
+    next[id] = MOBILE_FEATURE_SET.has(id) && merged[id] !== false;
   }
   return next;
 }
 
-export const EDGE_MOBILE_DEFAULT_FLAGS = edgeMobileFlags();
+export const MOBILE_DEFAULT_FLAGS = mobileFlags();
 
-export function isEdgeMobileFeature(id: FeatureId): boolean {
-  return EDGE_MOBILE_FEATURE_SET.has(id);
+export function isMobileFeature(id: FeatureId): boolean {
+  return MOBILE_FEATURE_SET.has(id);
 }
 
 export type StudyNavInstallDetails = {

@@ -1,16 +1,16 @@
 import {
   DEFAULT_FLAGS,
-  EDGE_MOBILE_DEFAULT_FLAGS,
-  edgeMobileFlags,
+  MOBILE_DEFAULT_FLAGS,
+  mobileFlags,
   FEATURE_META,
-  isEdgeMobileFeature,
+  isMobileFeature,
   type FeatureFlags,
   type FeatureGroup,
   type FeatureId,
 } from './features';
 import { featureBlurbKey, featureNameKey, localizeDocument, t, type MessageKey } from './i18n';
 import { buildImageSearchUrl } from './document-actions';
-import { EDGE_MOBILE_BUILD } from './build-profile';
+import { MOBILE_BUILD } from './build-profile';
 
 const list = document.getElementById('list')!;
 const filterEl = document.getElementById('filter') as HTMLInputElement;
@@ -23,14 +23,14 @@ const actionFeedbackEl = document.getElementById('action-feedback')!;
 const actionButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('.action-grid button'));
 let currentFlags: FeatureFlags = { ...DEFAULT_FLAGS };
 let currentPageStatus: PageStatus | null = null;
-const BUILD_DEFAULT_FLAGS = EDGE_MOBILE_BUILD ? EDGE_MOBILE_DEFAULT_FLAGS : DEFAULT_FLAGS;
-const BUILD_FEATURE_META = EDGE_MOBILE_BUILD
-  ? FEATURE_META.filter((meta) => isEdgeMobileFeature(meta.id))
+const BUILD_DEFAULT_FLAGS = MOBILE_BUILD ? MOBILE_DEFAULT_FLAGS : DEFAULT_FLAGS;
+const BUILD_FEATURE_META = MOBILE_BUILD
+  ? FEATURE_META.filter((meta) => isMobileFeature(meta.id))
   : FEATURE_META;
 
 function normalizeBuildFlags(value: Partial<FeatureFlags> | undefined): FeatureFlags {
   const flags = { ...BUILD_DEFAULT_FLAGS, ...value };
-  return EDGE_MOBILE_BUILD ? edgeMobileFlags(flags) : flags;
+  return MOBILE_BUILD ? mobileFlags(flags) : flags;
 }
 
 async function load(): Promise<FeatureFlags> {
@@ -126,7 +126,7 @@ async function renderPageStatus() {
   if (!status || status.supported !== true || status.active !== true) {
     statusEl.dataset.state = 'idle';
     statusTitleEl.textContent = t('status_unavailable_title');
-    statusHintEl.textContent = t(EDGE_MOBILE_BUILD
+    statusHintEl.textContent = t(MOBILE_BUILD
       ? 'status_mobile_unavailable_hint'
       : 'status_unavailable_hint');
     return;
@@ -139,7 +139,7 @@ async function renderPageStatus() {
     statusTitleEl.textContent = t('status_bible_title');
     statusHintEl.textContent = selectedRange && typeof selectedRange === 'object' &&
       'chapter' in selectedRange && 'startVerse' in selectedRange && 'endVerse' in selectedRange
-      ? t(EDGE_MOBILE_BUILD ? 'status_bible_range_mobile' : 'status_bible_range', [
+      ? t(MOBILE_BUILD ? 'status_bible_range_mobile' : 'status_bible_range', [
           String(selectedRange.chapter),
           String(selectedRange.startVerse),
           String(selectedRange.endVerse),
@@ -147,13 +147,13 @@ async function renderPageStatus() {
       : selected && typeof selected === 'object' &&
       'chapter' in selected && 'verse' in selected
       ? t('status_bible_selected', [String(selected.chapter), String(selected.verse)])
-      : t(EDGE_MOBILE_BUILD ? 'status_bible_hint_mobile' : 'status_bible_hint');
+      : t(MOBILE_BUILD ? 'status_bible_hint_mobile' : 'status_bible_hint');
   } else if (status.kind === 'media') {
-    statusTitleEl.textContent = t(EDGE_MOBILE_BUILD ? 'status_media_mobile_title' : 'status_media_title');
-    statusHintEl.textContent = t(EDGE_MOBILE_BUILD ? 'status_media_mobile_hint' : 'status_media_hint');
+    statusTitleEl.textContent = t(MOBILE_BUILD ? 'status_media_mobile_title' : 'status_media_title');
+    statusHintEl.textContent = t(MOBILE_BUILD ? 'status_media_mobile_hint' : 'status_media_hint');
   } else if (status.kind === 'article') {
     statusTitleEl.textContent = t('status_article_title');
-    statusHintEl.textContent = t(EDGE_MOBILE_BUILD ? 'status_article_hint_mobile' : 'status_article_hint');
+    statusHintEl.textContent = t(MOBILE_BUILD ? 'status_article_hint_mobile' : 'status_article_hint');
   } else {
     statusTitleEl.textContent = t('status_palette_title');
     statusHintEl.textContent = t('status_palette_hint');
@@ -209,7 +209,7 @@ async function runPageAction(button: HTMLButtonElement) {
 
 (async () => {
   localizeDocument();
-  if (EDGE_MOBILE_BUILD) {
+  if (MOBILE_BUILD) {
     document.title = t('extension_mobile_name');
     document.querySelector<HTMLElement>('[data-i18n="popup_header_subtitle"]')!.textContent = t('popup_mobile_header_subtitle');
     document.getElementById('guide-bible-text')!.textContent = t('guide_bible_mobile_text');
@@ -243,12 +243,14 @@ async function runPageAction(button: HTMLButtonElement) {
   }
   filterEl.addEventListener('input', applyFilter);
   actionButtons.forEach((button) => button.addEventListener('click', () => void runPageAction(button)));
-  document.getElementById('image-search')?.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const input = document.getElementById('image-search-query') as HTMLInputElement | null;
-    const url = input ? buildImageSearchUrl(input.value) : null;
-    if (url) void chrome.tabs.create({ url });
-  });
+  STUDYNAV_DESKTOP_ONLY: if (!MOBILE_BUILD) {
+    document.getElementById('image-search')?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const input = document.getElementById('image-search-query') as HTMLInputElement | null;
+      const url = input ? buildImageSearchUrl(input.value) : null;
+      if (url) void chrome.tabs.create({ url });
+    });
+  }
   document.getElementById('reset-defaults')?.addEventListener('click', async () => {
     await chrome.runtime.sendMessage({ type: 'SET_FLAGS', flags: BUILD_DEFAULT_FLAGS });
     currentFlags = { ...BUILD_DEFAULT_FLAGS };

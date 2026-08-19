@@ -17,7 +17,7 @@ const EXTENSIONS = {
   ClearShield: path.join(ROOT, 'packages', 'clearshield', 'dist'),
   InkShade: path.join(ROOT, 'packages', 'inkshade', 'dist'),
   StudyNav: path.join(ROOT, 'packages', 'studynav', 'dist'),
-  StudyNavMobile: path.join(ROOT, 'packages', 'studynav', 'dist-edge-mobile'),
+  StudyNavMobile: path.join(ROOT, 'packages', 'studynav', 'dist-safari-ios'),
 };
 const DISPLAY_NAMES = {
   ClearShield: 'Ad & Tracker Blocker (ClearShield)',
@@ -1654,11 +1654,17 @@ async function sendStudyNavPageAction(worker, targetUrl, type) {
 }
 
 async function openStudyNavMediaMenu(page) {
-  const details = page.locator('#studynav-media-bar details');
-  if ((await details.getAttribute('open')) == null) {
-    await page.locator('#studynav-media-bar summary').click();
-  }
-  await page.waitForFunction(() => document.querySelector('#studynav-media-bar details')?.hasAttribute('open'));
+  await page.waitForFunction(async () => {
+    const details = document.querySelector('#studynav-media-bar details');
+    if (!(details instanceof HTMLDetailsElement)) return false;
+    if (!details.open) details.querySelector('summary')?.click();
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const stable = details.isConnected &&
+      details === document.querySelector('#studynav-media-bar details') &&
+      details.open;
+    if (stable) details.querySelector('summary')?.focus();
+    return stable;
+  });
 }
 
 async function selectFixtureText(page, selector, needle) {
@@ -3566,7 +3572,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       await page.locator(`.studynav-color-button[data-color="${color}"]`).click();
       await waitForWorkerState(
         worker,
-      async () => (await chrome.storage.local.get('studynavStudyDataV2')).studynavStudyDataV2,
+        async () => (await chrome.storage.local.get('studynavStudyDataV2')).studynavStudyDataV2,
         (data) => data?.annotations?.some((item) => item.color === color && item.selector.exact === exact),
         `StudyNav did not persist the ${color} selection`,
       );
@@ -3598,10 +3604,12 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
         .map((button) => button.textContent?.trim() || ''),
     }));
     await page.fill('#studynav-note-text', 'Note added by clicking the highlight');
+    await page.evaluate(() => new Promise((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(resolve))));
     const clickedTagInput = page.locator('#studynav-note-tags');
-    // locator.fill triggers the same input event as a user-entered comma while
-    // avoiding cross-scenario keyboard-focus timing in the full browser matrix.
-    await clickedTagInput.fill('clicked,');
+    await clickedTagInput.focus();
+    await clickedTagInput.fill('clicked');
+    await clickedTagInput.press(',');
     await page.waitForFunction(() => document.querySelectorAll('#studynav-note-editor .studynav-tag-chip').length === 1);
     await page.locator('#studynav-note-editor button', { hasText: 'Save locally' }).click();
     const clickedHighlightData = await waitForWorkerState(
@@ -3647,7 +3655,10 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       sameEditor: document.getElementById('studynav-note-editor')?.dataset.storageProbe === 'keep-editor',
       noteValue: document.getElementById('studynav-note-text')?.value || '',
     }));
+    await page.evaluate(() => new Promise((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(resolve))));
     const familyTagInput = page.locator('#studynav-note-tags');
+    await familyTagInput.focus();
     await familyTagInput.fill('Faith,');
     await familyTagInput.fill(' family');
     await familyTagInput.press('Enter');
@@ -5106,8 +5117,8 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
   return scenario;
 }
 
-async function runStudyNavEdgeMobileScenario(executablePath, port) {
-  const scenario = createScenario('studynav-edge-mobile', ['StudyNavMobile']);
+async function runStudyNavMobileScenario(executablePath, port) {
+  const scenario = createScenario('studynav-mobile', ['StudyNavMobile']);
   await withContext(
     { executablePath, extensions: ['StudyNavMobile'], deviceScaleFactor: 2 },
     async (context, launchMeta) => {
@@ -5117,11 +5128,6 @@ async function runStudyNavEdgeMobileScenario(executablePath, port) {
       const worker = await getWorkerByName(context, 'StudyNavMobile');
       await routeStudyNavFixtures(context);
       await context.route(`https://${HOSTS.jwMedia}/media/fixture.mp4`, fulfillFixtureVideo);
-      await context.route('https://cse.google.com/**', (route) => route.fulfill({
-        status: 200,
-        contentType: 'text/html; charset=utf-8',
-        body: '<!doctype html><title>JW image-search fixture</title>',
-      }));
 
       // Simulate settings carried over from the desktop package. The mobile
       // runtime must still expose only its conservative feature allowlist.
@@ -5130,7 +5136,7 @@ async function runStudyNavEdgeMobileScenario(executablePath, port) {
       const page = await openPage(
         context,
         scenario,
-        'studynav-edge-mobile-jw',
+        'studynav-mobile-jw',
         httpsUrl(HOSTS.jw, STUDYNAV_FIXTURE_PATH),
       );
       await page.setViewportSize({ width: 390, height: 844 });
@@ -5161,7 +5167,7 @@ async function runStudyNavEdgeMobileScenario(executablePath, port) {
           inViewport: !!rect && rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom <= innerHeight,
         };
       });
-      await captureScreenshot(page, 'edge-mobile-selection-tools.png');
+      await captureScreenshot(page, 'mobile-selection-tools.png');
       await page.locator('#studynav-selection-tools button').filter({ hasText: /^Copy$/ }).click();
       const copiedSelection = await waitForCopiedText(
         page,
@@ -5234,7 +5240,7 @@ async function runStudyNavEdgeMobileScenario(executablePath, port) {
             button.getBoundingClientRect().height),
         };
       });
-      await captureScreenshot(page, 'edge-mobile-note-editor.png');
+      await captureScreenshot(page, 'mobile-note-editor.png');
       await page.locator('#studynav-note-editor button').filter({ hasText: /^Save locally$/ }).click();
       const mobileStudyData = await waitForWorkerState(
         worker,
@@ -5263,7 +5269,7 @@ async function runStudyNavEdgeMobileScenario(executablePath, port) {
       const popup = await openPage(
         context,
         scenario,
-        'studynav-edge-mobile-popup',
+        'studynav-mobile-popup',
         extensionPageUrl(workerInfoFor(workers, 'StudyNavMobile').id, 'popup.html'),
       );
       await popup.setViewportSize({ width: 390, height: 844 });
@@ -5281,6 +5287,7 @@ async function runStudyNavEdgeMobileScenario(executablePath, port) {
         overflows: document.documentElement.scrollWidth > document.documentElement.clientWidth,
         mediaGuideVisible: getComputedStyle(document.querySelector('.guide-media')).display !== 'none',
         desktopFooterVisible: getComputedStyle(document.querySelector('.desktop-footer')).display !== 'none',
+        imageSearchPresent: !!document.getElementById('image-search'),
         actionHeights: Array.from(document.querySelectorAll('.action-grid button')).map((button) =>
           button.getBoundingClientRect().height),
         switchHeights: Array.from(document.querySelectorAll('.switch')).map((control) =>
@@ -5288,7 +5295,7 @@ async function runStudyNavEdgeMobileScenario(executablePath, port) {
         inputFontSizes: Array.from(document.querySelectorAll('input[type="search"]')).map((input) =>
           parseFloat(getComputedStyle(input).fontSize)),
       }));
-      await captureScreenshot(popup, 'edge-mobile-popup.png', { fullPage: true });
+      await captureScreenshot(popup, 'mobile-popup.png', { fullPage: true });
 
       await popup.click('#open-official');
       const officialTab = await waitForWorkerState(
@@ -5299,18 +5306,6 @@ async function runStudyNavEdgeMobileScenario(executablePath, port) {
         'StudyNav Mobile did not open the page-derived official Finder link',
       );
       await worker.evaluate(async (tabId) => { await chrome.tabs.remove(tabId); }, officialTab.id);
-
-      await popup.fill('#image-search-query', 'peaceful paradise');
-      await popup.locator('#image-search button').click();
-      let imageSearchPage = null;
-      await waitFor(() => {
-        imageSearchPage = context.pages().find((candidate) =>
-          candidate.url().startsWith('https://cse.google.com/cse?cx=3c6c549b8ed4c34fe') &&
-          candidate.url().includes('gsc.q=peaceful+paradise')) || null;
-        return !!imageSearchPage;
-      }, 5_000, 'StudyNav Mobile image-search action did not open the expected Google CSE query');
-      const imageSearchTab = { url: imageSearchPage.url() };
-      await imageSearchPage.close();
 
       await selectFixtureText(page, '#p1', 'A useful');
       await popup.evaluate(() => document.querySelector('[data-id="copyText"]').click());
@@ -5348,7 +5343,7 @@ async function runStudyNavEdgeMobileScenario(executablePath, port) {
       const wolPage = await openPage(
         context,
         scenario,
-        'studynav-edge-mobile-wol',
+        'studynav-mobile-wol',
         httpsUrl(HOSTS.wol, '/en/wol/d/r1/lp-e/999'),
       );
       await wolPage.setViewportSize({ width: 390, height: 844 });
@@ -5385,7 +5380,7 @@ async function runStudyNavEdgeMobileScenario(executablePath, port) {
 
       scenario.assertions.push(
         makeAssertion(
-          'StudyNav Mobile worker uses the separate Edge package identity',
+          'StudyNav Mobile worker uses the separate mobile package identity',
           workers.some((item) => workerMatchesExtension(item, 'StudyNavMobile')),
           workers,
         ),
@@ -5435,17 +5430,17 @@ async function runStudyNavEdgeMobileScenario(executablePath, port) {
             json(popupState.groups) === json(['Study & sharing', 'Bible & articles']) &&
             popupState.enabledCount === '9 on' && popupState.overflows === false &&
             popupState.mediaGuideVisible === false && popupState.desktopFooterVisible === false &&
+            popupState.imageSearchPresent === false &&
             popupState.actionHeights.every((height) => height >= 48) &&
             popupState.switchHeights.every((height) => height >= 44) &&
             popupState.inputFontSizes.every((size) => size >= 16),
           popupState,
         ),
         makeAssertion(
-          'StudyNav Mobile opens only the page-derived Finder target and the requested JW image search',
+          'StudyNav Mobile opens only the page-derived official Finder target',
           String(officialTab.url).startsWith('https://www.jw.org/finder?') &&
-            String(officialTab.url).includes('wtlocale=E') &&
-            String(imageSearchTab.url).includes('gsc.q=peaceful+paradise'),
-          { officialTab, imageSearchTab },
+            String(officialTab.url).includes('wtlocale=E'),
+          { officialTab },
         ),
         makeAssertion(
           'StudyNav Mobile removes a disabled selection action without leaving a stale button',
@@ -6401,7 +6396,7 @@ async function main() {
     if (scenarioRequested('inkshade-only')) report.scenarios.push(await runInkShadeForkScenario(executable.executablePath, fixture.port));
     if (scenarioRequested('studynav-only')) report.scenarios.push(await runStudyNavScenario(executable.executablePath, fixture.port));
     if (scenarioRequested('studynav-study-suite')) report.scenarios.push(await runStudyNavStudySuiteScenario(executable.executablePath, fixture.port));
-    if (scenarioRequested('studynav-edge-mobile')) report.scenarios.push(await runStudyNavEdgeMobileScenario(executable.executablePath, fixture.port));
+    if (scenarioRequested('studynav-mobile')) report.scenarios.push(await runStudyNavMobileScenario(executable.executablePath, fixture.port));
     if (scenarioRequested('studynav-russian-locale')) report.scenarios.push(await runStudyNavRussianLocaleScenario(executable.executablePath, fixture.port));
     if (scenarioRequested('combined')) report.scenarios.push(await runCombinedScenario(executable.executablePath, fixture.port));
     if (scenarioRequested('studynav-live-smoke')) report.scenarios.push(await runStudyNavLiveSmokeScenario(executable.executablePath));

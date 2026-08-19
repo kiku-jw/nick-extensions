@@ -45,6 +45,20 @@ describe('StudyNav localization contract', () => {
     }
   });
 
+  test('keeps shared mobile copy platform-neutral for Safari and Firefox', async () => {
+    const english = await json('packages/studynav/public/_locales/en/messages.json');
+    const russian = await json('packages/studynav/public/_locales/ru/messages.json');
+    const sharedMobileKeys = [
+      'extension_mobile_description',
+      'popup_mobile_header_subtitle',
+      'status_media_mobile_hint',
+    ];
+    for (const locale of [english, russian]) {
+      const mobileCopy = sharedMobileKeys.map((key) => locale[key].message).join(' ');
+      expect(mobileCopy).not.toMatch(/Edge|Android|Safari|Firefox|Эдж|Андроид|Сафари|Файрфокс/i);
+    }
+  });
+
   test('has localized metadata keys for all 23 feature flags', () => {
     expect(FEATURE_META).toHaveLength(23);
     for (const feature of FEATURE_META) {
@@ -88,7 +102,41 @@ describe('StudyNav localization contract', () => {
     expect(manifest.commands['adv-search'].description).toBe('__MSG_command_adv_search__');
   });
 
-  test('ships a separate localized Edge Mobile manifest without desktop APIs', async () => {
+  test('ships platform manifests with one localized mobile identity and exact site access', async () => {
+    const safari = await json('packages/studynav/manifest.safari-ios.json');
+    const firefox = await json('packages/studynav/manifest.firefox-android.json');
+    const expectedHosts = [
+      'https://jw.org/*',
+      'https://www.jw.org/*',
+      'https://wol.jw.org/*',
+    ];
+
+    for (const manifest of [safari, firefox]) {
+      expect(manifest.version).toBe('1.6.0');
+      expect(manifest.name).toBe('__MSG_extension_mobile_name__');
+      expect(manifest.description).toBe('__MSG_extension_mobile_description__');
+      expect(manifest.commands).toBeUndefined();
+      expect(JSON.stringify(manifest)).not.toContain('offscreen');
+      expect(JSON.stringify(manifest)).not.toContain('jw-cdn.org');
+      expect(manifest.content_scripts[0].matches).toEqual(expectedHosts);
+    }
+
+    expect(safari.manifest_version).toBe(3);
+    expect(safari.permissions).toEqual(['storage']);
+    expect(safari.host_permissions).toEqual(expectedHosts);
+    expect(safari.background.service_worker).toBe('background.js');
+    expect(safari.browser_specific_settings.safari.strict_min_version).toBe('15.4');
+
+    expect(firefox.manifest_version).toBe(2);
+    expect(firefox.permissions).toEqual(['storage', ...expectedHosts]);
+    expect(firefox.background).toEqual({ scripts: ['background.js'], persistent: false });
+    expect(firefox.browser_specific_settings.gecko.id).toBe('studynav-mobile@kikuai.dev');
+    expect(firefox.browser_specific_settings.gecko.strict_min_version).toBe('142.0');
+    expect(firefox.browser_specific_settings.gecko.data_collection_permissions.required).toEqual(['none']);
+    expect(firefox.browser_specific_settings.gecko_android.strict_min_version).toBe('142.0');
+  });
+
+  test('retains the archived Edge Mobile manifest as a reproducible historical target', async () => {
     const manifest = await json('packages/studynav/manifest.edge-mobile.json');
     expect(manifest.version).toBe('1.6.0');
     expect(manifest.version_name).toBe('1.6.0 Edge Android');

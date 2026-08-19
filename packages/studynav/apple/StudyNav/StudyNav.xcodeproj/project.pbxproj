@@ -1,0 +1,634 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		01792A8E303647ED00DF476B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01792A8D303647ED00DF476B /* AppDelegate.swift */; };
+		01792A92303647ED00DF476B /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 01792A90303647ED00DF476B /* Main.html */; };
+		01792A94303647ED00DF476B /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 01792A93303647ED00DF476B /* Icon.png */; };
+		01792A96303647ED00DF476B /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 01792A95303647ED00DF476B /* Style.css */; };
+		01792A98303647ED00DF476B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01792A97303647ED00DF476B /* SceneDelegate.swift */; };
+		01792A9A303647ED00DF476B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01792A99303647ED00DF476B /* ViewController.swift */; };
+		01792A9D303647ED00DF476B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 01792A9B303647ED00DF476B /* LaunchScreen.storyboard */; };
+		01792AA0303647ED00DF476B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 01792A9E303647ED00DF476B /* Main.storyboard */; };
+		01792AA8303647EF00DF476B /* StudyNav Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 01792AA7303647EF00DF476B /* StudyNav Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		01792AAD303647EF00DF476B /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01792AAC303647EF00DF476B /* SafariWebExtensionHandler.swift */; };
+		01792AAF303647EF00DF476B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 01792AA1303647EF00DF476B /* Assets.xcassets */; };
+		01792AC3303647EF00DF476B /* popup.js in Resources */ = {isa = PBXBuildFile; fileRef = 01792ABA303647EF00DF476B /* popup.js */; };
+		01792AC4303647EF00DF476B /* content.css in Resources */ = {isa = PBXBuildFile; fileRef = 01792ABB303647EF00DF476B /* content.css */; };
+		01792AC5303647EF00DF476B /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 01792ABC303647EF00DF476B /* background.js */; };
+		01792AC6303647EF00DF476B /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = 01792ABD303647EF00DF476B /* popup.html */; };
+		01792AC7303647EF00DF476B /* icons in Resources */ = {isa = PBXBuildFile; fileRef = 01792ABE303647EF00DF476B /* icons */; };
+		01792AC8303647EF00DF476B /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 01792ABF303647EF00DF476B /* manifest.json */; };
+		01792AC9303647EF00DF476B /* popup.css in Resources */ = {isa = PBXBuildFile; fileRef = 01792AC0303647EF00DF476B /* popup.css */; };
+		01792ACA303647EF00DF476B /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = 01792AC1303647EF00DF476B /* _locales */; };
+		01792ACB303647EF00DF476B /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 01792AC2303647EF00DF476B /* content.js */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		01792AA9303647EF00DF476B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 01792A82303647ED00DF476B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 01792AA6303647EF00DF476B;
+			remoteInfo = "StudyNav Extension";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		01792AB5303647EF00DF476B /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				01792AA8303647EF00DF476B /* StudyNav Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		01792A8A303647ED00DF476B /* StudyNav.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StudyNav.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		01792A8D303647ED00DF476B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		01792A91303647ED00DF476B /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		01792A93303647ED00DF476B /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		01792A95303647ED00DF476B /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		01792A97303647ED00DF476B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		01792A99303647ED00DF476B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		01792A9C303647ED00DF476B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		01792A9F303647ED00DF476B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		01792AA1303647EF00DF476B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		01792AA2303647EF00DF476B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		01792AA7303647EF00DF476B /* StudyNav Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "StudyNav Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		01792AAC303647EF00DF476B /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		01792AAE303647EF00DF476B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		01792ABA303647EF00DF476B /* popup.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = popup.js; path = Resources/popup.js; sourceTree = "<group>"; };
+		01792ABB303647EF00DF476B /* content.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = content.css; path = Resources/content.css; sourceTree = "<group>"; };
+		01792ABC303647EF00DF476B /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = Resources/background.js; sourceTree = "<group>"; };
+		01792ABD303647EF00DF476B /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = popup.html; path = Resources/popup.html; sourceTree = "<group>"; };
+		01792ABE303647EF00DF476B /* icons */ = {isa = PBXFileReference; lastKnownFileType = folder; name = icons; path = Resources/icons; sourceTree = "<group>"; };
+		01792ABF303647EF00DF476B /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = Resources/manifest.json; sourceTree = "<group>"; };
+		01792AC0303647EF00DF476B /* popup.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = popup.css; path = Resources/popup.css; sourceTree = "<group>"; };
+		01792AC1303647EF00DF476B /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; name = _locales; path = Resources/_locales; sourceTree = "<group>"; };
+		01792AC2303647EF00DF476B /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = content.js; path = Resources/content.js; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		01792A87303647ED00DF476B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		01792AA4303647EF00DF476B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		01792A81303647ED00DF476B = {
+			isa = PBXGroup;
+			children = (
+				01792A8C303647ED00DF476B /* StudyNav */,
+				01792AAB303647EF00DF476B /* StudyNav Extension */,
+				01792A8B303647ED00DF476B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		01792A8B303647ED00DF476B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				01792A8A303647ED00DF476B /* StudyNav.app */,
+				01792AA7303647EF00DF476B /* StudyNav Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		01792A8C303647ED00DF476B /* StudyNav */ = {
+			isa = PBXGroup;
+			children = (
+				01792A8D303647ED00DF476B /* AppDelegate.swift */,
+				01792A97303647ED00DF476B /* SceneDelegate.swift */,
+				01792A99303647ED00DF476B /* ViewController.swift */,
+				01792A9B303647ED00DF476B /* LaunchScreen.storyboard */,
+				01792A9E303647ED00DF476B /* Main.storyboard */,
+				01792AA1303647EF00DF476B /* Assets.xcassets */,
+				01792AA2303647EF00DF476B /* Info.plist */,
+				01792A8F303647ED00DF476B /* Resources */,
+			);
+			path = StudyNav;
+			sourceTree = "<group>";
+		};
+		01792A8F303647ED00DF476B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				01792A90303647ED00DF476B /* Main.html */,
+				01792A93303647ED00DF476B /* Icon.png */,
+				01792A95303647ED00DF476B /* Style.css */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		01792AAB303647EF00DF476B /* StudyNav Extension */ = {
+			isa = PBXGroup;
+			children = (
+				01792AB9303647EF00DF476B /* Resources */,
+				01792AAC303647EF00DF476B /* SafariWebExtensionHandler.swift */,
+				01792AAE303647EF00DF476B /* Info.plist */,
+			);
+			path = "StudyNav Extension";
+			sourceTree = "<group>";
+		};
+		01792AB9303647EF00DF476B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				01792ABA303647EF00DF476B /* popup.js */,
+				01792ABB303647EF00DF476B /* content.css */,
+				01792ABC303647EF00DF476B /* background.js */,
+				01792ABD303647EF00DF476B /* popup.html */,
+				01792ABE303647EF00DF476B /* icons */,
+				01792ABF303647EF00DF476B /* manifest.json */,
+				01792AC0303647EF00DF476B /* popup.css */,
+				01792AC1303647EF00DF476B /* _locales */,
+				01792AC2303647EF00DF476B /* content.js */,
+			);
+			name = Resources;
+			path = "StudyNav Extension";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		01792A89303647ED00DF476B /* StudyNav */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 01792AB6303647EF00DF476B /* Build configuration list for PBXNativeTarget "StudyNav" */;
+			buildPhases = (
+				01792A86303647ED00DF476B /* Sources */,
+				01792A87303647ED00DF476B /* Frameworks */,
+				01792A88303647ED00DF476B /* Resources */,
+				01792AB5303647EF00DF476B /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				01792AAA303647EF00DF476B /* PBXTargetDependency */,
+			);
+			name = StudyNav;
+			packageProductDependencies = (
+			);
+			productName = StudyNav;
+			productReference = 01792A8A303647ED00DF476B /* StudyNav.app */;
+			productType = "com.apple.product-type.application";
+		};
+		01792AA6303647EF00DF476B /* StudyNav Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 01792AB2303647EF00DF476B /* Build configuration list for PBXNativeTarget "StudyNav Extension" */;
+			buildPhases = (
+				01792AA3303647EF00DF476B /* Sources */,
+				01792AA4303647EF00DF476B /* Frameworks */,
+				01792AA5303647EF00DF476B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "StudyNav Extension";
+			packageProductDependencies = (
+			);
+			productName = "StudyNav Extension";
+			productReference = 01792AA7303647EF00DF476B /* StudyNav Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		01792A82303647ED00DF476B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2660;
+				LastUpgradeCheck = 2660;
+				TargetAttributes = {
+					01792A89303647ED00DF476B = {
+						CreatedOnToolsVersion = 26.6;
+					};
+					01792AA6303647EF00DF476B = {
+						CreatedOnToolsVersion = 26.6;
+					};
+				};
+			};
+			buildConfigurationList = 01792A85303647ED00DF476B /* Build configuration list for PBXProject "StudyNav" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 01792A81303647ED00DF476B;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 01792A8B303647ED00DF476B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				01792A89303647ED00DF476B /* StudyNav */,
+				01792AA6303647EF00DF476B /* StudyNav Extension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		01792A88303647ED00DF476B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01792A94303647ED00DF476B /* Icon.png in Resources */,
+				01792AA0303647ED00DF476B /* Main.storyboard in Resources */,
+				01792A9D303647ED00DF476B /* LaunchScreen.storyboard in Resources */,
+				01792A92303647ED00DF476B /* Main.html in Resources */,
+				01792AAF303647EF00DF476B /* Assets.xcassets in Resources */,
+				01792A96303647ED00DF476B /* Style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		01792AA5303647EF00DF476B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01792AC3303647EF00DF476B /* popup.js in Resources */,
+				01792AC9303647EF00DF476B /* popup.css in Resources */,
+				01792ACA303647EF00DF476B /* _locales in Resources */,
+				01792AC6303647EF00DF476B /* popup.html in Resources */,
+				01792AC5303647EF00DF476B /* background.js in Resources */,
+				01792AC7303647EF00DF476B /* icons in Resources */,
+				01792ACB303647EF00DF476B /* content.js in Resources */,
+				01792AC8303647EF00DF476B /* manifest.json in Resources */,
+				01792AC4303647EF00DF476B /* content.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		01792A86303647ED00DF476B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01792A9A303647ED00DF476B /* ViewController.swift in Sources */,
+				01792A8E303647ED00DF476B /* AppDelegate.swift in Sources */,
+				01792A98303647ED00DF476B /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		01792AA3303647EF00DF476B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01792AAD303647EF00DF476B /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		01792AAA303647EF00DF476B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 01792AA6303647EF00DF476B /* StudyNav Extension */;
+			targetProxy = 01792AA9303647EF00DF476B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		01792A90303647ED00DF476B /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				01792A91303647ED00DF476B /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		01792A9B303647ED00DF476B /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				01792A9C303647ED00DF476B /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		01792A9E303647ED00DF476B /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				01792A9F303647ED00DF476B /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		01792AB0303647EF00DF476B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		01792AB1303647EF00DF476B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		01792AB3303647EF00DF476B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "StudyNav Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "StudyNav Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.6.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.kiku.StudyNav.Extension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		01792AB4303647EF00DF476B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "StudyNav Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "StudyNav Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.6.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.kiku.StudyNav.Extension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		01792AB7303647EF00DF476B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StudyNav/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = StudyNav;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.6.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.kiku.StudyNav;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		01792AB8303647EF00DF476B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StudyNav/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = StudyNav;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.6.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.kiku.StudyNav;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		01792A85303647ED00DF476B /* Build configuration list for PBXProject "StudyNav" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				01792AB0303647EF00DF476B /* Debug */,
+				01792AB1303647EF00DF476B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		01792AB2303647EF00DF476B /* Build configuration list for PBXNativeTarget "StudyNav Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				01792AB3303647EF00DF476B /* Debug */,
+				01792AB4303647EF00DF476B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		01792AB6303647EF00DF476B /* Build configuration list for PBXNativeTarget "StudyNav" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				01792AB7303647EF00DF476B /* Debug */,
+				01792AB8303647EF00DF476B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 01792A82303647ED00DF476B /* Project object */;
+}

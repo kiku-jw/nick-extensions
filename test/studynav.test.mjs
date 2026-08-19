@@ -3,9 +3,9 @@ import { describe, expect, test } from 'bun:test';
 import { createApplyCoordinator } from '../packages/studynav/src/apply-coordinator.ts';
 import {
   DEFAULT_FLAGS,
-  EDGE_MOBILE_DEFAULT_FLAGS,
-  EDGE_MOBILE_FEATURE_IDS,
-  edgeMobileFlags,
+  MOBILE_DEFAULT_FLAGS,
+  MOBILE_FEATURE_IDS,
+  mobileFlags,
   migrateFlagsForInstall,
 } from '../packages/studynav/src/features.ts';
 import {
@@ -299,8 +299,8 @@ describe('StudyNav root and paragraph scope', () => {
 });
 
 describe('StudyNav feature planning', () => {
-  test('keeps the Edge Mobile profile to the nine touch-safe study tools', () => {
-    expect(EDGE_MOBILE_FEATURE_IDS).toEqual([
+  test('keeps the shared mobile profile to the nine touch-safe study tools', () => {
+    expect(MOBILE_FEATURE_IDS).toEqual([
       'annotations',
       'bookmarks',
       'citations',
@@ -311,12 +311,12 @@ describe('StudyNav feature planning', () => {
       'altText',
       'langCount',
     ]);
-    expect(Object.entries(EDGE_MOBILE_DEFAULT_FLAGS)
+    expect(Object.entries(MOBILE_DEFAULT_FLAGS)
       .filter(([key, value]) => key !== 'masterEnabled' && value)
       .map(([key]) => key)
-      .sort()).toEqual([...EDGE_MOBILE_FEATURE_IDS].sort());
+      .sort()).toEqual([...MOBILE_FEATURE_IDS].sort());
 
-    const normalized = edgeMobileFlags({
+    const normalized = mobileFlags({
       masterEnabled: false,
       annotations: false,
       mediaClip: true,

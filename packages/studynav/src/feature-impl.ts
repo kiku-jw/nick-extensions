@@ -1,5 +1,5 @@
 import type { FeatureFlags } from './features';
-import { EDGE_MOBILE_BUILD } from './build-profile';
+import { MOBILE_BUILD } from './build-profile';
 import { resolveQuery } from './mnemonics';
 import {
   buildOfficialFinderUrl,
@@ -134,7 +134,7 @@ function removeStyle() {
 export function cssFor(flags: FeatureFlags, hostname: string): string {
   const bits: string[] = [];
   const isWol = hostname.toLowerCase() === 'wol.jw.org';
-  STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD && flags.actionBar && !isWol) {
+  STUDYNAV_DESKTOP_ONLY: if (!MOBILE_BUILD && flags.actionBar && !isWol) {
     bits.push(`
       #regionHeader {
         position: sticky !important; top: 0 !important; z-index: 9990 !important;
@@ -142,7 +142,7 @@ export function cssFor(flags: FeatureFlags, hostname: string): string {
       }
     `);
   }
-  STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD && flags.expandWidth) {
+  STUDYNAV_DESKTOP_ONLY: if (!MOBILE_BUILD && flags.expandWidth) {
     bits.push(isWol ? `
       @media (min-width: 980px) {
         [${ARTICLE_MARKER}="1"] {
@@ -171,7 +171,7 @@ export function cssFor(flags: FeatureFlags, hostname: string): string {
       }
     `);
   }
-  STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD && flags.cstblView) {
+  STUDYNAV_DESKTOP_ONLY: if (!MOBILE_BUILD && flags.cstblView) {
     bits.push(isWol ? `
       [${ARTICLE_MARKER}="1"] table {
         border-collapse: separate !important; border-spacing: 0 !important; width: 100% !important;
@@ -197,7 +197,7 @@ export function cssFor(flags: FeatureFlags, hostname: string): string {
       }
     `);
   }
-  STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD && flags.mediaPlayerUI) {
+  STUDYNAV_DESKTOP_ONLY: if (!MOBILE_BUILD && flags.mediaPlayerUI) {
     bits.push(`
       .video-js .vjs-control-bar {
         background: transparent !important;
@@ -206,7 +206,7 @@ export function cssFor(flags: FeatureFlags, hostname: string): string {
       }
     `);
   }
-  STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD && flags.customSub) {
+  STUDYNAV_DESKTOP_ONLY: if (!MOBILE_BUILD && flags.customSub) {
     bits.push(`
       .vjs-text-track-cue > div, .vjs-text-track-display .vjs-text-track-cue div,
       ::cue {
@@ -418,7 +418,7 @@ export function teardownFeatures() {
   teardownLanguageBadge();
   teardownToast();
   teardownQrOverlay();
-  STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD) {
+  STUDYNAV_DESKTOP_ONLY: if (!MOBILE_BUILD) {
     teardownPalette();
     teardownImgGet();
     teardownMediaToolbar();
@@ -644,10 +644,21 @@ export async function copyCurrentCitation(): Promise<{ ok: boolean; message: str
   };
 }
 
+function parseLocalSvg(markup: string): Element | null {
+  const parsed = new DOMParser().parseFromString(markup, 'image/svg+xml');
+  const root = parsed.documentElement;
+  if (parsed.querySelector('parsererror') ||
+      root.localName !== 'svg' ||
+      root.namespaceURI !== 'http://www.w3.org/2000/svg') return null;
+  return document.importNode(root, true);
+}
+
 export function showCurrentQr(): { ok: boolean; message: string } {
   const url = currentPreciseStudyUrl();
   const svg = url ? qrSvgForStudyUrl(url) : null;
   if (!url || !svg) return { ok: false, message: t('qr_unavailable') };
+  const qrImage = parseLocalSvg(svg);
+  if (!qrImage) return { ok: false, message: t('qr_unavailable') };
 
   teardownQrOverlay();
   qrReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -676,8 +687,8 @@ export function showCurrentQr(): { ok: boolean; message: string } {
 
   const image = document.createElement('div');
   image.className = 'studynav-qr-image';
-  image.innerHTML = svg;
-  image.querySelector('svg')?.setAttribute('aria-label', t('qr_image_aria'));
+  qrImage.setAttribute('aria-label', t('qr_image_aria'));
+  image.append(qrImage);
   const target = document.createElement('p');
   target.className = 'studynav-target-url';
   target.textContent = url;
@@ -1016,7 +1027,7 @@ async function downloadVerseAudio(verseElements: readonly HTMLElement[], button:
 function runCopyAndLinks(articleRoots: HTMLElement[], flags: FeatureFlags) {
   const hasBibleVerses = articleRoots.some((root) => !!root.querySelector('.verse[id^="v"]'));
   syncVerseSelectionListener(hasBibleVerses && !!(
-    (!EDGE_MOBILE_BUILD && flags.verseAudio) || flags.copyText || flags.parLink || flags.annotations
+    (!MOBILE_BUILD && flags.verseAudio) || flags.copyText || flags.parLink || flags.annotations
   ));
   paragraphNodes(articleRoots).forEach((el) => {
     const existing = el.querySelector(':scope > .studynav-para-tools');
@@ -1028,7 +1039,7 @@ function runCopyAndLinks(articleRoots: HTMLElement[], flags: FeatureFlags) {
     bar.setAttribute('data-studynav-owned', '1');
     bar.setAttribute('aria-label', t('study_tools_aria'));
 
-    STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD && flags.verseAudio && parseBibleVerseId(el.id)) {
+    STUDYNAV_DESKTOP_ONLY: if (!MOBILE_BUILD && flags.verseAudio && parseBibleVerseId(el.id)) {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'studynav-verse-audio';
@@ -1044,7 +1055,7 @@ function runCopyAndLinks(articleRoots: HTMLElement[], flags: FeatureFlags) {
       bar.appendChild(button);
     }
 
-    if (((!EDGE_MOBILE_BUILD && flags.verseAudio) || flags.copyText || flags.parLink) && parseBibleVerseId(el.id)) {
+    if (((!MOBILE_BUILD && flags.verseAudio) || flags.copyText || flags.parLink) && parseBibleVerseId(el.id)) {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'studynav-verse-range-control';
@@ -1186,7 +1197,20 @@ function runLangCount(articleRoots: HTMLElement[]) {
   badge.id = 'studynav-langcount';
   badge.className = 'studynav-langcount';
   badge.dataset.placement = besideControl ? 'control' : 'content';
-  badge.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg><span>${escapeHtml(besideControl ? String(count) : label)}</span>`;
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('aria-hidden', 'true');
+  icon.setAttribute('focusable', 'false');
+  const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  circle.setAttribute('cx', '12');
+  circle.setAttribute('cy', '12');
+  circle.setAttribute('r', '9');
+  const meridians = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  meridians.setAttribute('d', 'M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18');
+  icon.append(circle, meridians);
+  const text = document.createElement('span');
+  text.textContent = besideControl ? String(count) : label;
+  badge.append(icon, text);
   badge.title = label;
   badge.setAttribute('aria-label', label);
   badge.setAttribute('data-studynav-owned', '1');
@@ -1972,7 +1996,7 @@ export function applyFeatures(flags: FeatureFlags) {
     if (plan.teardown.altText) teardownAltText();
     if (plan.teardown.copyAndLinks) teardownCopyAndLinks();
     if (plan.teardown.annotations) teardownStudyRuntime();
-    STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD) {
+    STUDYNAV_DESKTOP_ONLY: if (!MOBILE_BUILD) {
       if (plan.teardown.mediaToolbar) teardownMediaToolbar();
       if (plan.teardown.transcript) teardownTranscript();
       if (plan.teardown.imgGet) teardownImgGet();
@@ -2001,11 +2025,11 @@ export function applyFeatures(flags: FeatureFlags) {
 
     if (flags.altText && support.article) runAltText(support.articleRoots);
     if (!flags.parLink) clearOwnedAnchors();
-    if ((flags.copyText || flags.parLink || (!EDGE_MOBILE_BUILD && flags.verseAudio) || flags.annotations) && support.article) {
+    if ((flags.copyText || flags.parLink || (!MOBILE_BUILD && flags.verseAudio) || flags.annotations) && support.article) {
       runCopyAndLinks(support.articleRoots, flags);
     }
     if (flags.langCount && support.language) runLangCount(support.articleRoots);
-    STUDYNAV_DESKTOP_ONLY: if (!EDGE_MOBILE_BUILD) {
+    STUDYNAV_DESKTOP_ONLY: if (!MOBILE_BUILD) {
       if (flags.advSearch && support.palette) {
         mountPalette();
         window.addEventListener('keydown', paletteHotkeyHandler, true);

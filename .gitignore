@@ -15,7 +15,10 @@ output/transcribe/
 packages/clearshield/rules-raw
 packages/inkshade/inkshade-store.zip
 packages/studynav/dist-edge-mobile/
+packages/studynav/dist-safari-ios/
+packages/studynav/dist-firefox-android/
 packages/studynav/studynav-edge-mobile.zip
+packages/studynav/studynav-firefox-android.zip
 packages/studynav/studynav-chrome-store.zip
 packages/inkshade/upstream/build/
 .tmp

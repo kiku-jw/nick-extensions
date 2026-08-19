@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "build": "node ../../scripts/build-extension.mjs studynav",
+    "build:safari-ios": "node ../../scripts/build-extension.mjs studynav --target=safari-ios",
+    "build:firefox-android": "node ../../scripts/build-extension.mjs studynav --target=firefox-android",
+    "lint:firefox-android": "bun run build:firefox-android && bunx web-ext@10.6.0 lint --source-dir dist-firefox-android --warnings-as-errors",
     "build:edge-mobile": "node ../../scripts/build-extension.mjs studynav --target=edge-mobile"
   },
   "dependencies": {

@@ -39,6 +39,15 @@ function ok(cond, msg) {
   }
 }
 
+function relativeFileList(directory, prefix = '') {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const relative = prefix ? join(prefix, entry.name) : entry.name;
+    return entry.isDirectory()
+      ? relativeFileList(join(directory, entry.name), relative)
+      : [relative];
+  }).sort();
+}
+
 function nonEmpty(file) {
   return existsSync(file) && statSync(file).size > 0;
 }
@@ -307,18 +316,25 @@ for (const name of pkgs) {
   }
 }
 
-console.log('\n== studynav Edge Mobile ==');
+console.log('\n== studynav Mobile ==');
 {
-  const dist = join(root, 'packages', 'studynav', 'dist-edge-mobile');
+  const expectedHosts = [
+    'https://jw.org/*',
+    'https://www.jw.org/*',
+    'https://wol.jw.org/*',
+  ];
+  const mobileBuilds = [
+    { platform: 'Safari iOS', distName: 'dist-safari-ios' },
+    { platform: 'Firefox Android', distName: 'dist-firefox-android' },
+  ];
+  let sharedRuntime = null;
+
+  for (const { platform, distName } of mobileBuilds) {
+  const dist = join(root, 'packages', 'studynav', distName);
   const manifestPath = join(dist, 'manifest.json');
-  ok(existsSync(manifestPath), 'studynav mobile: dist-edge-mobile/manifest.json exists');
+  ok(existsSync(manifestPath), `studynav mobile ${platform}: ${distName}/manifest.json exists`);
   if (existsSync(manifestPath)) {
     const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
-    const expectedHosts = [
-      'https://jw.org/*',
-      'https://www.jw.org/*',
-      'https://wol.jw.org/*',
-    ];
     const backgroundJs = readFileSync(join(dist, 'background.js'), 'utf8');
     const contentJs = readFileSync(join(dist, 'content.js'), 'utf8');
     const popupJs = readFileSync(join(dist, 'popup.js'), 'utf8');
@@ -328,44 +344,99 @@ console.log('\n== studynav Edge Mobile ==');
     const runtimeJs = `${backgroundJs}\n${contentJs}\n${popupJs}`;
     const resolvedName = resolveManifestString(manifest.name, manifest, dist);
     const resolvedDescription = resolveManifestString(manifest.description, manifest, dist);
+    const prefix = `studynav mobile ${platform}`;
 
-    ok(manifest.manifest_version === 3 && manifest.version === '1.6.0',
-      'studynav mobile: MV3 release version');
-    ok(manifest.version_name === '1.6.0 Edge Android',
-      'studynav mobile: distinct package identity');
+    ok(manifest.version === '1.6.0', `${prefix}: release version`);
     ok(resolvedName === 'StudyNav Mobile — Unofficial Study Tools' && /unofficial/i.test(resolvedDescription),
-      'studynav mobile: clear non-affiliated English store identity');
-    ok(JSON.stringify(manifest.permissions) === JSON.stringify(['storage']),
-      'studynav mobile: storage is the only API permission');
-    ok(JSON.stringify(manifest.host_permissions) === JSON.stringify(expectedHosts),
-      'studynav mobile: exact jw.org and WOL host boundary');
+      `${prefix}: clear non-affiliated English store identity`);
     ok(JSON.stringify(manifest.content_scripts?.[0]?.matches) === JSON.stringify(expectedHosts),
-      'studynav mobile: content script uses the same exact host boundary');
+      `${prefix}: content script uses the exact site boundary`);
+    if (platform === 'Safari iOS') {
+      ok(manifest.manifest_version === 3 && manifest.background?.service_worker === 'background.js' &&
+        !!manifest.action && JSON.stringify(manifest.permissions) === JSON.stringify(['storage']),
+      `${prefix}: MV3 service worker and storage-only API permission`);
+      ok(JSON.stringify(manifest.host_permissions) === JSON.stringify(expectedHosts),
+        `${prefix}: exact jw.org and WOL host permissions`);
+    } else {
+      ok(manifest.manifest_version === 2 && !!manifest.browser_action &&
+        manifest.background?.persistent === false &&
+        JSON.stringify(manifest.background?.scripts) === JSON.stringify(['background.js']),
+      `${prefix}: recommended non-persistent MV2 background`);
+      ok(JSON.stringify(manifest.permissions) === JSON.stringify(['storage', ...expectedHosts]) &&
+        !manifest.host_permissions,
+      `${prefix}: storage plus exact jw.org and WOL permissions`);
+      ok(manifest.browser_specific_settings?.gecko?.id === 'studynav-mobile@kikuai.dev' &&
+        manifest.browser_specific_settings?.gecko?.strict_min_version === '142.0' &&
+        JSON.stringify(manifest.browser_specific_settings?.gecko?.data_collection_permissions?.required) === JSON.stringify(['none']) &&
+        manifest.browser_specific_settings?.gecko_android?.strict_min_version === '142.0',
+      `${prefix}: stable ID, Android compatibility, and no-data declaration`);
+    }
     ok(!manifest.commands && !JSON.stringify(manifest).includes('offscreen') &&
       !JSON.stringify(manifest).includes('jw-cdn.org'),
-      'studynav mobile: no commands, offscreen document, or media CDN permission');
+      `${prefix}: no commands, offscreen document, or media CDN permission`);
     ok(!existsSync(join(dist, 'offscreen.html')) && !existsSync(join(dist, 'offscreen.js')) &&
       !readdirSync(dist).some((name) => name.endsWith('.map')),
-      'studynav mobile: no offscreen files or source maps');
+      `${prefix}: no offscreen files or source maps`);
     ok(!/chrome\.offscreen|chrome\.commands|DOWNLOAD_VERSE_AUDIO|DOWNLOAD_MEDIA_(?:AUDIO|VIDEO)_CLIP|MediaRecorder/.test(runtimeJs),
-      'studynav mobile: no desktop media, offscreen, or command handlers in runtime');
+      `${prefix}: no desktop media, offscreen, or command handlers in runtime`);
     ok(!/mountMediaToolbar|downloadVerseAudio|studynav-media-bar|studynav-clip-panel|studynav-imgdl/.test(contentJs),
-      'studynav mobile: no media toolbar, verse audio, clipping, or image-download surface');
+      `${prefix}: no media toolbar, verse audio, clipping, or image-download surface`);
     ok(!/mountPalette|studynav-palette-panel/.test(contentJs),
-      'studynav mobile: no keyboard palette surface');
+      `${prefix}: no keyboard palette surface`);
     ok(contentJs.includes('paulmillr-qr') && contentJs.includes('Apache 2.0 OR MIT'),
-      'studynav mobile: local QR license notice survives minification');
-    ok(popupHtml.includes('data-studynav-target="edge-mobile"') &&
+      `${prefix}: local QR license notice survives minification`);
+    ok(popupHtml.includes('data-studynav-target="mobile"') &&
       popupHtml.includes('viewport-fit=cover'),
-      'studynav mobile: touch popup target and safe-area viewport');
+      `${prefix}: touch popup target and safe-area viewport`);
+    ok(!popupHtml.includes('image-search') && !runtimeJs.includes('cse.google.com') &&
+      !runtimeJs.includes('buildImageSearchUrl'),
+      `${prefix}: no external search-term transmission surface`);
     ok(popupCss.includes('min-height: 48px') && popupCss.includes('safe-area-inset-bottom') &&
       contentCss.includes('min-width: 44px') && contentCss.includes('100dvh'),
-      'studynav mobile: touch targets and safe-area layouts are bundled');
+      `${prefix}: touch targets and safe-area layouts are bundled`);
     ok(!contentCss.includes('STUDYNAV_DESKTOP_MEDIA') &&
       !contentCss.includes('STUDYNAV_DESKTOP_PALETTE') &&
       !contentCss.includes('.studynav-media-bar {') &&
       !contentCss.includes('.studynav-palette {'),
-      'studynav mobile: desktop media and keyboard-palette CSS are stripped');
+      `${prefix}: desktop media and keyboard-palette CSS are stripped`);
+
+    const currentRuntime = { backgroundJs, contentJs, popupJs, contentCss, popupCss, popupHtml };
+    if (sharedRuntime) {
+      ok(JSON.stringify(currentRuntime) === JSON.stringify(sharedRuntime),
+        `${prefix}: shares byte-identical runtime and UI with Safari`);
+    } else {
+      sharedRuntime = currentRuntime;
+    }
+  }
+  }
+
+  const safariDist = join(root, 'packages', 'studynav', 'dist-safari-ios');
+  const safariApp = join(root, 'packages', 'studynav', 'apple', 'StudyNav');
+  const safariResources = join(safariApp, 'StudyNav Extension', 'Resources');
+  const safariProject = join(safariApp, 'StudyNav.xcodeproj', 'project.pbxproj');
+  const onboardingHtml = join(safariApp, 'StudyNav', 'Resources', 'Base.lproj', 'Main.html');
+  const onboardingCss = join(safariApp, 'StudyNav', 'Resources', 'Style.css');
+  ok(existsSync(safariProject) && existsSync(onboardingHtml) && existsSync(onboardingCss),
+    'studynav mobile Safari iOS: committed Xcode wrapper and onboarding exist');
+  if (existsSync(safariResources) && existsSync(safariDist)) {
+    const distFiles = relativeFileList(safariDist);
+    const resourceFiles = relativeFileList(safariResources);
+    ok(JSON.stringify(resourceFiles) === JSON.stringify(distFiles) &&
+      distFiles.every((file) => readFileSync(join(safariDist, file)).equals(readFileSync(join(safariResources, file)))),
+    'studynav mobile Safari iOS: committed extension resources exactly match the generated package');
+  }
+  if (existsSync(safariProject) && existsSync(onboardingHtml) && existsSync(onboardingCss)) {
+    const projectText = readFileSync(safariProject, 'utf8');
+    const onboarding = readFileSync(onboardingHtml, 'utf8');
+    const onboardingStyles = readFileSync(onboardingCss, 'utf8');
+    ok((projectText.match(/MARKETING_VERSION = 1\.6\.0;/g) || []).length === 4 &&
+      !projectText.includes('IPHONEOS_DEPLOYMENT_TARGET = 15.0;') &&
+      projectText.includes('IPHONEOS_DEPLOYMENT_TARGET = 15.4;'),
+    'studynav mobile Safari iOS: app and extension use release 1.6.0 with the iOS 15.4 floor');
+    ok(onboarding.includes('Turn on the extension') && onboarding.includes('Включите расширение') &&
+      onboarding.includes('jw.org') && onboarding.includes('wol.jw.org') &&
+      onboardingStyles.includes('--accent: #43669f') && onboardingStyles.includes('color-scheme: dark'),
+    'studynav mobile Safari iOS: bilingual dark onboarding explains activation and exact sites');
   }
 }
 

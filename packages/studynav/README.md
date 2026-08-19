@@ -22,23 +22,22 @@ Pages rendered as JW.org `PageNotFound` are treated as unsupported, so StudyNav 
 
 Run `bun run build` at the repository root, then load `packages/studynav/dist` as an unpacked extension. Use `bun run verify` before relying on a new build. The public guide is at <https://kiku-jw.github.io/nick-extensions/>.
 
-## Parked Edge on Android package
+## Mobile packages in development
 
-`bun run build:studynav` creates both `dist/` and `dist-edge-mobile/`. The mobile release was parked by owner decision on August 19, 2026 because the normal Edge Add-ons listing is not installable through ordinary mobile Edge and iPhone support is unavailable. The build remains reproducible reference code, not a supported product. Run `bun run package:studynav:edge-mobile` only when auditing that historical target.
+`bun run build:studynav` creates the desktop `dist/`, the Safari MV3 `dist-safari-ios/`, and the Firefox Android MV2 `dist-firefox-android/` from the same source. The old Edge Android target remains reproducible only for historical audits; it is not the current mobile path.
 
 The mobile package intentionally includes only:
 
 - highlights, notes, tag chips, and saved places;
 - citations, local QR, and a page-derived clean publication link;
 - clean selection copy and precise paragraph/verse links;
-- full-article image descriptions and the available-language count;
-- the external JW image-search shortcut in the popup.
+- full-article image descriptions and the available-language count.
 
-It compiles out verse audio, media clipping, player controls, transcript, continue-watching, separate-window playback, image downloads, the keyboard palette, and all page-layout modifiers. Its only API permission is `storage`, and its host scope is exactly `jw.org`, `www.jw.org`, and `wol.jw.org`.
+Both platform packages compile out verse audio, media clipping, player controls, transcript, continue-watching, separate-window playback, image downloads, external image search, the keyboard palette, and all page-layout modifiers. Their only browser API permission is `storage`, and their host scope is exactly `jw.org`, `www.jw.org`, and `wol.jw.org`.
 
 The popup and injected panels use safe-area padding, 44–48 px touch targets, 16 px mobile inputs, and full-screen note/library layouts. Text selection exposes Copy and Link alongside the six highlight colors and Add note, so article actions do not depend on hover.
 
-The ZIP is a QA artifact. It must not be described as available on Android or iPhone. Any future return to this lane requires a fresh distribution decision and real-device installation evidence.
+Run `bun run package:studynav:firefox-android` for the unsigned AMO upload ZIP. Run `bun run verify:studynav:safari` to sync the committed Xcode project, validate the extension through Apple's packager, and build it for an unsigned iOS Simulator. Neither artifact is a public mobile release: AMO signing/publication, Apple signing/TestFlight/App Store, and physical-device workflow checks remain separate owner-gated steps.
 
 ## Chrome Web Store desktop package
 

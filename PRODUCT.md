@@ -6,7 +6,7 @@ product
 
 ## Users
 
-People who read and study public JW.org material in desktop Chromium browsers and want a few repetitive actions to take less time while keeping personal study data local.
+People who read and study public JW.org material in desktop Chromium browsers, plus future Safari iPhone/iPad and Firefox Android users, and want a few repetitive actions to take less time while keeping personal study data local.
 
 ## Product Purpose
 
@@ -30,7 +30,7 @@ Clear, calm, trustworthy. The extension should feel like a restrained browser ut
 3. Keep advanced controls available through progressive disclosure.
 4. Process user-requested media locally and fetch only official public media sources.
 5. Make every injected surface removable, keyboard-accessible, and scoped to supported pages.
-6. Treat mobile as unsupported until installation and the promised workflows pass on a physical device; API tables and Store publication are not enough.
+6. Keep one deliberately smaller mobile feature set across Safari and Firefox. Treat it as unavailable until installation and the promised workflows pass on physical devices; package builds and Store publication are not enough.
 
 ## Accessibility & Inclusion
 

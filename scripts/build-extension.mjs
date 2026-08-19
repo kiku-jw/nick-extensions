@@ -8,23 +8,34 @@ const root = join(__dirname, '..');
 const name = process.argv[2];
 const targetArg = process.argv.find((arg) => arg.startsWith('--target='));
 const target = targetArg?.slice('--target='.length) || 'desktop';
+const studyNavMobileTargets = new Set(['safari-ios', 'firefox-android', 'edge-mobile']);
 if (!name) {
-  console.error('usage: node scripts/build-extension.mjs <pkg> [--target=edge-mobile]');
+  console.error('usage: node scripts/build-extension.mjs <pkg> [--target=safari-ios|firefox-android|edge-mobile]');
   process.exit(1);
 }
-if (target !== 'desktop' && !(name === 'studynav' && target === 'edge-mobile')) {
+if (target !== 'desktop' && !(name === 'studynav' && studyNavMobileTargets.has(target))) {
   console.error(`unsupported build target: ${name}/${target}`);
   process.exit(1);
 }
-const edgeMobile = name === 'studynav' && target === 'edge-mobile';
+const mobile = name === 'studynav' && studyNavMobileTargets.has(target);
+const mobileDistNames = {
+  'edge-mobile': 'dist-edge-mobile',
+  'firefox-android': 'dist-firefox-android',
+  'safari-ios': 'dist-safari-ios',
+};
+const mobileManifestNames = {
+  'edge-mobile': 'manifest.edge-mobile.json',
+  'firefox-android': 'manifest.firefox-android.json',
+  'safari-ios': 'manifest.safari-ios.json',
+};
 const pkg = join(root, 'packages', name);
-const dist = join(pkg, edgeMobile ? 'dist-edge-mobile' : 'dist');
+const dist = join(pkg, mobile ? mobileDistNames[target] : 'dist');
 const src = join(pkg, 'src');
 
 rmSync(dist, { recursive: true, force: true });
 mkdirSync(dist, { recursive: true });
 
-const entries = ['background.ts', 'content.ts', 'popup.ts', 'options.ts', ...(edgeMobile ? [] : ['offscreen.ts'])]
+const entries = ['background.ts', 'content.ts', 'popup.ts', 'options.ts', ...(mobile ? [] : ['offscreen.ts'])]
   .map((f) => join(src, f))
   .filter((p) => existsSync(p));
 
@@ -36,12 +47,12 @@ for (const entry of entries) {
     bundle: true,
     format: 'iife',
     platform: 'browser',
-    target: 'chrome120',
-    sourcemap: !edgeMobile,
-    minify: edgeMobile,
-    dropLabels: edgeMobile ? ['STUDYNAV_DESKTOP_ONLY'] : [],
+    target: mobile ? ['chrome120', 'firefox142', 'safari15.4'] : 'chrome120',
+    sourcemap: !mobile,
+    minify: mobile,
+    dropLabels: mobile ? ['STUDYNAV_DESKTOP_ONLY'] : [],
     define: {
-      __STUDYNAV_EDGE_MOBILE__: edgeMobile ? 'true' : 'false',
+      __STUDYNAV_MOBILE__: mobile ? 'true' : 'false',
     },
     alias: {
       '@nick/shared': join(root, 'packages/shared/src/index.ts'),
@@ -50,16 +61,27 @@ for (const entry of entries) {
   });
 }
 
+if (mobile) {
+  for (const fileName of readdirSync(dist).filter((item) => item.endsWith('.js'))) {
+    const outputPath = join(dist, fileName);
+    const output = readFileSync(outputPath, 'utf8').replace(/[ \t]+$/gm, '');
+    writeFileSync(outputPath, output);
+  }
+}
+
 const publicDir = join(pkg, 'public');
 if (existsSync(publicDir)) cpSync(publicDir, dist, { recursive: true });
 
-for (const htmlName of ['popup.html', 'options.html', ...(edgeMobile ? [] : ['offscreen.html'])]) {
+for (const htmlName of ['popup.html', 'options.html', ...(mobile ? [] : ['offscreen.html'])]) {
   const htmlSrc = join(src, htmlName);
   if (!existsSync(htmlSrc)) continue;
-  if (edgeMobile && htmlName === 'popup.html') {
+  if (mobile && htmlName === 'popup.html') {
     const html = readFileSync(htmlSrc, 'utf8').replace(
       '<html lang="en">',
-      '<html lang="en" data-studynav-target="edge-mobile">',
+      '<html lang="en" data-studynav-target="mobile">',
+    ).replace(
+      /\s*<!-- STUDYNAV_DESKTOP_IMAGE_SEARCH_START -->[\s\S]*?<!-- STUDYNAV_DESKTOP_IMAGE_SEARCH_END -->/,
+      '',
     );
     writeFileSync(join(dist, htmlName), html);
   } else {
@@ -71,14 +93,14 @@ for (const cssName of ['popup.css', 'options.css', 'content.css']) {
   if (existsSync(cssSrc)) cpSync(cssSrc, join(dist, cssName));
 }
 
-if (edgeMobile) {
+if (mobile) {
   const contentCssPath = join(dist, 'content.css');
   if (existsSync(contentCssPath)) {
     const desktopBlocks = [
       /\/\* STUDYNAV_DESKTOP_MEDIA_START \*\/[\s\S]*?\/\* STUDYNAV_DESKTOP_MEDIA_END \*\//,
       /\/\* STUDYNAV_DESKTOP_PALETTE_START \*\/[\s\S]*?\/\* STUDYNAV_DESKTOP_PALETTE_END \*\//,
     ];
-    const mobileCss = readFileSync(join(src, 'content.edge-mobile.css'), 'utf8');
+    const mobileCss = readFileSync(join(src, 'content.mobile.css'), 'utf8');
     let contentCss = readFileSync(contentCssPath, 'utf8');
     for (const desktopBlock of desktopBlocks) {
       if (!desktopBlock.test(contentCss)) {
@@ -90,7 +112,7 @@ if (edgeMobile) {
   }
 }
 
-const manifestName = edgeMobile ? 'manifest.edge-mobile.json' : 'manifest.json';
+const manifestName = mobile ? mobileManifestNames[target] : 'manifest.json';
 const manifest = JSON.parse(readFileSync(join(pkg, manifestName), 'utf8'));
 writeFileSync(join(dist, 'manifest.json'), JSON.stringify(manifest, null, 2));
 console.log(`${name}/${target}`, 'built ->', dist);

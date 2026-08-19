@@ -1,6 +1,6 @@
-# Local-first Chromium extensions
+# Local-first browser extensions
 
-Три Manifest V3 расширения для Chrome, Edge, Brave и других Chromium-браузеров на компьютере. StudyNav готовится к выпуску в Chrome Web Store; мобильная ветка отложена, потому что обычные расширения нельзя надёжно установить через мобильные магазины Chrome или Edge. Код и сборка остаются под контролем владельца: без телеметрии и remote code. InkShade использует явно закреплённый MIT-лицензированный upstream source fork с отдельным брендом и квитанцией происхождения.
+Три расширения для Chrome, Edge, Brave и других Chromium-браузеров на компьютере. StudyNav также собирается из того же исходного кода для Safari на iPhone/iPad и Firefox на Android, но мобильные пакеты ещё не опубликованы и не прошли проверку на физических устройствах. Код и сборка остаются под контролем владельца: без телеметрии и remote code. InkShade использует явно закреплённый MIT-лицензированный upstream source fork с отдельным брендом и квитанцией происхождения.
 
 ## Philosophy
 
@@ -15,7 +15,7 @@
 | `packages/clearshield` / ClearShield | **Ad & Tracker Blocker (ClearShield)** | DNR blocker: локальные списки, per-site allowlist, косметическая фильтрация, счётчик блокировок |
 | `packages/inkshade` / InkShade | **InkShade – Dark Mode for Every Site** | Store-oriented local-first fork of the Dark Reader v4.9.129 MV3 engine and bundled site fixes; distinct branding, no news/telemetry/premium/remote config |
 | `packages/studynav` / StudyNav | **StudyNav — Unofficial Study Tools** | Локальные подсветки/заметки/теги и сохранённые места, цитаты и QR, continue-watching, выбор одного или нескольких стихов подряд → один локальный WAV, copy/link и reading/media helpers |
-| `packages/studynav` / StudyNav Mobile | **StudyNav Mobile — Unofficial Study Tools** | Отложенная экспериментальная сборка для справки; не является поддерживаемым мобильным продуктом |
+| `packages/studynav` / StudyNav Mobile | **StudyNav Mobile — Unofficial Study Tools** | Общий облегчённый профиль для Safari на iPhone/iPad и Firefox на Android; реализация готова к проверке, публикация и физические устройства ещё впереди |
 
 StudyNav — **неофициальный** helper, не связан с JW.org / Watch Tower / JW PubMedia One / JW Web Add-on.
 
@@ -47,15 +47,24 @@ Artifacts:
 - `packages/clearshield/dist`
 - `packages/inkshade/dist`
 - `packages/studynav/dist`
-- `packages/studynav/dist-edge-mobile`
+- `packages/studynav/dist-safari-ios`
+- `packages/studynav/dist-firefox-android`
 
-Мобильный пакет и ZIP для отправки в Edge Add-ons:
+Firefox Android ZIP для проверки и будущей отправки в AMO:
 
 ```bash
-bun run package:studynav:edge-mobile
+bun run package:studynav:firefox-android
 ```
 
-Результат: `packages/studynav/studynav-edge-mobile.zip`. Это пакет для проверки и отправки в магазин, а не готовый способ установки на телефон. Публикация обычной карточки Edge Add-ons не гарантирует, что Microsoft добавит расширение в отдельный каталог мобильного Edge.
+Результат: `packages/studynav/studynav-firefox-android.zip`. До подписи или публикации через Mozilla Add-ons это не готовый способ установки для обычного пользователя.
+
+Safari‑приложение и расширение находятся в `packages/studynav/apple/StudyNav`. Команда ниже пересобирает веб‑часть, синхронизирует Xcode‑ресурсы, повторно проверяет их официальным упаковщиком Apple и выполняет unsigned Simulator build:
+
+```bash
+bun run verify:studynav:safari
+```
+
+Для установки на iPhone/iPad всё ещё нужны подпись Apple, TestFlight или App Store и отдельная проверка на физическом устройстве.
 
 Проверенный ZIP настольной версии для Chrome Web Store:
 
@@ -81,11 +90,11 @@ bun run package:studynav:chrome
 5. On articles, hover or keyboard-focus supported text for Copy and Link. Image downloads are off by default; enable **Download article images** to add a labeled button only to full article images, not compact publication previews. The popup can also open the dedicated Google image search for JW.org. On media pages, copy the page and current time, save up to five minutes of audio as WAV or three minutes of video as WebM, move playback to a separate window at the same point, use reliable Space play/pause, remove hover shading, and resume from locally saved progress. **Transcript** remains visible for video and explains when captions are unavailable.
 6. Layout-changing helpers are off by default. Updating from StudyNav 1.2.3 resets those three old defaults once; later explicit choices are preserved. The sticky-header option changes JW.org articles; WOL already pins its own header. Wider text and clearer tables work on JW.org and WOL articles with narrow selectors.
 
-## Parked experimental StudyNav Mobile package
+## StudyNav Mobile in development
 
-Мобильная версия остаётся воспроизводимой сборкой из того же кода, но её выпуск отложен решением владельца от 19 августа 2026 года. Обычная карточка Edge Add-ons не даёт надёжного пути установки на Android, а Edge на iPhone не поддерживает такие расширения. Эта сборка сохраняется для справки и возможного будущего возврата, но не является текущим продуктом.
+Одна облегчённая версия собирается в два платформенных пакета: Manifest V3 внутри Safari‑приложения для iPhone/iPad и рекомендованный Mozilla Manifest V2 для Firefox на Android. Старый Edge Android пакет остаётся только архивным воспроизводимым target: обычная карточка Edge Add-ons не дала пользователям рабочей мобильной установки.
 
-Её отдельный manifest и жёсткий список из девяти проверяемых функций включают:
+Жёсткий общий список из девяти проверяемых функций включает:
 
 - выделения шести цветов, заметки и теги;
 - сохранённые места;
@@ -94,11 +103,11 @@ bun run package:studynav:chrome
 - чистая ссылка публикации;
 - описания крупных изображений и число доступных языков.
 
-Поиск картинок JW через Google остаётся отдельной кнопкой в меню. На сенсорном экране после выделения текста появляются **Цвет**, **Добавить заметку**, **Копировать** и **Ссылка**. Заметка открывается на весь экран, а её теги превращаются в отдельные чипы после запятой или Enter.
+На сенсорном экране после выделения текста появляются **Цвет**, **Добавить заметку**, **Копировать** и **Ссылка**. Заметка открывается на весь экран, а её теги превращаются в отдельные чипы после запятой или Enter. Внешний поиск картинок остаётся только в настольном StudyNav: мобильный пакет не передаёт поисковые фразы стороннему сервису.
 
-В мобильный пакет намеренно не входят аудио стихов, обрезка аудио/видео, функции плеера, транскрипт, отдельное окно, скачивание изображений, клавиатурный поиск и изменения ширины/шапки/таблиц. Manifest запрашивает только `storage` и доступ к `jw.org`, `www.jw.org` и `wol.jw.org`; медиадомен и offscreen-документ отсутствуют.
+В мобильные пакеты намеренно не входят аудио стихов, обрезка аудио/видео, функции плеера, транскрипт, отдельное окно, скачивание изображений, клавиатурный поиск и изменения ширины/шапки/таблиц. Они используют только хранилище браузера и доступ к `jw.org`, `www.jw.org` и `wol.jw.org`; медиадомен и offscreen‑документ отсутствуют.
 
-Официальная таблица API Microsoft перечисляет Android для `action`, `runtime`, `storage`, `tabs` и `i18n`, но поддержка API не означает, что обычная карточка магазина доступна для установки на смартфоне. Проверка опубликованной карточки на Android 18 августа 2026 года показала сообщение о неподдерживаемом браузере; StudyNav отсутствует в отдельном списке расширений Microsoft для мобильного Edge. Проверка Edge на iPhone в тот же день показала экран «Расширения» с сообщением «Ожидается в ближайшее время». Поэтому ни Android, ни iPhone не входят в поддерживаемые устройства, а GitHub Issue #8 закрыт как not planned.
+Автоматические проверки доказывают одинаковый runtime обоих пакетов, touch‑интерфейс, отсутствие настольных функций, Firefox lint без предупреждений, упаковку Apple и сборку для iOS Simulator. Они не доказывают установку и поведение на реальном iPhone, iPad или Android. Поэтому мобильная версия пока не описывается как доступная пользователям; этот статус изменится только после отдельного разрешения на публикацию и физических проверок.
 
 ## Updates policy
 

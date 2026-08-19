@@ -1,8 +1,9 @@
 # StudyNav Mobile Edge Add-ons archived release contract
 
-Class: archived release contract. Owner: `packages/studynav`. Canonical task:
-`kiku-jw/nick-extensions#8` (closed as not planned on August 19, 2026). Keep for
-historical accuracy; do not use it as a current release plan.
+Class: archived release contract. Owner: `packages/studynav`. Canonical task
+`kiku-jw/nick-extensions#8` was reopened on August 19, 2026 for the successor
+Safari/Firefox implementation. This document records only the superseded Edge
+lane; do not use it as the current mobile release plan.
 
 ## Product identity
 
@@ -144,9 +145,9 @@ unzip -l packages/studynav/studynav-edge-mobile.zip
 shasum -a 256 packages/studynav/studynav-edge-mobile.zip
 ```
 
-Before submission, verify the public privacy URL, inspect every ZIP entry, and
-run the `studynav-edge-mobile` browser scenario. Submission, certification,
-public Store availability, mobile-catalog eligibility, physical-device
-installation, and working product behavior are separate states. A published
-listing must not be described as mobile-supported until the last three states
-are verified.
+This historical command set no longer runs a dedicated Edge browser scenario.
+If the Edge lane is ever revived, create a fresh platform test rather than
+reusing the current `studynav-mobile` Safari-compatible harness. Submission,
+certification, public Store availability, mobile-catalog eligibility,
+physical-device installation, and working product behavior remain separate
+states.

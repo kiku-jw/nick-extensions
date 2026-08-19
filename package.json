@@ -10,12 +10,14 @@
   "scripts": {
     "bootstrap:inkshade": "bun run --cwd packages/inkshade bootstrap",
     "build:inkshade": "bun run --cwd packages/inkshade build",
-    "build:studynav": "bun scripts/build-extension.mjs studynav && bun scripts/build-extension.mjs studynav --target=edge-mobile",
+    "build:studynav": "bun scripts/build-extension.mjs studynav && bun scripts/build-extension.mjs studynav --target=safari-ios && bun scripts/build-extension.mjs studynav --target=firefox-android",
+    "build:studynav:edge-mobile": "bun scripts/build-extension.mjs studynav --target=edge-mobile",
     "build": "bun scripts/build-shared.mjs && bun scripts/build-extension.mjs clearshield && bun run build:inkshade && bun run build:studynav",
     "typecheck": "bunx tsc -p tsconfig.json",
     "test": "bun test test",
     "test:inkshade-upstream": "bun run --cwd packages/inkshade test",
     "lint:inkshade-upstream": "bun run --cwd packages/inkshade lint",
+    "lint:studynav:firefox-android": "bun scripts/build-extension.mjs studynav --target=firefox-android && bunx web-ext@10.6.0 lint --source-dir packages/studynav/dist-firefox-android --warnings-as-errors",
     "icons": "bun scripts/gen-icons.mjs",
     "fetch:easylist": "bun packages/clearshield/scripts/fetch-and-convert.mjs",
     "smoke-check": "bun scripts/smoke-check.mjs",
@@ -25,8 +27,11 @@
     "package:dist": "bun run build && zip -qrFS dist-smoke.zip packages/clearshield/dist packages/inkshade/dist packages/studynav/dist -x '*/_metadata/*'",
     "package:inkshade": "bun run build:inkshade && (cd packages/inkshade/dist && zip -qrFS ../inkshade-store.zip . -x '_metadata/*')",
     "package:studynav:chrome": "bun scripts/build-extension.mjs studynav && (cd packages/studynav/dist && zip -qrFS ../studynav-chrome-store.zip . -x '_metadata/*' '*.map' 'icons/icon-source.svg' '.DS_Store')",
-    "package:studynav:edge-mobile": "bun run build:studynav && (cd packages/studynav/dist-edge-mobile && zip -qrFS ../studynav-edge-mobile.zip . -x '_metadata/*' '*.map')",
-    "verify": "bun run typecheck && bun run test && bun run test:inkshade-upstream && bun run build && bun run smoke-check && bun run smoke:browser && bun run smoke-check"
+    "package:studynav:edge-mobile": "bun run build:studynav:edge-mobile && (cd packages/studynav/dist-edge-mobile && zip -qrFS ../studynav-edge-mobile.zip . -x '_metadata/*' '*.map')",
+    "package:studynav:firefox-android": "bun scripts/build-extension.mjs studynav --target=firefox-android && (cd packages/studynav/dist-firefox-android && zip -qrFS ../studynav-firefox-android.zip . -x '_metadata/*' '*.map' '.DS_Store')",
+    "sync:studynav:safari": "bun scripts/sync-studynav-safari.mjs",
+    "verify:studynav:safari": "bun scripts/verify-studynav-safari.mjs",
+    "verify": "bun run typecheck && bun run test && bun run test:inkshade-upstream && bun run build && bun run lint:studynav:firefox-android && bun run smoke-check && bun run smoke:browser && bun run smoke-check"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.270",

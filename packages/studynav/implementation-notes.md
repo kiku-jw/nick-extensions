@@ -2,50 +2,82 @@
 
 Document class: Live contract
 
-Owner sources: `manifest.edge-mobile.json`, `src/features.ts`, `src/build-profile.ts`, `src/content.edge-mobile.css`, and `scripts/build-extension.mjs`.
+Owner sources: `manifest.safari-ios.json`, `manifest.firefox-android.json`, `src/features.ts`, `src/build-profile.ts`, `src/content.mobile.css`, `scripts/build-extension.mjs`, and `apple/StudyNav`.
 
-Update this note whenever the Edge Mobile feature boundary, manifest permissions, build profile, or release status changes.
+Update this note whenever the mobile feature boundary, platform manifests, build profile, Xcode wrapper, or release status changes.
 
-## Edge on Android decision
+## Platform decision
 
-The mobile release lane was parked by owner decision on August 19, 2026. The
-normal Edge Add-ons listing is not installable in ordinary mobile Edge, and the
-iPhone browser does not expose a usable extension catalog. The build profile is
-retained as reference code and regression coverage, but it is not a supported
-release target. Reopening this lane requires a new distribution decision and
-fresh physical-device evidence.
+The normal Edge Add-ons listing did not provide a usable mobile installation
+path. The current lane therefore uses Safari Web Extensions for iPhone/iPad and
+Firefox extensions for Android. The historical Edge target remains available
+only for reproducibility and is excluded from the default build.
 
-StudyNav Mobile is a second build target of the existing StudyNav codebase, not a fork, web app, or runtime device mode. Both packages share the study-data schema and core study tools. The separate manifest and compile-time profile keep unsupported desktop behavior out of the mobile archive.
+StudyNav Mobile is one compile-time profile of the existing StudyNav codebase,
+not a fork, web app, or runtime device mode. Safari and Firefox receive
+byte-identical runtime and UI files with platform-specific manifests. Both
+packages share the study-data schema and core study tools with desktop.
 
-The mobile allowlist is owned by `EDGE_MOBILE_FEATURE_IDS`. It contains exactly nine settings: annotations, bookmarks, citations, QR sharing, clean publication links, clean text copy, precise links, image descriptions, and language count. The popup also retains the external JW image-search action.
+The mobile allowlist is owned by `MOBILE_FEATURE_IDS`. It contains exactly nine
+settings: annotations, bookmarks, citations, QR sharing, clean publication
+links, clean text copy, precise links, image descriptions, and language count.
+External image search remains desktop-only so the mobile package never sends a
+user's search terms to a third party.
 
-Desktop-only blocks use the `STUDYNAV_DESKTOP_ONLY` label. The Edge build passes that label to esbuild's `dropLabels`, then tree-shakes and minifies the result. This is a security and reliability boundary: do not remove or rename the labels without proving that the mobile bundle still lacks the excluded handlers.
+Desktop-only blocks use the `STUDYNAV_DESKTOP_ONLY` label. Every mobile build
+passes that label to esbuild's `dropLabels`, then tree-shakes and minifies the
+result. This is a security and reliability boundary: do not remove or rename
+the labels without proving that both mobile bundles still lack the excluded
+handlers.
 
 ## Excluded mobile behavior
 
-The Edge Mobile archive must not contain reachable handlers or UI for:
+Neither mobile package may contain reachable handlers or UI for:
 
 - verse audio or media audio/video clipping;
 - media keyboard controls, player shading/subtitles, transcripts, continue-watching, or separate-window playback;
-- image downloads or the keyboard publication palette;
+- image downloads, external image search, or the keyboard publication palette;
 - sticky headers, wider article columns, or table restyling;
 - offscreen documents, command shortcuts, or JW media-CDN host permission.
 
-Stored desktop flags are normalized through `edgeMobileFlags`. A desktop-only flag cannot activate a mobile surface even when old settings contain `true`. The next mobile setting change writes the normalized set back to sync storage.
+Stored desktop flags are normalized through `mobileFlags`. A desktop-only flag
+cannot activate a mobile surface even when old settings contain `true`. The next
+mobile setting change writes the normalized set back to browser settings
+storage.
 
 ## Touch behavior
 
 Selecting text on an article or verse shows six colors, Add note, Copy, and Link according to enabled settings. Article actions do not depend on hover. Phone note editors, the study library, and the note drawer fill the viewport without shifting source content. Controls are at least 44 px; popup primary controls are at least 48 px; text inputs are at least 16 px to avoid mobile zoom.
 
+## Platform manifests
+
+Safari uses Manifest V3 and an Apple-generated iOS-only Xcode wrapper. Its
+extension permissions are `storage` plus the three exact HTTPS site origins.
+`bun run verify:studynav:safari` rebuilds the profile, synchronizes the Xcode
+resources, runs Apple's packager, and produces an unsigned iOS Simulator build
+in disposable DerivedData.
+
+Firefox Android uses non-persistent Manifest V2 because Mozilla recommends that
+format for Android extensions and does not support MV3 background service
+workers there. The manifest has a stable Gecko ID, Firefox/Android minimum 142,
+and the required no-data-collection declaration. `bun run
+package:studynav:firefox-android` creates the unsigned AMO upload ZIP.
+
 ## Build and release gates
 
-Build both packages with `bun run build:studynav`. Create the Edge Add-ons archive with `bun run package:studynav:edge-mobile`.
+Build desktop and both active mobile packages with `bun run build:studynav`.
 
 Automated acceptance requires:
 
 - TypeScript and unit/localization tests;
-- static manifest and bundle checks proving excluded code and permissions are absent;
-- the `studynav-edge-mobile` browser scenario at a 390 × 844 viewport on JW and WOL fixtures;
+- static checks proving both manifests' exact origins and the absence of excluded code, files, and permissions;
+- byte-identical Safari/Firefox runtime and UI output;
+- Firefox `web-ext lint --warnings-as-errors` with zero warnings;
+- the `studynav-mobile` browser scenario at a 390 × 844 viewport on JW and WOL fixtures;
+- Apple packager acceptance and an unsigned iOS Simulator build;
 - the existing full desktop verification to catch shared-code regressions.
 
-The mobile target is not approved for publication or described as available. If the lane is reopened, publication will require separate owner approval plus successful installation and workflow checks on current physical Android and iPhone devices.
+The mobile targets are not approved for Store publication or described as
+available. TestFlight/App Store, AMO signing/publication, and any Store metadata
+change require separate owner approval. Physical iPhone/iPad and Android
+installation plus the promised workflow checks remain mandatory release gates.
