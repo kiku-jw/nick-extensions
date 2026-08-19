@@ -1183,6 +1183,7 @@ async function withContext(options, run) {
           extraHTTPHeaders: options.extraHTTPHeaders,
           locale: options.locale,
           deviceScaleFactor: options.deviceScaleFactor || 1,
+          hasTouch: options.hasTouch === true,
         });
         launchMeta = attempt;
         break;
@@ -5120,7 +5121,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
 async function runStudyNavMobileScenario(executablePath, port) {
   const scenario = createScenario('studynav-mobile', ['StudyNavMobile']);
   await withContext(
-    { executablePath, extensions: ['StudyNavMobile'], deviceScaleFactor: 2 },
+    { executablePath, extensions: ['StudyNavMobile'], deviceScaleFactor: 2, hasTouch: true },
     async (context, launchMeta) => {
       scenario.launchMode = launchMeta.launchMode;
       const workers = await waitForNamedWorkers(context, ['StudyNavMobile']);
@@ -5340,6 +5341,23 @@ async function runStudyNavMobileScenario(executablePath, port) {
         'StudyNav Mobile did not sanitize desktop-only stored flags after a setting change',
       );
 
+      await page.setViewportSize({ width: 768, height: 1_024 });
+      await selectFixtureText(page, '#p1', 'A useful');
+      const tabletState = await page.evaluate(() => {
+        const toolbar = document.getElementById('studynav-selection-tools');
+        const toolbarRect = toolbar?.getBoundingClientRect();
+        const articleRect = document.getElementById('article')?.getBoundingClientRect();
+        return {
+          viewport: { width: innerWidth, height: innerHeight },
+          overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+          toolbarInViewport: !!toolbarRect && toolbarRect.left >= 0 && toolbarRect.right <= innerWidth &&
+            toolbarRect.top >= 0 && toolbarRect.bottom <= innerHeight,
+          toolbarButtonHeights: Array.from(toolbar?.querySelectorAll('button') || []).map((button) =>
+            button.getBoundingClientRect().height),
+          articleInViewport: !!articleRect && articleRect.left >= 0 && articleRect.right <= innerWidth,
+        };
+      });
+
       const wolPage = await openPage(
         context,
         scenario,
@@ -5447,6 +5465,14 @@ async function runStudyNavMobileScenario(executablePath, port) {
           !copyDisabledSelectionLabels.some((label) => label.trim() === 'Copy') &&
             copyDisabledSelectionLabels.some((label) => label.trim() === 'Link'),
           copyDisabledSelectionLabels,
+        ),
+        makeAssertion(
+          'StudyNav Mobile keeps the article and selection actions inside an iPad-sized viewport',
+          tabletState.viewport.width === 768 && tabletState.viewport.height === 1_024 &&
+            tabletState.overflow === false && tabletState.toolbarInViewport === true &&
+            tabletState.toolbarButtonHeights.every((height) => height >= 44) &&
+            tabletState.articleInViewport === true,
+          tabletState,
         ),
         makeAssertion(
           'StudyNav Mobile keeps WOL notes available without adding audio controls or overflow',

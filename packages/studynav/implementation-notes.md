@@ -73,7 +73,7 @@ Automated acceptance requires:
 - static checks proving both manifests' exact origins and the absence of excluded code, files, and permissions;
 - byte-identical Safari/Firefox runtime and UI output;
 - Firefox `web-ext lint --warnings-as-errors` with zero warnings;
-- the `studynav-mobile` browser scenario at a 390 × 844 viewport on JW and WOL fixtures;
+- the `studynav-mobile` browser scenario with touch input at 390 × 844 and 768 × 1024 on JW and WOL fixtures;
 - Apple packager acceptance and an unsigned iOS Simulator build;
 - the existing full desktop verification to catch shared-code regressions.
 
