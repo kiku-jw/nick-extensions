@@ -11,6 +11,7 @@ import {
 import { featureBlurbKey, featureNameKey, localizeDocument, t, type MessageKey } from './i18n';
 import { buildImageSearchUrl } from './document-actions';
 import { MOBILE_BUILD } from './build-profile';
+import { copyToClipboard } from '@nick/shared';
 
 const list = document.getElementById('list')!;
 const filterEl = document.getElementById('filter') as HTMLInputElement;
@@ -183,6 +184,25 @@ const ACTION_MESSAGES: Record<string, string> = {
   'open-official': 'OPEN_OFFICIAL_JW_LINK',
 };
 
+type PageActionResult = {
+  ok?: unknown;
+  message?: unknown;
+  copiedText?: unknown;
+  targetUrl?: unknown;
+};
+
+function officialFinderTarget(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && url.hostname === 'www.jw.org' && url.pathname === '/finder'
+      ? url.toString()
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 async function runPageAction(button: HTMLButtonElement) {
   const type = ACTION_MESSAGES[button.id];
   if (!type || button.disabled) return;
@@ -191,10 +211,21 @@ async function runPageAction(button: HTMLButtonElement) {
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab?.id) throw new Error(t('no_active_tab'));
-    const result: unknown = await chrome.tabs.sendMessage(tab.id, { type });
-    const message = result && typeof result === 'object' && 'message' in result && typeof result.message === 'string'
+    const response: unknown = await chrome.tabs.sendMessage(tab.id, { type });
+    const result = response && typeof response === 'object' ? response as PageActionResult : null;
+    let message = typeof result?.message === 'string'
       ? result.message
       : t('done');
+    if (button.id === 'copy-citation' && typeof result?.copiedText === 'string') {
+      if (await copyToClipboard(result.copiedText)) message = t('citation_copied');
+    }
+    if (button.id === 'open-official' && result?.ok !== true) {
+      const targetUrl = officialFinderTarget(result?.targetUrl);
+      if (targetUrl) {
+        await chrome.tabs.create({ url: targetUrl });
+        message = t('official_link_opened');
+      }
+    }
     actionFeedbackEl.textContent = message;
     if (button.id === 'save-place') await renderPageStatus();
   } catch {

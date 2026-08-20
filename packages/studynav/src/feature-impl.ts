@@ -4,6 +4,7 @@ import { resolveQuery } from './mnemonics';
 import {
   buildOfficialFinderUrl,
   canonicalStudyUrl,
+  cleanCitationText,
   formatPageAndTime,
   formatOnlineCitation,
   preciseStudyUrl,
@@ -563,7 +564,7 @@ function currentCitationTarget(): CurrentCitationTarget {
 
 function pageDocumentTitle(): string {
   const heading = qs<HTMLElement>('#article h1, article h1, main h1, h1');
-  return (heading?.innerText || heading?.textContent || document.title || 'JW.ORG').trim();
+  return cleanCitationText(heading?.innerText || heading?.textContent || document.title || 'JW.ORG').slice(0, 512) || 'JW.ORG';
 }
 
 function pageFinderMetadata(): OfficialFinderMetadata {
@@ -609,7 +610,7 @@ export function currentStudyBookmarkCandidate(): StudyBookmarkCandidate | null {
     pageUrl,
     targetUrl,
     title,
-    reference: target.reference || title,
+    reference: cleanCitationText(target.reference || title).slice(0, 512),
   };
 }
 
@@ -640,7 +641,7 @@ export async function copyCurrentCitation(): Promise<{ ok: boolean; message: str
   return {
     ok: copied,
     message: copied ? t('citation_copied') : t('copy_failed'),
-    ...(copied ? { copiedText: citation } : {}),
+    copiedText: citation,
   };
 }
 
@@ -710,12 +711,18 @@ export function showCurrentQr(): { ok: boolean; message: string } {
   return { ok: true, message: t('qr_opened') };
 }
 
-export function openOfficialJwLink(): { ok: boolean; message: string } {
+export function openOfficialJwLink(): { ok: boolean; message: string; targetUrl?: string } {
   const url = currentOfficialFinderUrl();
   if (!url) return { ok: false, message: t('not_available_page') };
+  if (MOBILE_BUILD) {
+    return { ok: false, message: t('action_failed'), targetUrl: url };
+  }
   const opened = window.open(url, '_blank', 'noopener,noreferrer');
   if (opened) opened.opener = null;
-  return { ok: true, message: t('official_link_opened') };
+  // Chromium may intentionally return null when `noopener` is requested even
+  // though the new tab was opened. Reaching this branch means the desktop
+  // navigation was dispatched; the mobile popup uses targetUrl instead.
+  return { ok: true, message: t('official_link_opened'), targetUrl: url };
 }
 
 function mountPalette() {

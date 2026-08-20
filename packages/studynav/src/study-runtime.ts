@@ -335,11 +335,20 @@ async function commitPendingReattach(candidate: SelectionCandidate) {
 }
 
 function showSelectionTools(candidate: SelectionCandidate) {
+  const mode = pendingReattachId ? 'reattach' : 'actions';
+  const existingTools = document.getElementById(SELECTION_TOOLS_ID);
+  if (existingTools?.dataset.mode === mode) {
+    currentCandidate = candidate;
+    positionSelectionTools(existingTools, candidate.range);
+    return;
+  }
+
   hideSelectionTools();
   currentCandidate = candidate;
   const tools = document.createElement('div');
   tools.id = SELECTION_TOOLS_ID;
   tools.className = 'studynav-selection-tools';
+  tools.dataset.mode = mode;
   tools.setAttribute('data-studynav-owned', '1');
   tools.setAttribute('role', 'toolbar');
   tools.setAttribute('aria-label', t(pendingReattachId ? 'reattach_note_aria' : 'selection_actions_aria'));
@@ -349,7 +358,9 @@ function showSelectionTools(candidate: SelectionCandidate) {
     reattach.type = 'button';
     reattach.textContent = t('reattach_here');
     preserveSelectionOnPointerDown(reattach);
-    reattach.addEventListener('click', () => void commitPendingReattach(candidate));
+    reattach.addEventListener('click', () => {
+      if (currentCandidate) void commitPendingReattach(currentCandidate);
+    });
     const cancel = document.createElement('button');
     cancel.type = 'button';
     cancel.className = 'studynav-secondary-button';
@@ -364,13 +375,17 @@ function showSelectionTools(candidate: SelectionCandidate) {
   } else {
     if (annotationsEnabled) {
       for (const color of HIGHLIGHT_COLORS) {
-        tools.appendChild(colorButton(color, () => void saveCandidate(candidate, color, '', [])));
+        tools.appendChild(colorButton(color, () => {
+          if (currentCandidate) void saveCandidate(currentCandidate, color, '', []);
+        }));
       }
       const note = document.createElement('button');
       note.type = 'button';
       note.textContent = t('add_note');
       preserveSelectionOnPointerDown(note);
-      note.addEventListener('click', () => openAnnotationEditor(candidate));
+      note.addEventListener('click', () => {
+        if (currentCandidate) openAnnotationEditor(currentCandidate);
+      });
       tools.appendChild(note);
     }
 
@@ -381,7 +396,7 @@ function showSelectionTools(candidate: SelectionCandidate) {
       copyButton.textContent = t('copy');
       preserveSelectionOnPointerDown(copyButton);
       copyButton.addEventListener('click', () => {
-        void copy(cleanCitationText(candidate.selector.exact));
+        if (currentCandidate) void copy(cleanCitationText(currentCandidate.selector.exact));
         window.getSelection()?.removeAllRanges();
         hideSelectionTools();
       });
@@ -395,7 +410,7 @@ function showSelectionTools(candidate: SelectionCandidate) {
       linkButton.textContent = t('link');
       preserveSelectionOnPointerDown(linkButton);
       linkButton.addEventListener('click', () => {
-        const root = selectionRoot(candidate.range);
+        const root = currentCandidate ? selectionRoot(currentCandidate.range) : null;
         if (root) void copy(deepestLinkFor(root), t('link_copied'));
         window.getSelection()?.removeAllRanges();
         hideSelectionTools();
@@ -424,10 +439,17 @@ function updateSelectionTools() {
 
 const selectionChangeHandler = () => {
   if (selectionTimer != null) window.clearTimeout(selectionTimer);
+  const currentTools = document.getElementById(SELECTION_TOOLS_ID);
+  const nextCandidate = currentTools ? candidateFromSelection() : null;
+  if (currentTools && nextCandidate) {
+    selectionTimer = null;
+    showSelectionTools(nextCandidate);
+    return;
+  }
   selectionTimer = window.setTimeout(() => {
     selectionTimer = null;
     updateSelectionTools();
-  }, 0);
+  }, typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches ? 80 : 0);
 };
 
 function closeEditor(rerender = true) {

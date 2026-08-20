@@ -9,7 +9,8 @@ changes.
 
 - Name: **StudyNav — Unofficial Study Tools**
 - Publisher: **KikuAI Lab**
-- Version: **1.6.0**
+- Public Store version: **1.6.0**
+- Next source/package version: **1.6.1** (bug-fix candidate; not submitted)
 - Platform: Chrome, Edge, Brave, and compatible Chromium browsers on a computer
 - Category: **Productivity**
 - Language: English default; Russian localized listing and interface
@@ -36,10 +37,12 @@ Record these independently; never infer a later state from an earlier one:
 The exact current provider state and item URL belong in GitHub Issue #9. Do not
 put a guessed Store URL in the public guide.
 
-Latest verified provider receipt (2026-08-19): Chrome Web Store item
-`bjgaghgbmghohpahonodejobgflpcbai` accepted the 1.6.0 package and listing and
-shows **Pending review** after submission. Approval, public installability, and
-the installed Store-build smoke test have not happened yet.
+Latest verified provider receipt (2026-08-20): Chrome Web Store item
+`bjgaghgbmghohpahonodejobgflpcbai` is approved and publicly installable. A
+logged-out request to the item-ID URL redirects to the public StudyNav listing,
+returns HTTP 200, identifies version 1.6.0, and exposes **Add to Chrome**:
+`https://chromewebstore.google.com/detail/bjgaghgbmghohpahonodejobgflpcbai`.
+The installed Store-build desktop smoke test remains a separate pending gate.
 
 ## Single purpose
 

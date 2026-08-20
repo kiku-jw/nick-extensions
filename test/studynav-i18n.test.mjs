@@ -91,9 +91,27 @@ describe('StudyNav localization contract', () => {
     expect(uiLanguage()).toBe('ru');
   });
 
+  test('finishes numbered substitutions when Safari returns an untranslated placeholder', () => {
+    globalThis.chrome = {
+      i18n: {
+        getMessage(key) {
+          return key === 'status_bible_selected'
+            ? 'Выбран стих $1:$2. Нажмите «Выбрать несколько», чтобы добавить следующие стихи.'
+            : '';
+        },
+        getUILanguage() {
+          return 'ru-RU';
+        },
+      },
+    };
+    expect(t('status_bible_selected', ['1', '3'])).toBe(
+      'Выбран стих 1:3. Нажмите «Выбрать несколько», чтобы добавить следующие стихи.',
+    );
+  });
+
   test('localizes manifest identity and command metadata through Chrome i18n', async () => {
     const manifest = await json('packages/studynav/manifest.json');
-    expect(manifest.version).toBe('1.6.0');
+    expect(manifest.version).toBe('1.6.1');
     expect(manifest.default_locale).toBe('en');
     expect(manifest.name).toBe('__MSG_extension_name__');
     expect(manifest.short_name).toBe('__MSG_extension_short_name__');
@@ -112,7 +130,7 @@ describe('StudyNav localization contract', () => {
     ];
 
     for (const manifest of [safari, firefox]) {
-      expect(manifest.version).toBe('1.6.0');
+      expect(manifest.version).toBe('1.6.1');
       expect(manifest.name).toBe('__MSG_extension_mobile_name__');
       expect(manifest.description).toBe('__MSG_extension_mobile_description__');
       expect(manifest.commands).toBeUndefined();

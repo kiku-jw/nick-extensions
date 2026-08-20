@@ -79,5 +79,9 @@ Automated acceptance requires:
 
 The mobile targets are not approved for Store publication or described as
 available. TestFlight/App Store, AMO signing/publication, and any Store metadata
-change require separate owner approval. Physical iPhone/iPad and Android
-installation plus the promised workflow checks remain mandatory release gates.
+change require separate owner approval. A signed 1.6.0 developer build was
+installed on an iPhone 15 Pro and exercised against live JW.org, which exposed
+the multiline saved-place title, Safari clipboard/new-tab, localization
+placeholder, and selection-toolbar stability defects fixed in 1.6.1. A repeat
+physical iPhone pass of those fixes, plus iPad and Android installation and the
+promised workflow checks, remain mandatory release gates.

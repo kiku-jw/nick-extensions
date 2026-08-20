@@ -197,7 +197,7 @@ for (const name of pkgs) {
     const studyStorageSource = readFileSync(join(root, 'packages/studynav/src/study-storage.ts'), 'utf8');
     const featureIds = [...featureDefaultsSource.matchAll(/\{ id: '([^']+)'/g)].map((match) => match[1]);
     const hosts = manifest.host_permissions || [];
-    ok(manifest.version === '1.6.0', `${name}: expected 1.6.0 release version`);
+    ok(manifest.version === '1.6.1', `${name}: expected 1.6.1 release version`);
     ok(
       JSON.stringify(hosts) === JSON.stringify([
         'https://jw.org/*',
@@ -346,7 +346,7 @@ console.log('\n== studynav Mobile ==');
     const resolvedDescription = resolveManifestString(manifest.description, manifest, dist);
     const prefix = `studynav mobile ${platform}`;
 
-    ok(manifest.version === '1.6.0', `${prefix}: release version`);
+    ok(manifest.version === '1.6.1', `${prefix}: release version`);
     ok(resolvedName === 'StudyNav Mobile — Unofficial Study Tools' && /unofficial/i.test(resolvedDescription),
       `${prefix}: clear non-affiliated English store identity`);
     ok(JSON.stringify(manifest.content_scripts?.[0]?.matches) === JSON.stringify(expectedHosts),
@@ -429,10 +429,10 @@ console.log('\n== studynav Mobile ==');
     const projectText = readFileSync(safariProject, 'utf8');
     const onboarding = readFileSync(onboardingHtml, 'utf8');
     const onboardingStyles = readFileSync(onboardingCss, 'utf8');
-    ok((projectText.match(/MARKETING_VERSION = 1\.6\.0;/g) || []).length === 4 &&
+    ok((projectText.match(/MARKETING_VERSION = 1\.6\.1;/g) || []).length === 4 &&
       !projectText.includes('IPHONEOS_DEPLOYMENT_TARGET = 15.0;') &&
       projectText.includes('IPHONEOS_DEPLOYMENT_TARGET = 15.4;'),
-    'studynav mobile Safari iOS: app and extension use release 1.6.0 with the iOS 15.4 floor');
+    'studynav mobile Safari iOS: app and extension use release 1.6.1 with the iOS 15.4 floor');
     ok(onboarding.includes('Turn on the extension') && onboarding.includes('Включите расширение') &&
       onboarding.includes('jw.org') && onboarding.includes('wol.jw.org') &&
       onboardingStyles.includes('--accent: #43669f') && onboardingStyles.includes('color-scheme: dark'),
@@ -485,8 +485,8 @@ for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
     `${relativeHtml}: final narrated tutorial duration is visible`);
   ok(/1\.6\.0/.test(html), `${relativeHtml}: current release is visible`);
   const releaseGuideTokens = relativeHtml.includes('/ru/')
-    ? ['Нажмите на цветное выделение', 'Запятая или Enter', 'StudyNav · видео', 'Путь к папке не меняйте']
-    : ['Click the colored highlight', 'Comma or Enter', 'StudyNav video', 'Keep that folder at the same path'];
+    ? ['Нажмите на цветное выделение', 'Запятая или Enter', 'StudyNav · видео', 'браузер обновляет его автоматически']
+    : ['Click the colored highlight', 'Comma or Enter', 'StudyNav video', 'browser updates it automatically'];
   ok(
     html.includes('id="release-160"') &&
       html.includes('assets/screenshots/19-note-rail.png') &&
@@ -500,11 +500,17 @@ for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
   );
   ok(/several consecutive verses|несколько стихов подряд/i.test(html), `${relativeHtml}: consecutive verse audio is explained`);
   const mobileBoundaryTokens = relativeHtml.includes('/ru/')
-    ? ['Скачать для компьютера', 'На смартфонах пока недоступно', 'Android или iPhone', 'неподдерживаемое', 'отдельный список расширений']
-    : ['Download for computer', 'Not available on smartphones', 'Android or iPhone', 'unsupported', 'separate list of extensions'];
+    ? ['Установить из Chrome Web Store', 'На смартфонах пока недоступно', 'Android или iPhone', 'неподдерживаемое', 'отдельный список расширений']
+    : ['Install from Chrome Web Store', 'Not available on smartphones', 'Android or iPhone', 'unsupported', 'separate list of extensions'];
   ok(
     mobileBoundaryTokens.every((token) => html.includes(token)) && html.includes('privacy/'),
     `${relativeHtml}: states the verified computer-only boundary and links privacy`,
+  );
+  ok(
+    html.includes('https://chromewebstore.google.com/detail/bjgaghgbmghohpahonodejobgflpcbai') &&
+      (html.match(/class="install-steps"/g) || []).length === 1 &&
+      /separate local storage|отдельное локальное хранилище/i.test(html),
+    `${relativeHtml}: makes the verified Store listing primary and explains unpacked-data migration`,
   );
   ok(
     !/slower learning|red (?:ring|circle)|product choices|production note|animation direction|focus marker|render pipeline|более медленное(?: и понятное)? обучение|красное кольцо|продуктовые решения|внутренн(?:ий|его) беклог|указани[ея] для анимации|маркер показывает, куда смотреть|процесс монтажа/i.test(html),

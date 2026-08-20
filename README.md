@@ -1,12 +1,12 @@
 # Local-first browser extensions
 
-Три расширения для Chrome, Edge, Brave и других Chromium-браузеров на компьютере. StudyNav также собирается из того же исходного кода для Safari на iPhone/iPad и Firefox на Android, но мобильные пакеты ещё не опубликованы и не прошли проверку на физических устройствах. Код и сборка остаются под контролем владельца: без телеметрии и remote code. InkShade использует явно закреплённый MIT-лицензированный upstream source fork с отдельным брендом и квитанцией происхождения.
+Три расширения для Chrome, Edge, Brave и других Chromium-браузеров на компьютере. StudyNav 1.6.0 одобрен и доступен в Chrome Web Store. Общий мобильный код собирается для Safari на iPhone/iPad и Firefox на Android, но эти пакеты ещё не опубликованы. Первая установка и проверка основных сценариев на физическом iPhone 15 Pro выполнена; исправленная сборка ждёт повторного прогона, а iPad и Android ещё не проверены. Код и сборка остаются под контролем владельца: без телеметрии и remote code. InkShade использует явно закреплённый MIT-лицензированный upstream source fork с отдельным брендом и квитанцией происхождения.
 
 ## Philosophy
 
-**RU:** Код лежит у вас локально. Обновления — только когда вы сами пересобрали и перезагрузили unpacked. Нет телеметрии, remote code execution или обфускации. Лицензия нашего кода — MIT; сторонние MIT-компоненты и filter-листы сохраняют attribution.
+**RU:** Код открыт и собирается локально. Магазинные сборки обновляются только после публикации проверенного релиза; unpacked-сборки — когда вы сами их пересобрали и перезагрузили. Нет телеметрии, remote code execution или обфускации. Лицензия нашего кода — MIT; сторонние MIT-компоненты и filter-листы сохраняют attribution.
 
-**EN:** Owner-controlled source and builds. Load unpacked and update on your schedule. No telemetry, remote code, or obfuscation. Original code is MIT; third-party MIT components and filter lists retain attribution.
+**EN:** Owner-controlled source and builds. Store builds update only after a reviewed release is published; unpacked builds update on your schedule. No telemetry, remote code, or obfuscation. Original code is MIT; third-party MIT components and filter lists retain attribution.
 
 ## Products
 
@@ -15,11 +15,11 @@
 | `packages/clearshield` / ClearShield | **Ad & Tracker Blocker (ClearShield)** | DNR blocker: локальные списки, per-site allowlist, косметическая фильтрация, счётчик блокировок |
 | `packages/inkshade` / InkShade | **InkShade – Dark Mode for Every Site** | Store-oriented local-first fork of the Dark Reader v4.9.129 MV3 engine and bundled site fixes; distinct branding, no news/telemetry/premium/remote config |
 | `packages/studynav` / StudyNav | **StudyNav — Unofficial Study Tools** | Локальные подсветки/заметки/теги и сохранённые места, цитаты и QR, continue-watching, выбор одного или нескольких стихов подряд → один локальный WAV, copy/link и reading/media helpers |
-| `packages/studynav` / StudyNav Mobile | **StudyNav Mobile — Unofficial Study Tools** | Общий облегчённый профиль для Safari на iPhone/iPad и Firefox на Android; реализация готова к проверке, публикация и физические устройства ещё впереди |
+| `packages/studynav` / StudyNav Mobile | **StudyNav Mobile — Unofficial Study Tools** | Общий облегчённый профиль для Safari на iPhone/iPad и Firefox на Android; первый физический iPhone-прогон выполнен, повторный прогон исправлений, iPad/Android и публикация ещё впереди |
 
 StudyNav — **неофициальный** helper, не связан с JW.org / Watch Tower / JW PubMedia One / JW Web Add-on.
 
-Полное двуязычное руководство со скриншотами и видео: <https://kiku-jw.github.io/nick-extensions/>.
+Установка из Chrome Web Store: <https://chromewebstore.google.com/detail/bjgaghgbmghohpahonodejobgflpcbai>. Полное двуязычное руководство со скриншотами и видео: <https://kiku-jw.github.io/nick-extensions/>.
 
 ## Build
 
@@ -64,7 +64,7 @@ Safari‑приложение и расширение находятся в `pac
 bun run verify:studynav:safari
 ```
 
-Для установки на iPhone/iPad всё ещё нужны подпись Apple, TestFlight или App Store и отдельная проверка на физическом устройстве.
+Для обычной пользовательской установки на iPhone/iPad всё ещё нужны TestFlight или App Store. Подписанная developer-сборка уже устанавливалась и запускалась на физическом iPhone 15 Pro; текущие исправления требуют повторной проверки на устройстве.
 
 Проверенный ZIP настольной версии для Chrome Web Store:
 
@@ -107,7 +107,7 @@ bun run package:studynav:chrome
 
 В мобильные пакеты намеренно не входят аудио стихов, обрезка аудио/видео, функции плеера, транскрипт, отдельное окно, скачивание изображений, клавиатурный поиск и изменения ширины/шапки/таблиц. Они используют только хранилище браузера и доступ к `jw.org`, `www.jw.org` и `wol.jw.org`; медиадомен и offscreen‑документ отсутствуют.
 
-Автоматические проверки доказывают одинаковый runtime обоих пакетов, touch‑интерфейс, отсутствие настольных функций, Firefox lint без предупреждений, упаковку Apple и сборку для iOS Simulator. Они не доказывают установку и поведение на реальном iPhone, iPad или Android. Поэтому мобильная версия пока не описывается как доступная пользователям; этот статус изменится только после отдельного разрешения на публикацию и физических проверок.
+Автоматические проверки доказывают одинаковый runtime обоих пакетов, touch‑интерфейс, отсутствие настольных функций, Firefox lint без предупреждений, упаковку Apple и сборку для iOS Simulator. На физическом iPhone 15 Pro подтверждены установка Safari-расширения, доступ только к JW.org/WOL, выделения, заметка с тегом, библиотека, чистое копирование, одиночная и диапазонная ссылки и QR. Во время этого прогона были найдены Safari-сбои цитаты, сохранённого места, открытия ссылки, подстановки перевода и мигающей панели; исправления проходят автоматическую проверку, но их повторный физический прогон ещё ожидается. iPad, Android и публикация мобильных пакетов также остаются отдельными воротами, поэтому мобильная версия пока не предлагается обычным пользователям.
 
 ## Updates policy
 

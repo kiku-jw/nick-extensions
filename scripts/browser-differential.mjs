@@ -5126,7 +5126,7 @@ async function runStudyNavMobileScenario(executablePath, port) {
       scenario.launchMode = launchMeta.launchMode;
       const workers = await waitForNamedWorkers(context, ['StudyNavMobile']);
       scenario.serviceWorkers = workers;
-      const worker = await getWorkerByName(context, 'StudyNavMobile');
+      let worker = await getWorkerByName(context, 'StudyNavMobile');
       await routeStudyNavFixtures(context);
       await context.route(`https://${HOSTS.jwMedia}/media/fixture.mp4`, fulfillFixtureVideo);
 
@@ -5157,6 +5157,31 @@ async function runStudyNavMobileScenario(executablePath, port) {
       }));
 
       await selectFixtureText(page, '#p1', 'A useful');
+      const selectionToolbarStability = await page.evaluate(async () => {
+        const initial = document.getElementById('studynav-selection-tools');
+        let replacements = 0;
+        const observer = new MutationObserver((records) => {
+          for (const record of records) {
+            const changed = [...record.addedNodes, ...record.removedNodes].some((node) =>
+              node instanceof HTMLElement && (
+                node.id === 'studynav-selection-tools' || !!node.querySelector?.('#studynav-selection-tools')
+              ));
+            if (changed) replacements += 1;
+          }
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+        for (let index = 0; index < 12; index += 1) {
+          document.dispatchEvent(new Event('selectionchange'));
+        }
+        await new Promise((resolve) => setTimeout(resolve, 140));
+        observer.disconnect();
+        const current = document.getElementById('studynav-selection-tools');
+        return {
+          sameNode: initial === current,
+          replacements,
+          visible: !!current && getComputedStyle(current).display !== 'none',
+        };
+      });
       const selectionToolbar = await page.evaluate(() => {
         const toolbar = document.getElementById('studynav-selection-tools');
         const rect = toolbar?.getBoundingClientRect();
@@ -5185,11 +5210,16 @@ async function runStudyNavMobileScenario(executablePath, port) {
       );
 
       await selectFixtureText(page, '#p2', 'A precise link');
+      await page.evaluate(() => {
+        const heading = document.querySelector('#article h1');
+        if (heading) heading.innerHTML = '<span>Sample Reading</span>\n<span>1:1–3</span>';
+      });
       const bookmarkResponse = await sendStudyNavPageAction(
         worker,
         page.url(),
         'TOGGLE_STUDY_BOOKMARK',
       );
+      ensure(bookmarkResponse?.ok === true, `StudyNav Mobile rejected a valid saved place: ${json(bookmarkResponse)}`);
       const bookmarkedData = await waitForWorkerState(
         worker,
         async () => (await chrome.storage.local.get('studynavStudyDataV2')).studynavStudyDataV2,
@@ -5243,16 +5273,12 @@ async function runStudyNavMobileScenario(executablePath, port) {
       });
       await captureScreenshot(page, 'mobile-note-editor.png');
       await page.locator('#studynav-note-editor button').filter({ hasText: /^Save locally$/ }).click();
-      const mobileStudyData = await waitForWorkerState(
-        worker,
-        async () => (await chrome.storage.local.get('studynavStudyDataV2')).studynavStudyDataV2,
-        (data) => data?.annotations?.some((item) =>
-          item.selector.exact === 'easier to revisit' &&
-          item.note === 'Review this thought on the phone.' &&
-          item.tags?.includes('phone')),
-        'StudyNav Mobile did not persist the phone note and tag',
-      );
-
+      await page.waitForFunction(() =>
+        !document.getElementById('studynav-note-editor') || !!document.getElementById('studynav-toast')?.textContent);
+      const noteSaveState = await page.evaluate(() => ({
+        editorOpen: !!document.getElementById('studynav-note-editor'),
+        toast: document.getElementById('studynav-toast')?.textContent || '',
+      }));
       const panelResponse = await sendStudyNavPageAction(worker, page.url(), 'OPEN_STUDY_PANEL');
       await page.waitForSelector('#studynav-study-panel');
       const studyPanelState = await page.evaluate(() => {
@@ -5279,6 +5305,15 @@ async function runStudyNavMobileScenario(executablePath, port) {
       await popup.waitForFunction(() =>
         document.querySelectorAll('.row').length === 9 &&
         document.getElementById('status-title')?.textContent === 'Ready on this Bible chapter');
+      const mobileStudyData = await popup.evaluate(async () =>
+        (await chrome.storage.local.get('studynavStudyDataV2')).studynavStudyDataV2);
+      ensure(
+        mobileStudyData?.annotations?.some((item) =>
+          item.selector.exact === 'easier to revisit' &&
+          item.note === 'Review this thought on the phone.' &&
+          item.tags?.includes('phone')),
+        `StudyNav Mobile did not persist the phone note and tag: ${json({ noteSaveState, mobileStudyData })}`,
+      );
       await popup.click('#settings > summary');
       const popupState = await popup.evaluate(() => ({
         title: document.title,
@@ -5297,6 +5332,24 @@ async function runStudyNavMobileScenario(executablePath, port) {
           parseFloat(getComputedStyle(input).fontSize)),
       }));
       await captureScreenshot(popup, 'mobile-popup.png', { fullPage: true });
+
+      await selectFixtureText(page, '#p2', 'A precise link');
+      await page.evaluate(() => {
+        window.open = () => null;
+      });
+      await installCopyCapture(popup);
+      await popup.evaluate(() => {
+        Object.defineProperty(navigator, 'clipboard', {
+          configurable: true,
+          value: { writeText: async () => { throw new Error('simulated Safari popup clipboard rejection'); } },
+        });
+      });
+      await popup.click('#copy-citation');
+      const popupFallbackCitation = await waitForCopiedText(
+        popup,
+        (value) => value.includes('“A precise link”') && value.includes(`${STUDYNAV_FIXTURE_CANONICAL}#p2`),
+        'StudyNav Mobile popup did not recover from the Safari content clipboard rejection',
+      );
 
       await popup.click('#open-official');
       const officialTab = await waitForWorkerState(
@@ -5419,17 +5472,22 @@ async function runStudyNavMobileScenario(executablePath, port) {
             selectionToolbar.labels.includes('Add note') && selectionToolbar.labels.includes('Copy') &&
             selectionToolbar.labels.includes('Link') && selectionToolbar.inViewport === true &&
             selectionToolbar.buttonHeights.every((height) => height >= 44) &&
-            copiedSelection === 'A useful' && copiedLink === `${STUDYNAV_FIXTURE_CANONICAL}#p2`,
-          { selectionToolbar, copiedSelection, copiedLink },
+            selectionToolbarStability.sameNode === true && selectionToolbarStability.replacements === 0 &&
+            selectionToolbarStability.visible === true && copiedSelection === 'A useful' &&
+            copiedLink === `${STUDYNAV_FIXTURE_CANONICAL}#p2`,
+          { selectionToolbar, selectionToolbarStability, copiedSelection, copiedLink },
         ),
         makeAssertion(
           'StudyNav Mobile saves places, copies citations, and shows a viewport-safe local QR',
           bookmarkResponse?.ok === true && bookmarkResponse?.saved === true &&
-            bookmarkedData.bookmarks.some((item) => item.targetUrl === `${STUDYNAV_FIXTURE_CANONICAL}#p2`) &&
+            bookmarkedData.bookmarks.some((item) =>
+              item.targetUrl === `${STUDYNAV_FIXTURE_CANONICAL}#p2` &&
+              item.title === 'Sample Reading 1:1–3') &&
             citationResponse?.ok === true && copiedCitation.includes('“A precise link”') &&
+            popupFallbackCitation.includes('“A precise link”') &&
             qrResponse?.ok === true && qrState.target === `${STUDYNAV_FIXTURE_CANONICAL}#p2` &&
             qrState.inViewport === true && qrState.buttonHeights.every((height) => height >= 44),
-          { bookmarkResponse, citationResponse, copiedCitation, qrResponse, qrState },
+          { bookmarkResponse, citationResponse, copiedCitation, popupFallbackCitation, qrResponse, qrState },
         ),
         makeAssertion(
           'StudyNav Mobile saves a tagged note in a full-screen touch editor and library',

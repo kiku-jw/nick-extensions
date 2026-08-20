@@ -336,7 +336,7 @@ export function t(key: MessageKey, substitutions?: string | string[]): string {
   try {
     if (typeof chrome !== 'undefined' && chrome.i18n?.getMessage) {
       const translated = chrome.i18n.getMessage(key, substitutions);
-      if (translated) return translated;
+      if (translated) return fallbackFormat(translated, substitutions);
     }
   } catch {
     // Unit tests and partially initialized extension contexts use English fallbacks.
