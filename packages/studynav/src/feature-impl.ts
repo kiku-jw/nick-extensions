@@ -1823,19 +1823,20 @@ function mountMediaToolbar(flags: FeatureFlags, mediaSupported: boolean): HTMLEl
   const wolArticleAnchor = !isVideo && location.hostname === 'wol.jw.org'
     ? qs<HTMLElement>('#article > .scalableui, #article, article > .scalableui, article')
     : null;
-  const parent = playerHost || wolArticleAnchor || audioShell?.parentElement || media?.parentElement || null;
+  const parent = playerHost?.parentElement || wolArticleAnchor || audioShell?.parentElement || media?.parentElement || null;
   if (!media || !parent) {
     teardownMediaToolbar();
     return null;
   }
 
   let bar = document.getElementById('studynav-media-bar');
-  const placement = playerHost ? 'player' : 'inline';
+  const placement = playerHost ? 'below-player' : 'inline';
   const kind = isVideo ? 'video' : 'audio';
   if (bar && (
     bar.parentElement !== parent ||
     bar.dataset.placement !== placement ||
-    bar.dataset.kind !== kind
+    bar.dataset.kind !== kind ||
+    (playerHost && bar.previousElementSibling !== playerHost)
   )) {
     teardownMediaToolbar();
     bar = null;
@@ -1870,8 +1871,7 @@ function mountMediaToolbar(flags: FeatureFlags, mediaSupported: boolean): HTMLEl
     };
     if (playerHost) {
       playerHost.dataset.studynavMediaHost = '1';
-      if (getComputedStyle(playerHost).position === 'static') playerHost.dataset.studynavPositioned = '1';
-      playerHost.appendChild(bar);
+      playerHost.insertAdjacentElement('afterend', bar);
     } else if (wolArticleAnchor) {
       wolArticleAnchor.prepend(bar);
     } else {

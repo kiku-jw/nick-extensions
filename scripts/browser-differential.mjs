@@ -717,6 +717,7 @@ function jwFixtureHtml() {
       #article-table th, #article-table td { padding: 8px 0; text-align: left; }
       #jw-player { position: relative; }
       video { width: 100%; height: 280px; background: #101827; display: block; margin-top: 22px; border-radius: 12px; }
+      #jw-seek { position: absolute; z-index: 4; left: 12px; bottom: 54px; width: calc(100% - 24px); margin: 0; }
       #jw-controls { margin-top: -43px; padding: 10px 14px; border-radius: 0 0 12px 12px; color: #fff; background: linear-gradient(transparent, rgba(0,0,0,.78)); }
       #jw-player.vjs-user-active #jw-controls { opacity: 1; }
       #jw-player.vjs-user-inactive #jw-controls { opacity: 0; }
@@ -773,6 +774,7 @@ function jwFixtureHtml() {
       <div class="video-js vjs-user-active vjs-paused" id="jw-player">
         <video id="jw-video" controls preload="metadata" src="https://${HOSTS.jwMedia}/media/fixture.mp4"></video>
         <div class="vjs-text-track-display"><div id="fixture-caption" class="vjs-text-track-cue"><div>Sample caption remains readable.</div></div></div>
+        <input id="jw-seek" type="range" min="0" max="100" value="84" aria-label="Seek video" />
         <div class="vjs-control-bar" id="jw-controls">Player controls</div>
       </div>
       <div id="fixture-transcript" class="transcript">
@@ -2821,7 +2823,12 @@ async function runStudyNavScenario(executablePath, port) {
       const summary = bar?.querySelector('summary');
       const barRect = bar?.getBoundingClientRect();
       const playerRect = document.getElementById('jw-player')?.getBoundingClientRect();
+      const seek = document.getElementById('jw-seek');
+      const seekRect = seek?.getBoundingClientRect();
       const summaryRect = summary?.getBoundingClientRect();
+      const seekEndHit = seekRect
+        ? document.elementFromPoint(seekRect.right - 3, seekRect.top + seekRect.height / 2)
+        : null;
       return {
         parentId: bar?.parentElement?.id || null,
         placement: bar?.dataset.placement || null,
@@ -2832,6 +2839,11 @@ async function runStudyNavScenario(executablePath, port) {
         insidePlayer: !!barRect && !!playerRect &&
           barRect.left >= playerRect.left && barRect.right <= playerRect.right &&
           barRect.top >= playerRect.top && barRect.bottom <= playerRect.bottom,
+        belowPlayer: !!barRect && !!playerRect && barRect.top >= playerRect.bottom,
+        overlapsSeek: !!barRect && !!seekRect &&
+          barRect.left < seekRect.right && barRect.right > seekRect.left &&
+          barRect.top < seekRect.bottom && barRect.bottom > seekRect.top,
+        seekEndClickable: seekEndHit === seek || !!seek?.contains(seekEndHit),
       };
     });
     await openStudyNavMediaMenu(jwPage);
@@ -3277,12 +3289,14 @@ async function runStudyNavScenario(executablePath, port) {
         { jwState, mediaIdleState },
       ),
       makeAssertion(
-        'StudyNav media actions use one compact player-anchored menu and follow player idle state',
+        'StudyNav media actions stay below the player, leave the seek bar clickable, and follow player idle state',
         jwState.imageButtons === 0 &&
           ['Copy video link and time', 'Download a media segment', 'Open in a separate window', 'Transcript']
             .every((label) => jwState.mediaButtons.includes(label)) &&
-          mediaAnchorState.parentId === 'jw-player' && mediaAnchorState.placement === 'player' &&
-          mediaAnchorState.position === 'absolute' && mediaAnchorState.insidePlayer === true &&
+          mediaAnchorState.parentId === 'article' && mediaAnchorState.placement === 'below-player' &&
+          mediaAnchorState.position === 'relative' && mediaAnchorState.insidePlayer === false &&
+          mediaAnchorState.belowPlayer === true && mediaAnchorState.overlapsSeek === false &&
+          mediaAnchorState.seekEndClickable === true &&
           mediaAnchorState.summaryText === 'StudyNav video · Video tools' && mediaAnchorState.summaryTitle === 'Video tools' &&
           mediaAnchorState.summaryRect?.width <= 150 && mediaAnchorState.summaryRect?.height <= 40 &&
           mediaMenuState.open === true && mediaMenuState.heading === 'Video tools' &&
