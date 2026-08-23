@@ -86,7 +86,18 @@
   "ownerGate": {
     "action": "Install official Android command-line tools and OpenJDK, then accept the Android SDK License Agreement",
     "reason": "Required to create the Android Emulator and complete Firefox Android runtime verification",
-    "providerUploadIncluded": false
+    "providerUploadIncluded": false,
+    "preparedRunbook": "android-emulator-runbook.md",
+    "plannedFirefox": {
+      "version": "142.0",
+      "package": "org.mozilla.firefox",
+      "source": "https://archive.mozilla.org/pub/fenix/releases/142.0/android/fenix-142.0-android-arm64-v8a/fenix-142.0.multi.android-arm64-v8a.apk"
+    },
+    "plannedAvd": {
+      "name": "StudyNav_API_35",
+      "image": "system-images;android-35;default;arm64-v8a",
+      "googleAccountRequired": false
+    }
   },
   "unrelatedWorktreeState": {
     "path": "packages/inkshade/upstream",

@@ -105,4 +105,7 @@ installed. The next step would install official Android command-line tools and
 OpenJDK, accept the Android SDK License Agreement, create one modest emulator,
 install Firefox, load the package through Mozilla's supported development
 workflow, and run the critical JW.org/WOL scenarios. Agreement acceptance and
-system-tool installation require Nick's explicit approval.
+system-tool installation require Nick's explicit approval. The exact bounded
+procedure and pass matrix are recorded in `android-emulator-runbook.md`; it
+uses Firefox 142.0 from Mozilla's official archive, an ARM64 image without
+Google Play, and no account or physical device.
