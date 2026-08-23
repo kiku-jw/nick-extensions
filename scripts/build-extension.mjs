@@ -71,6 +71,7 @@ if (mobile) {
 
 const publicDir = join(pkg, 'public');
 if (existsSync(publicDir)) cpSync(publicDir, dist, { recursive: true });
+if (mobile) rmSync(join(dist, 'icons', 'icon-source.svg'), { force: true });
 
 for (const htmlName of ['popup.html', 'options.html', ...(mobile ? [] : ['offscreen.html'])]) {
   const htmlSrc = join(src, htmlName);

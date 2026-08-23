@@ -3,9 +3,12 @@ import { beforeEach, describe, expect, test } from 'bun:test';
 import {
   STUDY_DATA_LEGACY_STORAGE_KEY,
   STUDY_DATA_STORAGE_KEY,
+  createBookmarkRecord,
+  createMediaProgressRecord,
   createEmptyStudyData,
   createTextSelector,
 } from '../packages/studynav/src/study-data.ts';
+import { DEFAULT_FLAGS, migrateFlagsForInstall } from '../packages/studynav/src/features.ts';
 import {
   StudyDataStorageError,
   loadStudyData,
@@ -30,6 +33,17 @@ function annotation(id, updatedAt) {
     createdAt: 1,
     updatedAt,
   };
+}
+
+function legacyBookmark() {
+  return createBookmarkRecord(
+    'https://www.jw.org/en/library/books/sample/',
+    'https://www.jw.org/en/library/books/sample/#p1',
+    'Saved paragraph',
+    'Paragraph 1',
+    1,
+    2,
+  );
 }
 
 beforeEach(() => {
@@ -75,6 +89,50 @@ describe('StudyNav local study storage adapter', () => {
     expect(stored[STUDY_DATA_STORAGE_KEY]).toEqual(loaded);
     expect(setCalls).toHaveLength(1);
     expect(setCalls[0]).toHaveProperty(STUDY_DATA_STORAGE_KEY);
+  });
+
+  test('keeps a 1.6.0 schema-v2 envelope and settings unchanged on the 1.6.1 update', async () => {
+    const note = annotation('upgrade-note', 4);
+    note.note = 'Keep this private note';
+    note.tags = ['meeting', 'follow-up'];
+    const progress = createMediaProgressRecord(
+      'https://www.jw.org/en/library/books/sample/',
+      'https://b.jw-cdn.org/media/sample.mp4',
+      'Sample video',
+      42,
+      90,
+      5,
+    );
+    const bookmark = legacyBookmark();
+    expect(progress).not.toBeNull();
+    expect(bookmark).not.toBeNull();
+    const previous = {
+      schemaVersion: 2,
+      annotations: [note],
+      mediaProgress: [progress],
+      bookmarks: [bookmark],
+    };
+    stored[STUDY_DATA_STORAGE_KEY] = structuredClone(previous);
+
+    const loaded = await loadStudyData();
+    expect(loaded).toEqual(previous);
+    expect(setCalls).toHaveLength(0);
+
+    const settings = migrateFlagsForInstall({
+      ...DEFAULT_FLAGS,
+      annotations: false,
+      bookmarks: false,
+      actionBar: true,
+      expandWidth: true,
+      cstblView: true,
+    }, { reason: 'update', previousVersion: '1.6.0' });
+    expect(settings).toMatchObject({
+      annotations: false,
+      bookmarks: false,
+      actionBar: true,
+      expandWidth: true,
+      cstblView: true,
+    });
   });
 
   test('rejects invalid schema-v2 data without falling back to or overwriting legacy data', async () => {

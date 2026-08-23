@@ -43,11 +43,13 @@ Neither mobile package may contain reachable handlers or UI for:
 Stored desktop flags are normalized through `mobileFlags`. A desktop-only flag
 cannot activate a mobile surface even when old settings contain `true`. The next
 mobile setting change writes the normalized set back to browser settings
-storage.
+storage. Version 1.6.1 also copies valid 1.6.0 mobile settings once from the old
+sync area into local storage without deleting the legacy value; all later
+mobile setting writes use local storage.
 
 ## Touch behavior
 
-Selecting text on an article or verse shows six colors, Add note, Copy, and Link according to enabled settings. Article actions do not depend on hover. Phone note editors, the study library, and the note drawer fill the viewport without shifting source content. Controls are at least 44 px; popup primary controls are at least 48 px; text inputs are at least 16 px to avoid mobile zoom.
+Selecting text on an article or verse shows six colors, Add note, Copy, and Link according to enabled settings. Article actions do not depend on hover. Phone note editors, the study library, and the note drawer fill the viewport without shifting source content. Controls are at least 44 px; popup primary controls are at least 48 px and remain content-sized in Safari's iPad popover; text inputs are at least 16 px to avoid mobile zoom.
 
 ## Platform manifests
 
@@ -82,6 +84,19 @@ available. TestFlight/App Store, AMO signing/publication, and any Store metadata
 change require separate owner approval. A signed 1.6.0 developer build was
 installed on an iPhone 15 Pro and exercised against live JW.org, which exposed
 the multiline saved-place title, Safari clipboard/new-tab, localization
-placeholder, and selection-toolbar stability defects fixed in 1.6.1. A repeat
-physical iPhone pass of those fixes, plus iPad and Android installation and the
-promised workflow checks, remain mandatory release gates.
+placeholder, and selection-toolbar stability defects fixed in 1.6.1. The 1.6.1
+containing app is now verified in Safari on iPhone 17 and iPad (A16) simulators,
+including live Russian-page injection and the iPad popover sizing fix. A repeat
+physical-device pass and Firefox Android Emulator installation/workflow pass
+remain mandatory release gates.
+
+## Local beta release packet
+
+The bilingual listing copy, reviewer steps, exact permissions and origins,
+source-archive command, Apple checklist, Mozilla checklist, support/privacy
+links, and known provider/device gates live in
+`store/mobile/RELEASE-CANDIDATE.md`. The containing Safari app includes
+`PrivacyInfo.xcprivacy` with tracking, collected-data, and required-reason API
+declarations all empty/disabled. App Store Connect still owns the final
+Productivity category and App Privacy form choices; this local packet does not
+claim that those provider fields were submitted or approved.

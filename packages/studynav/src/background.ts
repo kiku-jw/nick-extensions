@@ -6,6 +6,7 @@ import {
   type FeatureFlags,
 } from './features';
 import { MOBILE_BUILD } from './build-profile';
+import { loadStoredFlags, saveStoredFlags } from './flag-storage';
 import { t } from './i18n';
 import {
   validateMediaAudioClipRequest,
@@ -19,9 +20,10 @@ let audioJob: Promise<unknown> | null = null;
 let flagMutationQueue: Promise<void> = Promise.resolve();
 
 async function load(): Promise<FeatureFlags> {
-  const s = await chrome.storage.sync.get({ flags: BUILD_DEFAULT_FLAGS });
-  const flags = { ...BUILD_DEFAULT_FLAGS, ...(s.flags as FeatureFlags) };
-  return MOBILE_BUILD ? mobileFlags(flags) : flags;
+  return loadStoredFlags((stored) => {
+    const flags = { ...BUILD_DEFAULT_FLAGS, ...stored };
+    return MOBILE_BUILD ? mobileFlags(flags) : flags;
+  });
 }
 
 function paletteEnabled(flags: FeatureFlags): boolean {
@@ -32,7 +34,7 @@ function mutateFlags(change: Partial<FeatureFlags>): Promise<FeatureFlags> {
   const task = flagMutationQueue.then(async () => {
     const changed = { ...(await load()), ...change };
     const next = MOBILE_BUILD ? mobileFlags(changed) : changed;
-    await chrome.storage.sync.set({ flags: next });
+    await saveStoredFlags(next);
     return next;
   });
   flagMutationQueue = task.then(() => undefined, () => undefined);
@@ -118,11 +120,9 @@ async function processVerseAudio(message: unknown, senderUrl: string) {
 }
 
 chrome.runtime.onInstalled.addListener(async (details) => {
-  const cur = await chrome.storage.sync.get('flags');
-  const migrated = migrateFlagsForInstall(cur.flags as Partial<FeatureFlags> | undefined, details);
-  await chrome.storage.sync.set({
-    flags: MOBILE_BUILD ? mobileFlags(migrated) : migrated,
-  });
+  const current = await load();
+  const migrated = migrateFlagsForInstall(current, details);
+  await saveStoredFlags(MOBILE_BUILD ? mobileFlags(migrated) : migrated);
 });
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {

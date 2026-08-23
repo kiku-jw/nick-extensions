@@ -27,6 +27,7 @@
 		01792AC9303647EF00DF476B /* popup.css in Resources */ = {isa = PBXBuildFile; fileRef = 01792AC0303647EF00DF476B /* popup.css */; };
 		01792ACA303647EF00DF476B /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = 01792AC1303647EF00DF476B /* _locales */; };
 		01792ACB303647EF00DF476B /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 01792AC2303647EF00DF476B /* content.js */; };
+		01792ACE303647EF00DF476B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 01792ACD303647EF00DF476B /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +78,7 @@
 		01792AC0303647EF00DF476B /* popup.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = popup.css; path = Resources/popup.css; sourceTree = "<group>"; };
 		01792AC1303647EF00DF476B /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; name = _locales; path = Resources/_locales; sourceTree = "<group>"; };
 		01792AC2303647EF00DF476B /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = content.js; path = Resources/content.js; sourceTree = "<group>"; };
+		01792ACD303647EF00DF476B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +127,7 @@
 				01792A9E303647ED00DF476B /* Main.storyboard */,
 				01792AA1303647EF00DF476B /* Assets.xcassets */,
 				01792AA2303647EF00DF476B /* Info.plist */,
+				01792ACD303647EF00DF476B /* PrivacyInfo.xcprivacy */,
 				01792A8F303647ED00DF476B /* Resources */,
 			);
 			path = StudyNav;
@@ -258,6 +261,7 @@
 				01792A9D303647ED00DF476B /* LaunchScreen.storyboard in Resources */,
 				01792A92303647ED00DF476B /* Main.html in Resources */,
 				01792AAF303647EF00DF476B /* Assets.xcassets in Resources */,
+				01792ACE303647EF00DF476B /* PrivacyInfo.xcprivacy in Resources */,
 				01792A96303647ED00DF476B /* Style.css in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

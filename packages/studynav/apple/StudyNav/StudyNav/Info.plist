@@ -4,6 +4,10 @@
 <dict>
 	<key>SFSafariWebExtensionConverterVersion</key>
 	<string>26.6</string>
+	<!-- App Store Connect category remains owner-selected metadata; this key keeps
+	     the app's product classification explicit for local release review. -->
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.productivity</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

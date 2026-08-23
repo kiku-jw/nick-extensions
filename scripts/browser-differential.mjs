@@ -1641,6 +1641,20 @@ async function setStudyNavFlags(worker, flags) {
   }, flags);
 }
 
+async function seedStudyNavMobileLegacyFlags(worker, flags) {
+  return worker.evaluate(async (legacyFlags) => {
+    await chrome.storage.local.remove('flags');
+    await chrome.storage.sync.set({ flags: legacyFlags });
+  }, flags);
+}
+
+async function setStudyNavMobileFlags(worker, flags) {
+  return worker.evaluate(async (nextFlags) => {
+    await chrome.storage.local.set({ flags: nextFlags });
+    return chrome.storage.local.get(null);
+  }, flags);
+}
+
 async function readStudyNavLocalData(worker) {
   return worker.evaluate(async () => {
     const key = 'studynavStudyDataV2';
@@ -1880,6 +1894,11 @@ async function runClearShieldScenario(executablePath, port) {
       (state) => state.settings.lists?.easyprivacy === false && !state.enabledRulesets.includes('easyprivacy'),
       'ClearShield popup did not disable EasyPrivacy',
     );
+    // The popup persists a checkbox change and then refreshes itself. Reload
+    // between opposite toggles so the next click cannot race that async
+    // refresh and accidentally reuse an intermediate checkbox value.
+    await popup.reload({ waitUntil: 'load' });
+    await popup.waitForFunction(() => document.getElementById('list-easyprivacy')?.checked === false);
     await popup.evaluate(() => document.getElementById('list-easyprivacy').click());
     await waitForWorkerState(
       worker,
@@ -1890,11 +1909,27 @@ async function runClearShieldScenario(executablePath, port) {
       (state) => state.settings.lists?.easyprivacy === true && state.enabledRulesets.includes('easyprivacy'),
       'ClearShield popup did not restore EasyPrivacy',
     );
+    await popup.reload({ waitUntil: 'load' });
+    await popup.waitForFunction(() => document.getElementById('list-easyprivacy')?.checked === true);
 
     await popup.evaluate(() => document.getElementById('cosmetic').click());
+    await waitForWorkerState(
+      worker,
+      async () => chrome.storage.local.get(null),
+      (state) => state.cosmetic === false,
+      'ClearShield popup did not disable cosmetic filtering',
+    );
     await ordinary.waitForFunction(() => document.querySelectorAll('#clearshield-cosmetic').length === 0);
     const cosmeticOffState = await getOrdinaryState(ordinary);
+    await popup.reload({ waitUntil: 'load' });
+    await popup.waitForFunction(() => document.getElementById('cosmetic')?.checked === false);
     await popup.evaluate(() => document.getElementById('cosmetic').click());
+    await waitForWorkerState(
+      worker,
+      async () => chrome.storage.local.get(null),
+      (state) => state.cosmetic === true,
+      'ClearShield popup did not restore cosmetic filtering',
+    );
     await ordinary.waitForFunction(() => document.querySelectorAll('#clearshield-cosmetic').length === 1);
 
     await popup.evaluate(() => document.getElementById('enabled').click());
@@ -2323,6 +2358,16 @@ async function runInkShadeForkScenario(executablePath, port) {
     );
     const manualDisabledDescription = await popup.locator('.site-toggle-group__description').innerText();
 
+    // The site toggle updates background state and then re-renders the popup.
+    // Re-open its UI before the opposite click so a slow render cannot replay
+    // the stale disabled state.
+    await popup.reload({waitUntil: 'load'});
+    await popup.waitForFunction((host) => document.body?.innerText.includes(host), HOSTS.ordinary);
+    await waitForInkShadeData(
+      popup,
+      (data) => data?.settings?.disabledFor?.some((entry) => entry.includes(HOSTS.ordinary)),
+      'InkShade popup did not settle after disabling fixture.test',
+    );
     await popup.locator('.site-toggle').click();
     await settleInkShade(page, 5000);
     const siteEnabledData = await waitForInkShadeData(
@@ -2341,10 +2386,30 @@ async function runInkShadeForkScenario(executablePath, port) {
     await settleInkShade(page, 5000);
     const updatedState = await getInkShadeState(page);
 
-    await page.goto(httpUrl(HOSTS.ordinary, port, '/dark'), {waitUntil: 'load'});
-    await page.waitForTimeout(1200);
-    const nativeDarkState = await getInkShadeState(page);
-    await activateTabByUrl(worker, page.url());
+    // Start the detector matrix in a fresh document. Reusing the heavily
+    // mutated light-fixture tab couples this check to an old frame record in
+    // Chromium's MV3 worker, which can disappear during worker suspension.
+    const detectorPage = await openPage(
+      context,
+      scenario,
+      'native-dark',
+      httpUrl(HOSTS.ordinary, port, '/dark'),
+    );
+    await activateTabByUrl(worker, detectorPage.url());
+    let runtimeDetectedData = null;
+    try {
+      await waitFor(async () => {
+        runtimeDetectedData = await getInkShadeData(popup);
+        return runtimeDetectedData?.activeTab?.url === detectorPage.url() &&
+          runtimeDetectedData?.activeTab?.isDarkThemeDetected === true;
+      }, 15_000, 'InkShade background did not report the native dark fixture');
+    } catch (error) {
+      const activeTabs = await worker.evaluate(async () => (await chrome.tabs.query({active: true}))
+        .map((tab) => ({id: tab.id, url: tab.url, windowId: tab.windowId})));
+      const currentNativeState = await getInkShadeState(detectorPage);
+      throw new Error(`${error.message}; data=${json(runtimeDetectedData)}; activeTabs=${json(activeTabs)}; page=${json(currentNativeState)}`);
+    }
+    const nativeDarkState = await getInkShadeState(detectorPage);
     await popup.reload({waitUntil: 'load'});
     await popup.waitForFunction((host) => document.body?.innerText.includes(host), HOSTS.ordinary);
     await popup.waitForFunction(() =>
@@ -2374,10 +2439,10 @@ async function runInkShadeForkScenario(executablePath, port) {
     ];
     const detectorPositiveResults = [];
     for (const caseName of detectorPositiveCases) {
-      await page.goto(httpUrl(HOSTS.ordinary, port, `/detector/${caseName}`), {waitUntil: 'load'});
-      await page.waitForTimeout(1000);
-      await settleInkShade(page, 4000, null);
-      const state = await getInkShadeDetectorState(page);
+      await detectorPage.goto(httpUrl(HOSTS.ordinary, port, `/detector/${caseName}`), {waitUntil: 'load'});
+      await detectorPage.waitForTimeout(1000);
+      await settleInkShade(detectorPage, 4000, null);
+      const state = await getInkShadeDetectorState(detectorPage);
       detectorPositiveResults.push({caseName, state});
       scenario.assertions.push(makeAssertion(
         `InkShade native-dark detector accepts ${caseName}`,
@@ -2387,9 +2452,9 @@ async function runInkShadeForkScenario(executablePath, port) {
     }
     const detectorNegativeResults = [];
     for (const caseName of detectorNegativeCases) {
-      await page.goto(httpUrl(HOSTS.ordinary, port, `/detector/${caseName}`), {waitUntil: 'load'});
-      await settleInkShade(page, 5000, 'dark');
-      const state = await getInkShadeDetectorState(page);
+      await detectorPage.goto(httpUrl(HOSTS.ordinary, port, `/detector/${caseName}`), {waitUntil: 'load'});
+      await settleInkShade(detectorPage, 5000, 'dark');
+      const state = await getInkShadeDetectorState(detectorPage);
       detectorNegativeResults.push({caseName, state});
       scenario.assertions.push(makeAssertion(
         `InkShade keeps light/mixed page active for ${caseName}`,
@@ -2397,27 +2462,27 @@ async function runInkShadeForkScenario(executablePath, port) {
         state,
       ));
     }
-    await page.goto(httpUrl(HOSTS.ordinary, port, '/detector/delayed'), {waitUntil: 'load'});
-    await page.waitForTimeout(250);
-    const delayedInitialState = await getInkShadeDetectorState(page);
-    await page.waitForTimeout(1600);
-    await settleInkShade(page, 4000, null);
-    const delayedFinalState = await getInkShadeDetectorState(page);
+    await detectorPage.goto(httpUrl(HOSTS.ordinary, port, '/detector/delayed'), {waitUntil: 'load'});
+    await detectorPage.waitForTimeout(250);
+    const delayedInitialState = await getInkShadeDetectorState(detectorPage);
+    await detectorPage.waitForTimeout(1600);
+    await settleInkShade(detectorPage, 4000, null);
+    const delayedFinalState = await getInkShadeDetectorState(detectorPage);
 
-    await page.emulateMedia({colorScheme: 'dark'});
-    await page.goto(httpUrl(HOSTS.systemHint, port, '/detector/meta-light'), {waitUntil: 'load'});
-    await settleInkShade(page, 5000, 'dark');
-    const systemHintLightState = await getInkShadeDetectorState(page);
+    await detectorPage.emulateMedia({colorScheme: 'dark'});
+    await detectorPage.goto(httpUrl(HOSTS.systemHint, port, '/detector/meta-light'), {waitUntil: 'load'});
+    await settleInkShade(detectorPage, 5000, 'dark');
+    const systemHintLightState = await getInkShadeDetectorState(detectorPage);
 
-    await page.emulateMedia({colorScheme: 'light'});
-    await page.goto(httpUrl(HOSTS.selectorHint, port, '/detector/visual-dark'), {waitUntil: 'load'});
-    await settleInkShade(page, 4000, null);
-    const staleSelectorHintDarkState = await getInkShadeDetectorState(page);
+    await detectorPage.emulateMedia({colorScheme: 'light'});
+    await detectorPage.goto(httpUrl(HOSTS.selectorHint, port, '/detector/visual-dark'), {waitUntil: 'load'});
+    await settleInkShade(detectorPage, 4000, null);
+    const staleSelectorHintDarkState = await getInkShadeDetectorState(detectorPage);
 
-    await page.goto(httpUrl(HOSTS.darkList, port, '/dark'), {waitUntil: 'load'});
-    await page.waitForTimeout(1000);
-    const bundledDarkState = await getInkShadeState(page);
-    await activateTabByUrl(worker, page.url());
+    await detectorPage.goto(httpUrl(HOSTS.darkList, port, '/dark'), {waitUntil: 'load'});
+    await detectorPage.waitForTimeout(1000);
+    const bundledDarkState = await getInkShadeState(detectorPage);
+    await activateTabByUrl(worker, detectorPage.url());
     await popup.reload({waitUntil: 'load'});
     await popup.waitForFunction((host) => document.body?.innerText.includes(host), HOSTS.darkList);
     const bundledDarkDescription = await popup.locator('.site-toggle-group__description').innerText();
@@ -2465,6 +2530,7 @@ async function runInkShadeForkScenario(executablePath, port) {
         {
           manualDisabledDescription,
           runtimeDetectedDescription,
+          runtimeDetectedData,
           bundledDarkDescription,
           bundledDarkState,
         },
@@ -5146,7 +5212,8 @@ async function runStudyNavMobileScenario(executablePath, port) {
 
       // Simulate settings carried over from the desktop package. The mobile
       // runtime must still expose only its conservative feature allowlist.
-      await setStudyNavFlags(worker, { ...DEFAULT_STUDYNAV_FLAGS, imgGet: true });
+      const legacyMobileFlags = { ...DEFAULT_STUDYNAV_FLAGS, imgGet: true };
+      await seedStudyNavMobileLegacyFlags(worker, legacyMobileFlags);
 
       const page = await openPage(
         context,
@@ -5160,6 +5227,41 @@ async function runStudyNavMobileScenario(executablePath, port) {
         document.documentElement.dataset.studynav === '1' &&
         document.querySelectorAll('.studynav-para-tools').length >= 5);
       await installCopyCapture(page);
+      const initialFlagStorageState = await waitForWorkerState(
+        worker,
+        async () => ({
+          local: (await chrome.storage.local.get('flags')).flags,
+          legacySync: (await chrome.storage.sync.get('flags')).flags,
+        }),
+        (state) => state.local?.imgGet === false && state.legacySync?.imgGet === true,
+        'StudyNav Mobile did not migrate 1.6.0 settings into local storage',
+      );
+
+      const readMobileViewportState = () => page.evaluate(() => {
+        const toolbar = document.getElementById('studynav-selection-tools');
+        const toolbarRect = toolbar?.getBoundingClientRect();
+        const ownedOverflowers = Array.from(document.querySelectorAll('[data-studynav-owned]')).map((element) => {
+          const rect = element.getBoundingClientRect();
+          return {
+            selector: element.id ? `#${element.id}` : element.className || element.tagName,
+            left: rect.left,
+            right: rect.right,
+            top: rect.top,
+            bottom: rect.bottom,
+          };
+        }).filter((item) => item.left < -1 || item.right > innerWidth + 1);
+        return {
+          viewport: { width: innerWidth, height: innerHeight },
+          rootFontSize: getComputedStyle(document.documentElement).fontSize,
+          pageOverflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+          toolbarReachable: !!toolbarRect && toolbarRect.left >= 0 && toolbarRect.right <= innerWidth &&
+            toolbarRect.top >= 0 && toolbarRect.bottom <= innerHeight,
+          toolbarButtonHeights: Array.from(toolbar?.querySelectorAll('button') || []).map((button) =>
+            button.getBoundingClientRect().height),
+          toolbarHorizontalOverflow: !!toolbar && toolbar.scrollWidth > toolbar.clientWidth,
+          ownedOverflowers,
+        };
+      });
 
       const initialState = await getStudyNavState(page);
       const mobilePageState = await page.evaluate(() => ({
@@ -5346,6 +5448,18 @@ async function runStudyNavMobileScenario(executablePath, port) {
           parseFloat(getComputedStyle(input).fontSize)),
       }));
       await captureScreenshot(popup, 'mobile-popup.png', { fullPage: true });
+      await popup.setViewportSize({ width: 768, height: 1024 });
+      const tabletPopupState = await popup.evaluate(() => {
+        const grid = document.querySelector('.action-grid');
+        return {
+          bodyWidth: document.body.getBoundingClientRect().width,
+          overflows: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+          gridHeight: grid?.getBoundingClientRect().height || 0,
+          actionHeights: Array.from(document.querySelectorAll('.action-grid button')).map((button) =>
+            button.getBoundingClientRect().height),
+        };
+      });
+      await popup.setViewportSize({ width: 390, height: 844 });
 
       await selectFixtureText(page, '#p2', 'A precise link');
       await page.evaluate(() => {
@@ -5379,7 +5493,7 @@ async function runStudyNavMobileScenario(executablePath, port) {
       await popup.evaluate(() => document.querySelector('[data-id="copyText"]').click());
       await waitForWorkerState(
         worker,
-        async () => (await chrome.storage.sync.get('flags')).flags,
+        async () => (await chrome.storage.local.get('flags')).flags,
         (flags) => flags?.copyText === false,
         'StudyNav Mobile did not disable selection copy',
       );
@@ -5390,7 +5504,7 @@ async function runStudyNavMobileScenario(executablePath, port) {
       await popup.evaluate(() => document.querySelector('[data-id="copyText"]').click());
       await waitForWorkerState(
         worker,
-        async () => (await chrome.storage.sync.get('flags')).flags,
+        async () => (await chrome.storage.local.get('flags')).flags,
         (flags) => flags?.copyText === true,
         'StudyNav Mobile did not restore selection copy',
       );
@@ -5402,7 +5516,7 @@ async function runStudyNavMobileScenario(executablePath, port) {
       });
       const sanitizedFlags = await waitForWorkerState(
         worker,
-        async () => (await chrome.storage.sync.get('flags')).flags,
+        async () => (await chrome.storage.local.get('flags')).flags,
         (flags) => flags?.annotations === true && flags?.verseAudio === false &&
           flags?.mediaClip === false && flags?.imgGet === false && flags?.actionBar === false,
         'StudyNav Mobile did not sanitize desktop-only stored flags after a setting change',
@@ -5424,6 +5538,208 @@ async function runStudyNavMobileScenario(executablePath, port) {
           articleInViewport: !!articleRect && articleRect.left >= 0 && articleRect.right <= innerWidth,
         };
       });
+
+      await page.setViewportSize({ width: 844, height: 390 });
+      await page.evaluate(() => document.querySelector('#p1')?.scrollIntoView({ block: 'center' }));
+      await selectFixtureText(page, '#p1', 'A useful');
+      const phoneLandscapeState = await readMobileViewportState();
+
+      await page.setViewportSize({ width: 1_024, height: 768 });
+      await page.evaluate(() => document.querySelector('#p1')?.scrollIntoView({ block: 'center' }));
+      await selectFixtureText(page, '#p1', 'A useful');
+      const tabletLandscapeState = await readMobileViewportState();
+
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.evaluate(() => document.querySelector('#p1')?.scrollIntoView({ block: 'center' }));
+      await selectFixtureText(page, '#p1', 'A useful');
+      await page.emulateMedia({ colorScheme: 'dark' });
+      const darkAppearanceState = await page.evaluate(() => ({
+        prefersDark: window.matchMedia('(prefers-color-scheme: dark)').matches,
+        toolbarBackground: getComputedStyle(document.getElementById('studynav-selection-tools')).backgroundColor,
+      }));
+      await page.emulateMedia({ colorScheme: 'light' });
+      const lightAppearanceState = await page.evaluate(() => ({
+        prefersLight: window.matchMedia('(prefers-color-scheme: light)').matches,
+        toolbarBackground: getComputedStyle(document.getElementById('studynav-selection-tools')).backgroundColor,
+      }));
+
+      await page.setViewportSize({ width: 320, height: 844 });
+      await page.evaluate(() => {
+        document.documentElement.style.fontSize = '20px';
+        document.querySelector('#p1')?.scrollIntoView({ block: 'center' });
+      });
+      await selectFixtureText(page, '#p1', 'A useful');
+      const largeTextState = await readMobileViewportState();
+      await page.evaluate(() => { document.documentElement.style.fontSize = ''; });
+
+      await page.setViewportSize({ width: 390, height: 360 });
+      await page.evaluate(() => document.querySelector('#p2')?.scrollIntoView({ block: 'center' }));
+      await selectFixtureText(page, '#p2', 'A precise link');
+      await page.locator('#studynav-selection-tools button').filter({ hasText: /^Add note$/ }).click();
+      await page.waitForSelector('#studynav-note-editor');
+      const compactEditorState = await page.evaluate(() => {
+        const editor = document.getElementById('studynav-note-editor');
+        const scroller = editor?.closest('.studynav-note-rail-list');
+        const close = editor?.querySelector('.studynav-panel-head button');
+        const save = Array.from(editor?.querySelectorAll('button') || [])
+          .find((button) => button.textContent?.trim() === 'Save locally');
+        const rectInViewport = (button) => {
+          const rect = button?.getBoundingClientRect();
+          return !!rect && rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom <= innerHeight;
+        };
+        if (!editor || !scroller || !close || !save) return null;
+        scroller.scrollTop = 0;
+        close.scrollIntoView({ block: 'nearest' });
+        const closeReachable = rectInViewport(close);
+        scroller.scrollTop = scroller.scrollHeight;
+        save.scrollIntoView({ block: 'nearest' });
+        const saveReachable = rectInViewport(save);
+        return {
+          scrollable: scroller.scrollHeight > scroller.clientHeight,
+          closeReachable,
+          saveReachable,
+          editorHeight: editor.getBoundingClientRect().height,
+          viewportHeight: innerHeight,
+          actionHeights: [close, save].map((button) => button.getBoundingClientRect().height),
+        };
+      });
+      await page.locator('#studynav-note-editor .studynav-panel-head button').click();
+      await page.waitForFunction(() => !document.getElementById('studynav-note-editor'));
+
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.emulateMedia({ colorScheme: 'light' });
+      await page.reload({ waitUntil: 'load' });
+      await page.waitForFunction(() =>
+        document.documentElement.dataset.studynav === '1' &&
+        document.querySelectorAll('.studynav-para-tools').length >= 5);
+      const pageReloadData = await waitForWorkerState(
+        worker,
+        async () => (await chrome.storage.local.get('studynavStudyDataV2')).studynavStudyDataV2,
+        (data) => data?.annotations?.some((item) =>
+          item.note === 'Review this thought on the phone.' && item.tags?.includes('phone')) &&
+          data?.bookmarks?.some((item) => item.targetUrl === `${STUDYNAV_FIXTURE_CANONICAL}#p2`),
+        'StudyNav Mobile did not retain local study data after a page reload',
+      );
+      const pageReloadFlags = await worker.evaluate(async () =>
+        (await chrome.storage.local.get('flags')).flags);
+      const pageReloadState = await page.evaluate(() => {
+        const rail = document.getElementById('studynav-note-rail');
+        return {
+          dataset: document.documentElement.dataset.studynav,
+          noteRailCount: document.querySelectorAll('#studynav-note-rail').length,
+          noteTextVisible: rail?.textContent?.includes('Review this thought on the phone.') || false,
+          paraToolCount: document.querySelectorAll('.studynav-para-tools').length,
+          overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+        };
+      });
+
+      await activateTabByUrl(worker, page.url());
+      await context.setOffline(true);
+      // Remove the fixture fulfillers for the transport probe so this check
+      // exercises Chromium's offline boundary instead of a synthetic response.
+      await context.unroute(`https://${HOSTS.jw}/**`);
+      await context.unroute(`https://${HOSTS.wol}/**`);
+      const offlineTransportState = await page.evaluate(async (probeUrl) => {
+        try {
+          await fetch(probeUrl, { cache: 'no-store' });
+          return { blocked: false };
+        } catch (error) {
+          return { blocked: true, error: String(error?.message || error) };
+        }
+      }, `https://${HOSTS.jw}/en/library/test?studynav-offline-probe=1`);
+      await popup.reload({ waitUntil: 'load' });
+      await popup.waitForFunction(() =>
+        document.querySelectorAll('.row').length === 9 &&
+        document.getElementById('status-title')?.textContent === 'Ready on this Bible chapter');
+      const offlinePopupState = await popup.evaluate(async () => ({
+        online: navigator.onLine,
+        rows: document.querySelectorAll('.row').length,
+        overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+        localData: (await chrome.storage.local.get('studynavStudyDataV2')).studynavStudyDataV2,
+      }));
+      const offlinePanelResponse = await sendStudyNavPageAction(worker, page.url(), 'OPEN_STUDY_PANEL');
+      await page.waitForSelector('#studynav-study-panel');
+      const offlineNotesState = await page.evaluate(() => ({
+        noteVisible: document.getElementById('studynav-study-panel')?.textContent?.includes('Review this thought on the phone.') || false,
+        bookmarksTab: !!document.querySelector('#studynav-study-panel [data-view="bookmarks"]'),
+      }));
+      await page.locator('#studynav-study-panel [data-view="bookmarks"]').click();
+      await page.waitForSelector('#studynav-study-panel .studynav-bookmark-card');
+      const offlineBookmarksState = await page.evaluate((targetUrl) => ({
+        bookmarkVisible: document.getElementById('studynav-study-panel')?.textContent?.includes('Sample Reading 1:1–3') || false,
+        targetVisible: document.getElementById('studynav-study-panel')?.textContent?.includes(targetUrl) || false,
+      }), `${STUDYNAV_FIXTURE_CANONICAL}#p2`);
+      await page.locator('#studynav-study-panel button').filter({ hasText: /^Close$/ }).click();
+      await context.setOffline(false);
+      await routeStudyNavFixtures(context);
+      const onlineRestored = await page.evaluate(() => navigator.onLine);
+      const onlineProbe = await page.evaluate(async (probeUrl) => {
+        try {
+          const response = await fetch(probeUrl, { cache: 'no-store' });
+          return response.ok;
+        } catch {
+          return false;
+        }
+      }, `https://${HOSTS.jw}/en/library/test?studynav-online-probe=1`);
+
+      const longRecordState = await worker.evaluate(async () => {
+        const key = 'studynavStudyDataV2';
+        const stored = (await chrome.storage.local.get(key))[key];
+        const base = stored?.annotations || [];
+        const extras = Array.from({ length: 32 }, (_, index) => ({
+          id: `mobile-stress-${index}`,
+          pageUrl: 'https://www.jw.org/en/library/bible/demo-edition/books/sample/1/',
+          title: `Stress note ${index}`,
+          root: { id: 'p1' },
+          selector: {
+            exact: 'A useful',
+            prefix: '',
+            suffix: ' thought is easier to revisit',
+            start: 0,
+            end: 8,
+          },
+          color: ['yellow', 'green', 'blue', 'pink', 'purple', 'orange'][index % 6],
+          note: `Bounded stress note ${index}`,
+          tags: ['stress'],
+          createdAt: 10_000 + index,
+          updatedAt: 10_000 + index,
+        }));
+        const next = { ...stored, annotations: [...base, ...extras] };
+        await chrome.storage.local.set({ [key]: next });
+        return { annotationCount: next.annotations.length, extraCount: extras.length };
+      });
+      await page.waitForFunction((expectedCount) =>
+        document.querySelectorAll('#studynav-note-rail .studynav-note-rail-item').length === expectedCount,
+      longRecordState.annotationCount);
+      const longPageState = await readMobileViewportState();
+      const stressUiState = await page.evaluate(() => ({
+        noteRailCount: document.querySelectorAll('#studynav-note-rail').length,
+        noteCardCount: document.querySelectorAll('#studynav-note-rail .studynav-note-rail-item').length,
+        uniqueCardIds: new Set(Array.from(document.querySelectorAll('#studynav-note-rail .studynav-note-rail-item'))
+          .map((card) => card.dataset.annotationId)).size,
+        p1ToolbarCount: document.querySelectorAll('#p1 > .studynav-para-tools').length,
+        p2ToolbarCount: document.querySelectorAll('#p2 > .studynav-para-tools').length,
+      }));
+      await setStudyNavMobileFlags(worker, { ...sanitizedFlags, masterEnabled: false });
+      await page.waitForFunction(() =>
+        document.documentElement.dataset.studynav === 'off' &&
+        document.querySelectorAll('[data-studynav-owned]').length === 0);
+      const stressTeardownState = await page.evaluate(() => ({
+        dataset: document.documentElement.dataset.studynav,
+        ownedCount: document.querySelectorAll('[data-studynav-owned]').length,
+      }));
+      await setStudyNavMobileFlags(worker, { ...sanitizedFlags, masterEnabled: true });
+      await page.waitForFunction((expectedCount) =>
+        document.documentElement.dataset.studynav === '1' &&
+        document.querySelectorAll('#studynav-note-rail .studynav-note-rail-item').length === expectedCount,
+      longRecordState.annotationCount);
+      const stressReapplyState = await page.evaluate(() => ({
+        dataset: document.documentElement.dataset.studynav,
+        noteRailCount: document.querySelectorAll('#studynav-note-rail').length,
+        noteCardCount: document.querySelectorAll('#studynav-note-rail .studynav-note-rail-item').length,
+        p1ToolbarCount: document.querySelectorAll('#p1 > .studynav-para-tools').length,
+        p2ToolbarCount: document.querySelectorAll('#p2 > .studynav-para-tools').length,
+      }));
 
       const wolPage = await openPage(
         context,
@@ -5478,7 +5794,16 @@ async function runStudyNavMobileScenario(executablePath, port) {
             !mobilePageState.dynamicCss.includes('.video-js') &&
             mobilePageState.paragraphHoverToolsHidden === true && mobilePageState.overflow === false &&
             json(activeMobileFlags) === json(expectedMobileFlags),
-          { initialState, mobilePageState, activeMobileFlags },
+          { initialState, mobilePageState, activeMobileFlags, initialFlagStorageState },
+        ),
+        makeAssertion(
+          'StudyNav Mobile migrates 1.6.0 settings additively and writes the normalized copy locally',
+          initialFlagStorageState.local?.imgGet === false &&
+            initialFlagStorageState.local?.verseAudio === false &&
+            initialFlagStorageState.local?.annotations === legacyMobileFlags.annotations &&
+            initialFlagStorageState.legacySync?.imgGet === true &&
+            initialFlagStorageState.legacySync?.verseAudio === legacyMobileFlags.verseAudio,
+          { legacyMobileFlags, initialFlagStorageState },
         ),
         makeAssertion(
           'StudyNav Mobile selection toolbar fits the phone and copies text plus precise links',
@@ -5521,10 +5846,13 @@ async function runStudyNavMobileScenario(executablePath, port) {
             popupState.enabledCount === '9 on' && popupState.overflows === false &&
             popupState.mediaGuideVisible === false && popupState.desktopFooterVisible === false &&
             popupState.imageSearchPresent === false &&
-            popupState.actionHeights.every((height) => height >= 48) &&
+            popupState.actionHeights.every((height) => height >= 48 && height <= 96) &&
             popupState.switchHeights.every((height) => height >= 44) &&
-            popupState.inputFontSizes.every((size) => size >= 16),
-          popupState,
+            popupState.inputFontSizes.every((size) => size >= 16) &&
+            tabletPopupState.bodyWidth <= 480 && tabletPopupState.overflows === false &&
+            tabletPopupState.gridHeight <= 240 &&
+            tabletPopupState.actionHeights.every((height) => height >= 48 && height <= 96),
+          { popupState, tabletPopupState },
         ),
         makeAssertion(
           'StudyNav Mobile opens only the page-derived official Finder target',
@@ -5545,6 +5873,74 @@ async function runStudyNavMobileScenario(executablePath, port) {
             tabletState.toolbarButtonHeights.every((height) => height >= 44) &&
             tabletState.articleInViewport === true,
           tabletState,
+        ),
+        makeAssertion(
+          'StudyNav Mobile keeps the selection toolbar reachable in phone and tablet landscape',
+          phoneLandscapeState.viewport.width === 844 && phoneLandscapeState.viewport.height === 390 &&
+            phoneLandscapeState.pageOverflow === false && phoneLandscapeState.toolbarReachable === true &&
+            phoneLandscapeState.ownedOverflowers.length === 0 &&
+            tabletLandscapeState.viewport.width === 1_024 && tabletLandscapeState.viewport.height === 768 &&
+            tabletLandscapeState.pageOverflow === false && tabletLandscapeState.toolbarReachable === true &&
+            tabletLandscapeState.ownedOverflowers.length === 0 &&
+            phoneLandscapeState.toolbarButtonHeights.every((height) => height >= 44) &&
+            tabletLandscapeState.toolbarButtonHeights.every((height) => height >= 44),
+          { phoneLandscapeState, tabletLandscapeState },
+        ),
+        makeAssertion(
+          'StudyNav Mobile survives light/dark appearance and a large-text narrow viewport',
+          darkAppearanceState.prefersDark === true && darkAppearanceState.toolbarBackground &&
+            lightAppearanceState.prefersLight === true && lightAppearanceState.toolbarBackground &&
+            largeTextState.viewport.width === 320 && largeTextState.rootFontSize === '20px' &&
+            largeTextState.pageOverflow === false && largeTextState.toolbarReachable === true &&
+            largeTextState.ownedOverflowers.length === 0,
+          { darkAppearanceState, lightAppearanceState, largeTextState },
+        ),
+        makeAssertion(
+          'StudyNav Mobile keeps note-editor Close and Save reachable in a compact keyboard-like viewport',
+          compactEditorState?.scrollable === true && compactEditorState.closeReachable === true &&
+            compactEditorState.saveReachable === true && compactEditorState.viewportHeight === 360 &&
+            compactEditorState.actionHeights.every((height) => height >= 44),
+          compactEditorState,
+        ),
+        makeAssertion(
+          'StudyNav Mobile retains notes, tags, bookmarks, and settings after a page reload',
+          pageReloadData.annotations.some((item) =>
+            item.note === 'Review this thought on the phone.' && item.tags?.includes('phone')) &&
+            pageReloadData.bookmarks.some((item) => item.targetUrl === `${STUDYNAV_FIXTURE_CANONICAL}#p2`) &&
+            pageReloadFlags?.copyText === true && pageReloadFlags?.annotations === true &&
+            pageReloadFlags?.verseAudio === false && pageReloadFlags?.imgGet === false &&
+            pageReloadState.dataset === '1' && pageReloadState.noteRailCount === 1 &&
+            pageReloadState.noteTextVisible === true && pageReloadState.paraToolCount >= 5 &&
+            pageReloadState.overflow === false,
+          { pageReloadData, pageReloadFlags, pageReloadState },
+        ),
+        makeAssertion(
+          'StudyNav Mobile exposes saved local notes and places while offline and restores connectivity',
+          offlineTransportState.blocked === true && offlinePopupState.rows === 9 &&
+            offlinePopupState.overflow === false &&
+            offlinePopupState.localData?.annotations?.some((item) => item.tags?.includes('phone')) &&
+            offlinePopupState.localData?.bookmarks?.some((item) => item.targetUrl === `${STUDYNAV_FIXTURE_CANONICAL}#p2`) &&
+            offlinePanelResponse?.ok === true && offlineNotesState.noteVisible === true &&
+            offlineNotesState.bookmarksTab === true && offlineBookmarksState.bookmarkVisible === true &&
+            offlineBookmarksState.targetVisible === true && onlineRestored === true && onlineProbe === true,
+          { offlineTransportState, offlinePopupState, offlinePanelResponse, offlineNotesState, offlineBookmarksState, onlineRestored, onlineProbe },
+        ),
+        makeAssertion(
+          'StudyNav Mobile re-renders a bounded long-page record set without duplicate owned UI',
+          longRecordState.extraCount === 32 && stressUiState.noteRailCount === 1 &&
+            stressUiState.noteCardCount === longRecordState.annotationCount &&
+            stressUiState.uniqueCardIds === stressUiState.noteCardCount &&
+            stressUiState.p1ToolbarCount === 1 && stressUiState.p2ToolbarCount === 1 &&
+            longPageState.ownedOverflowers.length === 0,
+          { longRecordState, stressUiState, longPageState },
+        ),
+        makeAssertion(
+          'StudyNav Mobile tears down and reapplies long-page UI without stale duplicates',
+          stressTeardownState.dataset === 'off' && stressTeardownState.ownedCount === 0 &&
+            stressReapplyState.dataset === '1' && stressReapplyState.noteRailCount === 1 &&
+            stressReapplyState.noteCardCount === longRecordState.annotationCount &&
+            stressReapplyState.p1ToolbarCount === 1 && stressReapplyState.p2ToolbarCount === 1,
+          { stressTeardownState, stressReapplyState },
         ),
         makeAssertion(
           'StudyNav Mobile keeps WOL notes available without adding audio controls or overflow',

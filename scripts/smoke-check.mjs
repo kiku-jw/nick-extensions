@@ -375,10 +375,13 @@ console.log('\n== studynav Mobile ==');
       !JSON.stringify(manifest).includes('jw-cdn.org'),
       `${prefix}: no commands, offscreen document, or media CDN permission`);
     ok(!existsSync(join(dist, 'offscreen.html')) && !existsSync(join(dist, 'offscreen.js')) &&
+      !existsSync(join(dist, 'icons', 'icon-source.svg')) &&
       !readdirSync(dist).some((name) => name.endsWith('.map')),
-      `${prefix}: no offscreen files or source maps`);
+      `${prefix}: no offscreen files, source maps, or source-only icon`);
     ok(!/chrome\.offscreen|chrome\.commands|DOWNLOAD_VERSE_AUDIO|DOWNLOAD_MEDIA_(?:AUDIO|VIDEO)_CLIP|MediaRecorder/.test(runtimeJs),
       `${prefix}: no desktop media, offscreen, or command handlers in runtime`);
+    ok(runtimeJs.includes('chrome.storage.local') && !runtimeJs.includes('chrome.storage.sync.set'),
+      `${prefix}: settings and study data write only to local browser storage`);
     ok(!/mountMediaToolbar|downloadVerseAudio|studynav-media-bar|studynav-clip-panel|studynav-imgdl/.test(contentJs),
       `${prefix}: no media toolbar, verse audio, clipping, or image-download surface`);
     ok(!/mountPalette|studynav-palette-panel/.test(contentJs),

@@ -25,6 +25,7 @@ import { openStudyPanel } from './study-runtime';
 import { continueWatchingStatus } from './media-progress-runtime';
 import { isAllowedStudyNavPageUrl } from './page-origin';
 import { MOBILE_BUILD } from './build-profile';
+import { loadStoredFlags } from './flag-storage';
 
 const BUILD_DEFAULT_FLAGS = MOBILE_BUILD ? MOBILE_DEFAULT_FLAGS : DEFAULT_FLAGS;
 
@@ -39,8 +40,7 @@ async function flags(): Promise<FeatureFlags> {
     if (f && typeof f === 'object') return normalizeBuildFlags(f as Partial<FeatureFlags>);
   } catch { /* fall through */ }
   try {
-    const s = await chrome.storage.sync.get({ flags: BUILD_DEFAULT_FLAGS });
-    return normalizeBuildFlags(s.flags as Partial<FeatureFlags> | undefined);
+    return await loadStoredFlags(normalizeBuildFlags);
   } catch {
     return { ...BUILD_DEFAULT_FLAGS };
   }
@@ -135,7 +135,7 @@ async function boot() {
 if (isAllowedStudyNavPageUrl(location.href)) {
   boot();
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'sync' && changes.flags) boot();
+    if (area === (MOBILE_BUILD ? 'local' : 'sync') && changes.flags) boot();
   });
 }
 

@@ -37,7 +37,9 @@ Both platform packages compile out verse audio, media clipping, player controls,
 
 The popup and injected panels use safe-area padding, 44–48 px touch targets, 16 px mobile inputs, and full-screen note/library layouts. Text selection exposes Copy and Link alongside the six highlight colors and Add note, so article actions do not depend on hover.
 
-Run `bun run package:studynav:firefox-android` for the unsigned AMO upload ZIP. Run `bun run verify:studynav:safari` to sync the committed Xcode project, validate the extension through Apple's packager, and build it for an unsigned iOS Simulator. A signed 1.6.0 developer build was installed on a physical iPhone 15 Pro and confirmed the core selection, note/tag, library, copy/link, range-link, and QR flows. The 1.6.1 Safari fixes still need a repeat device pass. Neither mobile artifact is public: AMO signing/publication, TestFlight/App Store, iPad/Android checks, and publication remain separate owner-gated steps.
+Run `bun run package:studynav:firefox-android` for the unsigned AMO upload ZIP. Run `bun run verify:studynav:safari` to sync the committed Xcode project, validate the extension through Apple's packager, and build it for an unsigned iOS Simulator. A signed 1.6.0 developer build was installed on a physical iPhone 15 Pro and confirmed the core selection, note/tag, library, copy/link, range-link, and QR flows. The 1.6.1 containing app is verified in Safari on iPhone 17 and iPad (A16) simulators, including live Russian-page injection and bounded popup sizing. Neither mobile artifact is public: a repeat physical-device pass, Firefox Android Emulator verification, AMO signing/publication, TestFlight/App Store, and publication remain separate gates.
+
+The local bilingual beta listing, reviewer checklist, exact permission explanation, reproducible source-archive command, and Apple/Mozilla release gates are collected in [`store/mobile/RELEASE-CANDIDATE.md`](store/mobile/RELEASE-CANDIDATE.md).
 
 ## Chrome Web Store desktop package
 
