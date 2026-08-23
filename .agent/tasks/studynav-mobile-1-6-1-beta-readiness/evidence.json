@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-23",
+  "goalThread": "01a00545-ec69-7cd0-91f8-efaeb48f3dbc",
+  "owningIssue": "https://github.com/kiku-jw/nick-extensions/issues/8",
+  "releaseCommit": "a89c9fcf90167bfa2e4827c66f9b4f402f51e349",
+  "overallVerdict": "OWNER_GATE_ANDROID_SDK_LICENSE",
+  "acceptance": {
+    "AC1": "PASS",
+    "AC2": "PASS",
+    "AC3": "PASS_SIMULATOR_AND_PROVIDER_FAITHFUL",
+    "AC4": "OWNER_GATE",
+    "AC5": "PASS",
+    "AC6": "PASS_SHARED_RUNTIME_ANDROID_INSTALL_PENDING_AC4",
+    "AC7": "PASS",
+    "AC8": "PASS_LOCAL_NOT_SUBMITTED",
+    "AC9": "PASS_LOCAL_ANDROID_INSTALL_PENDING_AC4",
+    "AC10": "PARTIAL_PENDING_AC4"
+  },
+  "verification": {
+    "full": {
+      "command": "bun run verify",
+      "status": "PASS",
+      "projectTests": 121,
+      "upstreamTests": 75,
+      "browserScenarios": 13,
+      "browserAssertions": 200,
+      "failures": 0,
+      "skips": 0,
+      "pageErrors": 0,
+      "extensionConsoleErrors": 0
+    },
+    "mobileBrowserAssertions": 20,
+    "safari": {
+      "command": "bun run verify:studynav:safari",
+      "status": "PASS",
+      "iphoneSimulator": {
+        "name": "iPhone 17",
+        "udid": "1C56B0CD-451C-44DD-8356-D32C5A618BB2",
+        "stateAtHandoff": "Shutdown"
+      },
+      "ipadSimulator": {
+        "name": "StudyNav iPad (A16)",
+        "udid": "EB71C16A-A5FC-4731-8817-9E7E58A164C3",
+        "stateAtHandoff": "Shutdown"
+      },
+      "physicalDeviceUsed": false
+    },
+    "firefox": {
+      "package": "PASS",
+      "lint": "PASS_ZERO_FINDINGS",
+      "androidEmulator": "NOT_RUN_OWNER_GATE"
+    }
+  },
+  "artifacts": {
+    "firefoxZip": {
+      "file": "raw/artifacts/studynav-firefox-android-1.6.1.zip",
+      "sha256": "bf1a3cba0eddef56a10f2853258fec8b3c65a7cb1329d91e5beea38951d59f72"
+    },
+    "safariExtensionZip": {
+      "file": "raw/artifacts/studynav-safari-ios-extension-1.6.1.zip",
+      "sha256": "3328db196c18fb8d96f14f363f57042a3322c6ab6408ad29095694fae492adc9"
+    },
+    "sourceZip": {
+      "file": "raw/artifacts/studynav-mobile-1.6.1-source-a89c9fc.zip",
+      "sha256": "4435357734e3ca97545fc32d82cd94e94f935157bf16aaf8f7a42e64565784c4",
+      "exactCommit": true,
+      "byteReproducible": true
+    }
+  },
+  "security": {
+    "allowedOrigins": [
+      "https://jw.org/*",
+      "https://www.jw.org/*",
+      "https://wol.jw.org/*"
+    ],
+    "browserApiPermissions": [
+      "storage"
+    ],
+    "remoteCode": false,
+    "telemetry": false,
+    "thirdPartySearch": false,
+    "mobileSettingsStorage": "local",
+    "legacySettingsMigration": "additive-copy-without-deletion"
+  },
+  "ownerGate": {
+    "action": "Install official Android command-line tools and OpenJDK, then accept the Android SDK License Agreement",
+    "reason": "Required to create the Android Emulator and complete Firefox Android runtime verification",
+    "providerUploadIncluded": false
+  },
+  "unrelatedWorktreeState": {
+    "path": "packages/inkshade/upstream",
+    "preserved": true
+  }
+}
