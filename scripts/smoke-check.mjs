@@ -503,11 +503,14 @@ for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
   );
   ok(/several consecutive verses|несколько стихов подряд/i.test(html), `${relativeHtml}: consecutive verse audio is explained`);
   const mobileBoundaryTokens = relativeHtml.includes('/ru/')
-    ? ['Установить из Chrome Web Store', 'На смартфонах пока недоступно', 'Android или iPhone', 'неподдерживаемое', 'отдельный список расширений']
-    : ['Install from Chrome Web Store', 'Not available on smartphones', 'Android or iPhone', 'unsupported', 'separate list of extensions'];
+    ? ['Установить из Chrome Web Store', 'Мобильная бета-версия готовится', 'Firefox на Android', 'TestFlight', 'Установить его обычным способом пока нельзя']
+    : ['Install from Chrome Web Store', 'Mobile beta is being prepared', 'Firefox on Android', 'TestFlight', 'It is not installable yet'];
   ok(
-    mobileBoundaryTokens.every((token) => html.includes(token)) && html.includes('privacy/'),
-    `${relativeHtml}: states the verified computer-only boundary and links privacy`,
+    mobileBoundaryTokens.every((token) => html.includes(token)) &&
+      html.includes('id="mobile-beta"') &&
+      html.includes('https://github.com/kiku-jw/nick-extensions/issues/10') &&
+      html.includes('privacy/'),
+    `${relativeHtml}: states the verified desktop/mobile-beta boundary and links privacy`,
   );
   ok(
     html.includes('https://chromewebstore.google.com/detail/bjgaghgbmghohpahonodejobgflpcbai') &&
@@ -537,6 +540,13 @@ for (const relativeHtml of ['site/privacy/index.html', 'site/ru/privacy/index.ht
   ok(/Google Custom Search/.test(html) && /KikuAI Lab/.test(html), `${relativeHtml}: third-party action and publisher disclosure`);
   ok(/does not collect|не собирает/i.test(html) && /remote (?:executable )?code|Удалённого исполняемого кода/i.test(html),
     `${relativeHtml}: collection and remote-code boundary`);
+  ok(
+    /Firefox (?:on|на) Android|Firefox на Android/i.test(html) &&
+      /Safari (?:on|на) iPhone\/iPad|Safari на iPhone\/iPad/i.test(html) &&
+      /Mobile settings and study records use local storage only|Настройки и данные мобильной версии хранятся только локально/i.test(html) &&
+      /mobile packages do not include|мобильных пакетах нет/i.test(html),
+    `${relativeHtml}: distinguishes mobile scope, local-only storage, and omitted desktop network actions`,
+  );
   const localRefs = [...html.matchAll(/(?:src|href)="([^"#]+)"/g)]
     .map((match) => match[1])
     .filter((value) => !/^(?:https?:|mailto:|data:)/.test(value));

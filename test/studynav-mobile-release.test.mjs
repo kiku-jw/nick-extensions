@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const ROOT = resolve(import.meta.dir, '..');
@@ -21,7 +21,7 @@ async function pngSize(path) {
   };
 }
 
-describe('StudyNav Mobile 1.6.1 local release packet', () => {
+describe('StudyNav Mobile 1.6.1 provider-ready beta packet', () => {
   test('keeps the release packet aligned with the exact mobile boundary', async () => {
     const packet = await text('packages/studynav/store/mobile/RELEASE-CANDIDATE.md');
     const compactPacket = packet.replace(/\s+/g, ' ');
@@ -38,10 +38,15 @@ describe('StudyNav Mobile 1.6.1 local release packet', () => {
     expect(packet).toContain('PrivacyInfo.xcprivacy');
     expect(packet).toContain('Support: <https://github.com/kiku-jw/nick-extensions/issues>');
     expect(packet).toContain('Privacy: <https://kiku-jw.github.io/nick-extensions/privacy/>');
-    expect(packet).toContain('AMO signing, upload, review, and public distribution are separate gates.');
-    expect(packet).toContain('screenshots/evidence/safari-iphone-popup-ru.png');
-    expect(packet).toContain('screenshots/evidence/safari-ipad-popup-ru.png');
-    expect(packet).toContain('requires installation of the official Android SDK');
+    expect(packet).toContain('Mozilla-signed unlisted beta');
+    expect(packet).toContain('TestFlight beta');
+    expect(packet).toContain('Firefox 142');
+    expect(packet).toContain('Android 16/API 36 Emulator');
+    expect(packet).toContain('--output=packages/studynav/studynav-mobile-1.6.1-source.zip');
+    expect(packet).toContain('shasum -a 256');
+    expect(packet).not.toContain('screenshots/evidence/safari-iphone-popup-ru.png');
+    expect(packet).not.toContain('screenshots/evidence/safari-ipad-popup-ru.png');
+    expect(packet).not.toContain('requires installation of the official Android SDK');
   });
 
   test('ships an Apple privacy manifest wired into the containing app', async () => {
@@ -66,16 +71,31 @@ describe('StudyNav Mobile 1.6.1 local release packet', () => {
     expect(firefox.browser_specific_settings.gecko.data_collection_permissions.required).toEqual(['none']);
   });
 
-  test('keeps the mobile screenshot evidence present at its verified dimensions', async () => {
+  test('keeps only public-safe mobile screenshots at their verified dimensions', async () => {
     const screenshots = new Map([
       ['packages/studynav/store/mobile/screenshots/en/iphone-onboarding.png', { width: 1206, height: 2622 }],
       ['packages/studynav/store/mobile/screenshots/en/ipad-onboarding.png', { width: 1640, height: 2360 }],
       ['packages/studynav/store/mobile/screenshots/ru/iphone-onboarding.png', { width: 1206, height: 2622 }],
-      ['packages/studynav/store/mobile/screenshots/evidence/safari-iphone-popup-ru.png', { width: 1206, height: 2622 }],
-      ['packages/studynav/store/mobile/screenshots/evidence/safari-ipad-popup-ru.png', { width: 1640, height: 2360 }],
+      ['packages/studynav/store/mobile/screenshots/evidence/selection-tools.png', { width: 780, height: 1688 }],
+      ['packages/studynav/store/mobile/screenshots/evidence/note-editor.png', { width: 780, height: 1688 }],
+      ['packages/studynav/store/mobile/screenshots/evidence/popup.png', { width: 780, height: 3034 }],
     ]);
     for (const [path, dimensions] of screenshots) {
       expect(await pngSize(path)).toEqual(dimensions);
     }
+
+    const inventory = [
+      ...(await readdir(resolve(ROOT, 'packages/studynav/store/mobile/screenshots/en'))).map((name) => `en/${name}`),
+      ...(await readdir(resolve(ROOT, 'packages/studynav/store/mobile/screenshots/ru'))).map((name) => `ru/${name}`),
+      ...(await readdir(resolve(ROOT, 'packages/studynav/store/mobile/screenshots/evidence'))).map((name) => `evidence/${name}`),
+    ].sort();
+    expect(inventory).toEqual([
+      'en/ipad-onboarding.png',
+      'en/iphone-onboarding.png',
+      'evidence/note-editor.png',
+      'evidence/popup.png',
+      'evidence/selection-tools.png',
+      'ru/iphone-onboarding.png',
+    ]);
   });
 });

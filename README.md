@@ -1,6 +1,6 @@
 # Local-first browser extensions
 
-Три расширения для Chrome, Edge, Brave и других Chromium-браузеров на компьютере. StudyNav 1.6.0 одобрен и доступен в Chrome Web Store. Общий мобильный код собирается для Safari на iPhone/iPad и Firefox на Android, но эти пакеты ещё не опубликованы. Первая установка и проверка основных сценариев на физическом iPhone 15 Pro выполнена; исправленная сборка ждёт повторного прогона, а iPad и Android ещё не проверены. Код и сборка остаются под контролем владельца: без телеметрии и remote code. InkShade использует явно закреплённый MIT-лицензированный upstream source fork с отдельным брендом и квитанцией происхождения.
+Три расширения для Chrome, Edge, Brave и других Chromium-браузеров на компьютере. StudyNav 1.6.0 одобрен и доступен в Chrome Web Store. Общий мобильный код 1.6.1 собирается для Safari на iPhone/iPad и Firefox на Android: Safari-пакет прошёл проверку на симуляторах iPhone/iPad, а Firefox-пакет — полный прогон на Android 16 Emulator. Для обычной установки мобильные пакеты пока недоступны: Android требует подписи Mozilla, а iPhone/iPad — TestFlight. Код и сборка остаются под контролем владельца: без телеметрии и remote code. InkShade использует явно закреплённый MIT-лицензированный upstream source fork с отдельным брендом и квитанцией происхождения.
 
 ## Philosophy
 
@@ -15,7 +15,7 @@
 | `packages/clearshield` / ClearShield | **Ad & Tracker Blocker (ClearShield)** | DNR blocker: локальные списки, per-site allowlist, косметическая фильтрация, счётчик блокировок |
 | `packages/inkshade` / InkShade | **InkShade – Dark Mode for Every Site** | Store-oriented local-first fork of the Dark Reader v4.9.129 MV3 engine and bundled site fixes; distinct branding, no news/telemetry/premium/remote config |
 | `packages/studynav` / StudyNav | **StudyNav — Unofficial Study Tools** | Локальные подсветки/заметки/теги и сохранённые места, цитаты и QR, continue-watching, выбор одного или нескольких стихов подряд → один локальный WAV, copy/link и reading/media helpers |
-| `packages/studynav` / StudyNav Mobile | **StudyNav Mobile — Unofficial Study Tools** | Общий облегчённый профиль для Safari на iPhone/iPad и Firefox на Android; первый физический iPhone-прогон выполнен, повторный прогон исправлений, iPad/Android и публикация ещё впереди |
+| `packages/studynav` / StudyNav Mobile | **StudyNav Mobile — Unofficial Study Tools** | Общий облегчённый профиль 1.6.1 для Safari на iPhone/iPad и Firefox на Android; симуляторы iPhone/iPad и Firefox 142 на Android 16 Emulator пройдены, подпись и ссылки TestFlight/AMO ещё впереди |
 
 StudyNav — **неофициальный** helper, не связан с JW.org / Watch Tower / JW PubMedia One / JW Web Add-on.
 
@@ -64,7 +64,7 @@ Safari‑приложение и расширение находятся в `pac
 bun run verify:studynav:safari
 ```
 
-Для обычной пользовательской установки на iPhone/iPad всё ещё нужны TestFlight или App Store. Подписанная developer-сборка уже устанавливалась и запускалась на физическом iPhone 15 Pro; текущие исправления требуют повторной проверки на устройстве.
+Для обычной пользовательской установки на iPhone/iPad всё ещё нужны TestFlight или App Store. Более ранняя подписанная developer-сборка устанавливалась на физический iPhone 15 Pro, но текущая 1.6.1 пока проверена только на симуляторах и требует повторного прогона на устройстве через подписанный канал.
 
 Проверенный ZIP настольной версии для Chrome Web Store:
 
@@ -90,7 +90,7 @@ bun run package:studynav:chrome
 5. On articles, hover or keyboard-focus supported text for Copy and Link. Image downloads are off by default; enable **Download article images** to add a labeled button only to full article images, not compact publication previews. The popup can also open the dedicated Google image search for JW.org. On media pages, copy the page and current time, save up to five minutes of audio as WAV or three minutes of video as WebM, move playback to a separate window at the same point, use reliable Space play/pause, remove hover shading, and resume from locally saved progress. **Transcript** remains visible for video and explains when captions are unavailable.
 6. Layout-changing helpers are off by default. Updating from StudyNav 1.2.3 resets those three old defaults once; later explicit choices are preserved. The sticky-header option changes JW.org articles; WOL already pins its own header. Wider text and clearer tables work on JW.org and WOL articles with narrow selectors.
 
-## StudyNav Mobile in development
+## StudyNav Mobile beta preparation
 
 Одна облегчённая версия собирается в два платформенных пакета: Manifest V3 внутри Safari‑приложения для iPhone/iPad и рекомендованный Mozilla Manifest V2 для Firefox на Android. Старый Edge Android пакет остаётся только архивным воспроизводимым target: обычная карточка Edge Add-ons не дала пользователям рабочей мобильной установки.
 
@@ -107,7 +107,9 @@ bun run package:studynav:chrome
 
 В мобильные пакеты намеренно не входят аудио стихов, обрезка аудио/видео, функции плеера, транскрипт, отдельное окно, скачивание изображений, клавиатурный поиск и изменения ширины/шапки/таблиц. Они используют только хранилище браузера и доступ к `jw.org`, `www.jw.org` и `wol.jw.org`; медиадомен и offscreen‑документ отсутствуют.
 
-Автоматические проверки доказывают одинаковый runtime обоих пакетов, touch‑интерфейс, отсутствие настольных функций, Firefox lint без предупреждений, упаковку Apple и сборку для iOS Simulator. На физическом iPhone 15 Pro подтверждены установка Safari-расширения, доступ только к JW.org/WOL, выделения, заметка с тегом, библиотека, чистое копирование, одиночная и диапазонная ссылки и QR. Во время этого прогона были найдены Safari-сбои цитаты, сохранённого места, открытия ссылки, подстановки перевода и мигающей панели; исправления проходят автоматическую проверку, но их повторный физический прогон ещё ожидается. iPad, Android и публикация мобильных пакетов также остаются отдельными воротами, поэтому мобильная версия пока не предлагается обычным пользователям.
+Автоматические проверки доказывают одинаковый runtime обоих пакетов, touch‑интерфейс, отсутствие настольных функций, Firefox lint без предупреждений, упаковку Apple и сборку для iOS Simulator. Safari 1.6.1 прошёл проверки на симуляторах iPhone и iPad. Firefox 142 на Android 16 Emulator прошёл все девять функций, поворот экрана, крупный текст, работу офлайн с сохранёнными данными, перезапуск и реальное обновление 1.6.0 → 1.6.1 без потери заметки, тегов и сохранённого места.
+
+Это локальная готовность бета-сборки, а не доступность для пользователей. Для Android выбран подписанный Mozilla Add-ons пакет Firefox; для iPhone/iPad — TestFlight. На странице руководства появятся кнопки установки только после того, как соответствующая ссылка магазина будет опубликована и проверена. Текущая 1.6.1 ещё не прошла повторный прогон на физическом iPhone, не подписана для распространения и не загружалась в Mozilla или Apple.
 
 ## Updates policy
 

@@ -30,7 +30,7 @@ Clear, calm, trustworthy. The extension should feel like a restrained browser ut
 3. Keep advanced controls available through progressive disclosure.
 4. Process user-requested media locally and fetch only official public media sources.
 5. Make every injected surface removable, keyboard-accessible, and scoped to supported pages.
-6. Keep one deliberately smaller mobile feature set across Safari and Firefox. Treat it as unavailable until installation and the promised workflows pass on physical devices; package builds and Store publication are not enough.
+6. Keep one deliberately smaller mobile feature set across Safari and Firefox. Treat it as unavailable to ordinary users until a signed provider link is live and verified. A clearly labeled TestFlight or signed Firefox beta may supply physical-device evidence; general release still requires the promised workflows to pass on real devices.
 
 ## Accessibility & Inclusion
 

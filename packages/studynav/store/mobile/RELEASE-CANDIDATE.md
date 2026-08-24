@@ -1,9 +1,10 @@
-# StudyNav Mobile 1.6.1 — local release packet
+# StudyNav Mobile 1.6.1 — provider-ready beta packet
 
-This is the review packet for the Safari iPhone/iPad and Firefox Android
-closed-beta candidates. It is a local source artifact, not a Store submission.
-The mobile packages are not described as publicly available until a physical
-device pass and the owner-controlled provider steps are complete.
+This is the review packet for the Safari iPhone/iPad and Firefox Android beta
+candidates. It is a source artifact, not a Store submission or an install
+link. The mobile packages are not described as installable until their signed
+provider links are live and verified. General availability additionally
+requires the promised workflows to pass on physical devices.
 
 ## Product boundary
 
@@ -24,6 +25,11 @@ image search, keyboard palette, sticky header, wider column, or table styling;
 their reachable handlers and UI are removed at build time. They use only the
 browser `storage` API. There is no account, telemetry, analytics, remote note
 sync, or remotely executed code.
+
+The packages and public release artwork do not bundle JW publications, page
+text, images, media, logos, or live-page screenshots. JW.org and WOL are named
+only to explain which user-opened public pages are compatible. StudyNav does
+not claim official affiliation.
 
 ## Build and local checks
 
@@ -48,16 +54,24 @@ For an AMO source archive, create it from the exact release commit so source
 and generated output can be reproduced. Do not include private runtime state:
 
 ```bash
-git archive --format=zip --prefix=studynav-mobile-1.6.1-source/ \
+git archive --format=zip \
+  --output=packages/studynav/studynav-mobile-1.6.1-source.zip \
+  --prefix=studynav-mobile-1.6.1-source/ \
   HEAD -- \
   packages/studynav \
   scripts/build-extension.mjs scripts/sync-studynav-safari.mjs \
   scripts/verify-studynav-safari.mjs scripts/smoke-check.mjs \
   package.json bun.lock
+
+shasum -a 256 \
+  packages/studynav/studynav-firefox-android.zip \
+  packages/studynav/studynav-mobile-1.6.1-source.zip
 ```
 
-The archive is source for review only. Signing, upload, submission, and public
-distribution are separate owner actions.
+The source ZIP is ignored by Git and is for reviewer upload only. The Firefox
+ZIP remains unsigned until Mozilla returns a signed file. Do not give either
+local ZIP to ordinary users as an installation route. Signing, upload,
+submission, and public distribution are separate owner actions.
 
 ## Local verification evidence
 
@@ -68,12 +82,18 @@ Russian popup over a live public Bible chapter. The iPhone popup recognized a
 selected verse. The iPad run exposed and then verified the fix for a Safari
 popover row-stretching regression.
 
+Firefox 142.0 accepted the same 1.6.1 mobile runtime as a temporary add-on on
+Android 16/API 36 Emulator. All nine functions passed on live public JW.org
+and WOL pages, together with portrait/landscape, large text, offline local
+records, restart, feature teardown, and a same-profile 1.6.0 to 1.6.1 update
+that preserved a highlight, note, tags, saved place, and setting.
+
 The provider-faithful browser suite covers the nine included settings at phone
 and tablet widths, portrait and landscape, light and dark appearance, large
 text, a reduced-height keyboard viewport, permission teardown/reapply,
 restart, offline access to saved data, repeated selections, and many local
-records. This is simulator and fixture evidence, not a physical-device or
-Store-review claim.
+records. This is simulator, emulator, and fixture evidence, not a current
+physical-device or Store-review claim.
 
 ### Screenshot inventory
 
@@ -83,16 +103,14 @@ Store-safe onboarding candidates:
 - `screenshots/en/ipad-onboarding.png`
 - `screenshots/ru/iphone-onboarding.png`
 
-Local verification evidence:
+Synthetic StudyNav verification evidence:
 
-- `screenshots/evidence/safari-iphone-popup-ru.png`
-- `screenshots/evidence/safari-ipad-popup-ru.png`
 - `screenshots/evidence/selection-tools.png`
 - `screenshots/evidence/note-editor.png`
 - `screenshots/evidence/popup.png`
 
-The live-page Safari captures and internal browser fixtures are verification
-evidence, not Store artwork.
+Live-page device captures remain only in ignored local QA records. They are not
+tracked, included in this public packet, or offered as Store artwork.
 
 ## English listing copy
 
@@ -177,8 +195,9 @@ WOL page is needed for the included tools.
 
 The local simulator build proves packaging, Safari enablement, live page
 injection, localization, and the bounded mobile workflows on simulated iPhone
-and iPad hardware. A repeat physical-device pass, signing, TestFlight, review,
-and App Store publication remain owner-controlled gates.
+and iPad hardware. The first Apple route is a TestFlight beta. Selecting a
+development team, signing, uploading, external TestFlight review, physical
+device testing, and App Store publication remain owner-controlled gates.
 
 ## Mozilla checklist
 
@@ -189,12 +208,15 @@ and App Store publication remain owner-controlled gates.
 - Submit the generated ZIP together with the reproducible source archive and
   the build commands above. The source archive must not contain private
   profiles, credentials, or generated machine state.
-- AMO signing, upload, review, and public distribution are separate gates.
+- The first Android route is a Mozilla-signed unlisted beta. After signing,
+  verify the returned file and install URL before sharing either one.
+- AMO login, agreement acceptance, signing upload, review, and listed public
+  distribution are separate owner-controlled gates.
 
 ## Known limits before beta release
 
-This packet does not claim a 1.6.1 physical-device pass, Android emulator
-installation proof, provider approval, or public mobile availability. iPhone
-and iPad simulator checks are complete. Android Emulator verification still
-requires installation of the official Android SDK and acceptance of its
-license by the owner; provider uploads and publication remain separate gates.
+This packet does not claim a 1.6.1 physical-device pass, provider approval, or
+public mobile availability. iPhone and iPad simulator checks and Firefox 142
+on Android 16/API 36 Emulator are complete. A real signed-provider install,
+physical-device beta pass, provider review, and public availability remain
+separate gates.
