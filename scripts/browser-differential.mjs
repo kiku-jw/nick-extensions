@@ -5272,6 +5272,30 @@ async function runStudyNavMobileScenario(executablePath, port) {
         ).display === 'none',
       }));
 
+      await page.locator('#v1001001 .jsHighlightOnly').click();
+      await page.locator('#v1001001 > .studynav-para-tools button').filter({ hasText: /^Mark$/ }).click();
+      await page.waitForSelector('#studynav-note-editor');
+      const verseEditorLayerState = await page.evaluate(() => {
+        const toolbar = document.querySelector('#v1001001 > .studynav-para-tools');
+        const rail = document.getElementById('studynav-note-rail');
+        const toolbarRect = toolbar?.getBoundingClientRect();
+        const hit = toolbarRect
+          ? document.elementFromPoint(
+            toolbarRect.left + toolbarRect.width / 2,
+            toolbarRect.top + toolbarRect.height / 2,
+          )
+          : null;
+        return {
+          toolbarZ: Number(getComputedStyle(toolbar).zIndex),
+          railZ: Number(getComputedStyle(rail).zIndex),
+          toolbarCoveredByRail: !!hit?.closest('#studynav-note-rail'),
+          railMode: rail?.dataset.mode || null,
+        };
+      });
+      await page.locator('#studynav-note-editor .studynav-panel-head button').click();
+      await page.waitForFunction(() => !document.getElementById('studynav-note-editor'));
+      await page.locator('#v1001001 .jsHighlightOnly').click();
+
       await selectFixtureText(page, '#p1', 'A useful');
       const selectionToolbarStability = await page.evaluate(async () => {
         const initial = document.getElementById('studynav-selection-tools');
@@ -5543,6 +5567,27 @@ async function runStudyNavMobileScenario(executablePath, port) {
       await page.evaluate(() => document.querySelector('#p1')?.scrollIntoView({ block: 'center' }));
       await selectFixtureText(page, '#p1', 'A useful');
       const phoneLandscapeState = await readMobileViewportState();
+      await page.locator('#v1001003 .jsHighlightOnly').click();
+      await page.waitForFunction(() =>
+        document.querySelector('#v1001003 > .studynav-para-tools')?.getAttribute('data-sn-verse-floating') === '1');
+      const phoneLandscapeVerseToolbarState = await page.evaluate(() => {
+        const verse = document.getElementById('v1001003');
+        const toolbar = document.querySelector('#v1001003 > .studynav-para-tools');
+        const article = document.getElementById('article');
+        const verseRect = verse?.getBoundingClientRect();
+        const toolbarRect = toolbar?.getBoundingClientRect();
+        const articleRect = article?.getBoundingClientRect();
+        return {
+          coarsePointer: window.matchMedia('(pointer: coarse)').matches,
+          maxTouchPoints: navigator.maxTouchPoints,
+          inViewport: !!toolbarRect && toolbarRect.left >= 0 && toolbarRect.right <= innerWidth &&
+            toolbarRect.top >= 0 && toolbarRect.bottom <= innerHeight,
+          staysInReadingColumn: !!toolbarRect && !!articleRect &&
+            toolbarRect.left >= articleRect.left - 1 && toolbarRect.right <= articleRect.right + 1,
+          aboveOrBelowVerse: !!toolbarRect && !!verseRect &&
+            (toolbarRect.bottom <= verseRect.top + 1 || toolbarRect.top >= verseRect.bottom - 1),
+        };
+      });
 
       await page.setViewportSize({ width: 1_024, height: 768 });
       await page.evaluate(() => document.querySelector('#p1')?.scrollIntoView({ block: 'center' }));
@@ -5830,13 +5875,16 @@ async function runStudyNavMobileScenario(executablePath, port) {
         ),
         makeAssertion(
           'StudyNav Mobile saves a tagged note in a full-screen touch editor and library',
-          editorState.mode === 'drawer' && editorState.fillsViewport === true &&
+          verseEditorLayerState.railMode === 'drawer' &&
+            verseEditorLayerState.toolbarZ < verseEditorLayerState.railZ &&
+            verseEditorLayerState.toolbarCoveredByRail === true &&
+            editorState.mode === 'drawer' && editorState.fillsViewport === true &&
             editorState.overflow === false && editorState.chip === 'phone' &&
             editorState.actionHeights.every((height) => height >= 44) &&
             mobileStudyData.annotations.some((item) => item.tags?.includes('phone')) &&
             panelResponse?.ok === true && studyPanelState.fillsViewport === true &&
             studyPanelState.overflow === false && studyPanelState.phoneNoteVisible === true,
-          { editorState, studyPanelState, panelResponse },
+          { verseEditorLayerState, editorState, studyPanelState, panelResponse },
         ),
         makeAssertion(
           'StudyNav Mobile popup shows nine phone-safe settings with touch-sized controls',
@@ -5879,12 +5927,17 @@ async function runStudyNavMobileScenario(executablePath, port) {
           phoneLandscapeState.viewport.width === 844 && phoneLandscapeState.viewport.height === 390 &&
             phoneLandscapeState.pageOverflow === false && phoneLandscapeState.toolbarReachable === true &&
             phoneLandscapeState.ownedOverflowers.length === 0 &&
+            (phoneLandscapeVerseToolbarState.coarsePointer === true ||
+              phoneLandscapeVerseToolbarState.maxTouchPoints > 0) &&
+            phoneLandscapeVerseToolbarState.inViewport === true &&
+            phoneLandscapeVerseToolbarState.staysInReadingColumn === true &&
+            phoneLandscapeVerseToolbarState.aboveOrBelowVerse === true &&
             tabletLandscapeState.viewport.width === 1_024 && tabletLandscapeState.viewport.height === 768 &&
             tabletLandscapeState.pageOverflow === false && tabletLandscapeState.toolbarReachable === true &&
             tabletLandscapeState.ownedOverflowers.length === 0 &&
             phoneLandscapeState.toolbarButtonHeights.every((height) => height >= 44) &&
             tabletLandscapeState.toolbarButtonHeights.every((height) => height >= 44),
-          { phoneLandscapeState, tabletLandscapeState },
+          { phoneLandscapeState, phoneLandscapeVerseToolbarState, tabletLandscapeState },
         ),
         makeAssertion(
           'StudyNav Mobile survives light/dark appearance and a large-text narrow viewport',

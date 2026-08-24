@@ -26,6 +26,7 @@ import { continueWatchingStatus } from './media-progress-runtime';
 import { isAllowedStudyNavPageUrl } from './page-origin';
 import { MOBILE_BUILD } from './build-profile';
 import { loadStoredFlags } from './flag-storage';
+import { runtimeMessage } from './webext-compat';
 
 const BUILD_DEFAULT_FLAGS = MOBILE_BUILD ? MOBILE_DEFAULT_FLAGS : DEFAULT_FLAGS;
 
@@ -36,7 +37,7 @@ function normalizeBuildFlags(value: Partial<FeatureFlags> | undefined): FeatureF
 
 async function flags(): Promise<FeatureFlags> {
   try {
-    const f = await chrome.runtime.sendMessage({ type: 'GET_FLAGS' });
+    const f = await runtimeMessage({ type: 'GET_FLAGS' });
     if (f && typeof f === 'object') return normalizeBuildFlags(f as Partial<FeatureFlags>);
   } catch { /* fall through */ }
   try {
@@ -51,6 +52,7 @@ let observer: MutationObserver | null = null;
 let navListening = false;
 let routeTimer: number | null = null;
 let lastUrl = location.href;
+
 const reconnectObserver = () => {
   if (!observer) return;
   try {

@@ -41,6 +41,20 @@ describe('StudyNav document actions', () => {
     expect(canonicalStudyUrl('https://example.com/page')).toBeNull();
   });
 
+  test('does not require iterable URLSearchParams keys on Firefox Android', () => {
+    const originalKeys = URLSearchParams.prototype.keys;
+    URLSearchParams.prototype.keys = () => {
+      throw new TypeError('keys iterator unavailable');
+    };
+    try {
+      expect(canonicalStudyUrl(
+        'https://www.jw.org/en/library/books/sample/?foo=1&utm_source=x&utm_source=y#p3',
+      )).toBe('https://www.jw.org/en/library/books/sample/?foo=1');
+    } finally {
+      URLSearchParams.prototype.keys = originalKeys;
+    }
+  });
+
   test('adds only a safe precise fragment', () => {
     expect(preciseStudyUrl('https://www.jw.org/en/library/books/sample/', 'v1001003'))
       .toBe('https://www.jw.org/en/library/books/sample/#v1001003');

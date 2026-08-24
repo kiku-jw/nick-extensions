@@ -32,7 +32,11 @@ export function canonicalStudyUrl(currentUrl: string, canonicalHref?: string | n
   if (!isSupportedJwHttpsUrl(candidate)) return null;
   const url = new URL(candidate);
   url.hash = '';
-  for (const key of [...url.searchParams.keys()]) {
+  const queryKeys: string[] = [];
+  url.searchParams.forEach((_value, key) => {
+    if (!queryKeys.includes(key)) queryKeys.push(key);
+  });
+  for (const key of queryKeys) {
     if (TRACKING_PARAMS.has(key.toLowerCase()) || key.toLowerCase().startsWith('utm_')) {
       url.searchParams.delete(key);
     }

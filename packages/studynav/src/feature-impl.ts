@@ -73,7 +73,10 @@ function positionSelectedVerseToolbar() {
   toolbar.dataset.snVerseFloating = '1';
   toolbar.style.position = 'fixed';
   toolbar.style.right = 'auto';
-  toolbar.style.zIndex = '2147483641';
+  // Keep the verse toolbar above the host page, but below StudyNav's note
+  // drawer and study library. On mobile the drawer fills the viewport; using
+  // the same layer as the drawer left the verse buttons covering its editor.
+  toolbar.style.zIndex = '2147483638';
   toolbar.style.left = '8px';
   toolbar.style.top = '8px';
 
@@ -87,9 +90,21 @@ function positionSelectedVerseToolbar() {
   const above = verseRect.top - toolbarRect.height - gap;
   const below = verseRect.bottom + gap;
   const maxTop = Math.max(edge, window.innerHeight - toolbarRect.height - edge);
+  const touchInput = navigator.maxTouchPoints > 0 || (
+    typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches
+  );
   let left: number;
   let top: number;
-  if (leftDock >= edge) {
+  if (touchInput) {
+    // A landscape phone can expose a wide desktop-style JW layout with a
+    // second reading pane. Docking beside the verse then covers that sibling
+    // pane even though the toolbar still fits the viewport. Keep touch
+    // controls above or below their verse instead.
+    left = Math.min(Math.max(verseRect.left, edge), maxLeft);
+    top = below + toolbarRect.height <= window.innerHeight - edge
+      ? below
+      : Math.max(above, edge);
+  } else if (leftDock >= edge) {
     left = leftDock;
     top = Math.min(Math.max(verseRect.top, edge), maxTop);
   } else if (rightDock + toolbarRect.width <= window.innerWidth - edge) {

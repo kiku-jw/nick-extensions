@@ -12,6 +12,13 @@ import { featureBlurbKey, featureNameKey, localizeDocument, t, type MessageKey }
 import { buildImageSearchUrl } from './document-actions';
 import { MOBILE_BUILD } from './build-profile';
 import { copyToClipboard } from '@nick/shared';
+import { rankStudyNavPageTabs } from './page-tab';
+import {
+  createTab,
+  queryTabs,
+  runtimeMessage,
+  sendTabMessage,
+} from './webext-compat';
 
 const list = document.getElementById('list')!;
 const filterEl = document.getElementById('filter') as HTMLInputElement;
@@ -24,6 +31,7 @@ const actionFeedbackEl = document.getElementById('action-feedback')!;
 const actionButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('.action-grid button'));
 let currentFlags: FeatureFlags = { ...DEFAULT_FLAGS };
 let currentPageStatus: PageStatus | null = null;
+let currentPageTabId: number | null = null;
 const BUILD_DEFAULT_FLAGS = MOBILE_BUILD ? MOBILE_DEFAULT_FLAGS : DEFAULT_FLAGS;
 const BUILD_FEATURE_META = MOBILE_BUILD
   ? FEATURE_META.filter((meta) => isMobileFeature(meta.id))
@@ -35,7 +43,7 @@ function normalizeBuildFlags(value: Partial<FeatureFlags> | undefined): FeatureF
 }
 
 async function load(): Promise<FeatureFlags> {
-  return normalizeBuildFlags(await chrome.runtime.sendMessage({ type: 'GET_FLAGS' }));
+  return normalizeBuildFlags(await runtimeMessage({ type: 'GET_FLAGS' }));
 }
 
 function enabledCount(flags: FeatureFlags): number {
@@ -75,7 +83,7 @@ function row(meta: typeof FEATURE_META[number], on: boolean) {
   input.addEventListener('change', async (e) => {
     const id = meta.id as FeatureId;
     const value = (e.target as HTMLInputElement).checked;
-    await chrome.runtime.sendMessage({ type: 'SET_FLAG', id, value });
+    await runtimeMessage({ type: 'SET_FLAG', id, value });
     currentFlags = { ...currentFlags, [id]: value };
     updateEnabledCount();
     updateActionAvailability();
@@ -103,11 +111,37 @@ type PageStatus = {
   bookmarkSaved?: unknown;
 };
 
+async function pageMessageTabs(): Promise<chrome.tabs.Tab[]> {
+  const current = await queryTabs({ active: true, currentWindow: true });
+  if (!MOBILE_BUILD) return current;
+  const active = await queryTabs({ active: true });
+  const all = await queryTabs({});
+  return rankStudyNavPageTabs([current, active, all]) as chrome.tabs.Tab[];
+}
+
+async function sendPageMessage(message: { type: string }): Promise<unknown> {
+  const queried = await pageMessageTabs();
+  const tabs = currentPageTabId == null
+    ? queried
+    : [{ id: currentPageTabId } as chrome.tabs.Tab, ...queried.filter((tab) => tab.id !== currentPageTabId)];
+  for (const tab of tabs) {
+    if (typeof tab.id !== 'number') continue;
+    try {
+      const response: unknown = await sendTabMessage(tab.id, message);
+      if (response && typeof response === 'object') {
+        currentPageTabId = tab.id;
+        return response;
+      }
+    } catch {
+      if (tab.id === currentPageTabId) currentPageTabId = null;
+    }
+  }
+  return null;
+}
+
 async function readPageStatus(): Promise<PageStatus | null> {
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab?.id) return null;
-    const status: unknown = await chrome.tabs.sendMessage(tab.id, { type: 'GET_STUDYNAV_STATUS' });
+    const status = await sendPageMessage({ type: 'GET_STUDYNAV_STATUS' });
     return status && typeof status === 'object' ? status as PageStatus : null;
   } catch {
     return null;
@@ -209,9 +243,8 @@ async function runPageAction(button: HTMLButtonElement) {
   button.disabled = true;
   actionFeedbackEl.textContent = t('working');
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab?.id) throw new Error(t('no_active_tab'));
-    const response: unknown = await chrome.tabs.sendMessage(tab.id, { type });
+    const response = await sendPageMessage({ type });
+    if (!response) throw new Error(t('no_active_tab'));
     const result = response && typeof response === 'object' ? response as PageActionResult : null;
     let message = typeof result?.message === 'string'
       ? result.message
@@ -222,7 +255,7 @@ async function runPageAction(button: HTMLButtonElement) {
     if (button.id === 'open-official' && result?.ok !== true) {
       const targetUrl = officialFinderTarget(result?.targetUrl);
       if (targetUrl) {
-        await chrome.tabs.create({ url: targetUrl });
+        await createTab({ url: targetUrl });
         message = t('official_link_opened');
       }
     }
@@ -249,7 +282,7 @@ async function runPageAction(button: HTMLButtonElement) {
   currentFlags = normalizeBuildFlags(await load());
   masterEl.checked = currentFlags.masterEnabled !== false;
   masterEl.addEventListener('change', async () => {
-    await chrome.runtime.sendMessage({ type: 'SET_FLAG', id: 'masterEnabled', value: masterEl.checked });
+    await runtimeMessage({ type: 'SET_FLAG', id: 'masterEnabled', value: masterEl.checked });
     currentFlags = { ...currentFlags, masterEnabled: masterEl.checked };
     await renderPageStatus();
   });
@@ -279,11 +312,11 @@ async function runPageAction(button: HTMLButtonElement) {
       event.preventDefault();
       const input = document.getElementById('image-search-query') as HTMLInputElement | null;
       const url = input ? buildImageSearchUrl(input.value) : null;
-      if (url) void chrome.tabs.create({ url });
+      if (url) void createTab({ url });
     });
   }
   document.getElementById('reset-defaults')?.addEventListener('click', async () => {
-    await chrome.runtime.sendMessage({ type: 'SET_FLAGS', flags: BUILD_DEFAULT_FLAGS });
+    await runtimeMessage({ type: 'SET_FLAGS', flags: BUILD_DEFAULT_FLAGS });
     currentFlags = { ...BUILD_DEFAULT_FLAGS };
     masterEl.checked = true;
     list.querySelectorAll<HTMLInputElement>('input[data-id]').forEach((input) => {

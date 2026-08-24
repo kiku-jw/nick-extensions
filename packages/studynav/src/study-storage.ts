@@ -7,6 +7,7 @@ import {
   type StudyDataV2,
 } from './study-data';
 import { t } from './i18n';
+import { storageGet, storageSet } from './webext-compat';
 
 let mutationTail: Promise<unknown> = Promise.resolve();
 
@@ -18,7 +19,7 @@ export class StudyDataStorageError extends Error {
 }
 
 export async function loadStudyData(): Promise<StudyDataV2> {
-  const stored = await chrome.storage.local.get([
+  const stored = await storageGet(chrome.storage.local, [
     STUDY_DATA_STORAGE_KEY,
     STUDY_DATA_LEGACY_STORAGE_KEY,
   ]);
@@ -35,7 +36,7 @@ export async function loadStudyData(): Promise<StudyDataV2> {
   if (!migrated) throw new StudyDataStorageError(t('local_study_data_invalid'));
   try {
     // Migration is additive: the legacy key is intentionally never removed or rewritten.
-    await chrome.storage.local.set({ [STUDY_DATA_STORAGE_KEY]: migrated });
+    await storageSet(chrome.storage.local, { [STUDY_DATA_STORAGE_KEY]: migrated });
   } catch (error) {
     throw new StudyDataStorageError(t('migration_save_failed'), { cause: error });
   }
@@ -51,7 +52,7 @@ export function mutateStudyData(
     const next = validateStudyData(candidate);
     if (!next) throw new StudyDataStorageError(t('study_data_validation_failed'));
     try {
-      await chrome.storage.local.set({ [STUDY_DATA_STORAGE_KEY]: next });
+      await storageSet(chrome.storage.local, { [STUDY_DATA_STORAGE_KEY]: next });
     } catch (error) {
       throw new StudyDataStorageError(t('study_data_save_failed'), { cause: error });
     }
