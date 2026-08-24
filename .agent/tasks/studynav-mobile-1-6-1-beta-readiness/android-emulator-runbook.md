@@ -1,127 +1,119 @@
-# Firefox Android Emulator runbook
+# Firefox Android Emulator runbook and receipt
 
-Status: prepared; execution requires Nick's explicit Android SDK license
-approval.
+Status: executed and passed on 2026-08-24.
 
-This runbook completes AC4 without a physical phone, Google Play account,
-provider upload, signing, or publication. It uses one ARM64 emulator and the
-official Firefox 142.0 APK, matching StudyNav's declared minimum Firefox
+This run completed AC4 without a physical phone, Google Play account,
+provider upload, signing, or publication. It used Android 16/API 36 and the
+official Firefox 142.0 ARM64 APK, matching StudyNav's declared minimum Firefox
 version.
 
 ## Official basis
 
-- Android command-line tools require prior acceptance of the Android SDK
-  License Agreement:
+- Android command-line tools and SDK license:
   <https://developer.android.com/studio#command-line-tools-only>
-- Android documents `avdmanager` as the command-line AVD manager and the
-  emulator as the supported phone-free test surface:
+- Android Virtual Device and emulator commands:
   <https://developer.android.com/tools/avdmanager>
   <https://developer.android.com/studio/run/emulator-commandline>
-- Mozilla requires `web-ext` 7.12 or later, Android Platform Tools/ADB,
-  Firefox remote debugging, and temporary loading with
-  `web-ext run -t firefox-android`:
+- Mozilla's supported Firefox Android development workflow:
   <https://extensionworkshop.com/documentation/develop/developing-extensions-for-firefox-for-android/>
-- Mozilla's official Firefox 142.0 ARM64 APK is archived at:
+- Mozilla Firefox 142.0 ARM64 release archive:
   <https://archive.mozilla.org/pub/fenix/releases/142.0/android/fenix-142.0-android-arm64-v8a/fenix-142.0.multi.android-arm64-v8a.apk>
 
-## Bounded environment
+## Executed environment
 
 - Host architecture: Apple Silicon ARM64.
-- One AVD only: `StudyNav_API_35`.
-- Android image: API 35 `default` ARM64, without Google Play or Google APIs.
-- AVD budget: two CPU cores, 2 GB RAM, no audio, no saved snapshot.
+- OpenJDK: 17.0.20.1.
+- Android emulator: 37.1.11.
+- Platform Tools: 37.0.1; ADB protocol 1.0.41.
+- AVD: `StudyNav_API_36`, Android 16/API 36, `default` ARM64 image without
+  Google Play or Google APIs, Pixel-9-like 1080 x 2424 display at density 420.
 - Firefox: official release 142.0, package `org.mozilla.firefox`.
+- Firefox APK SHA-256:
+  `f5fe6a300cc5fc5286ef5efcd65daddc1166b1c74a6f5f7873381d48a01e2a9c`.
 - Extension: temporary development install through `web-ext` 10.6.0.
 - No physical Android/iPhone, account, credentials, Store, or remote test
-  service.
+  service was used.
 
-## Owner-gated setup
+The initial API 35 preparation was superseded by API 36 after Nick correctly
+questioned whether the planned OS was current enough. Android 16/API 36 became
+the executed test surface.
 
-Do not run this section until Nick explicitly approves the Android SDK license.
+## Installation and load receipt
 
-1. Install Homebrew `openjdk@17` and `android-commandlinetools`. Use the keg-only
-   JDK by an explicit `JAVA_HOME`; do not add a system Java symlink.
-2. Run `sdkmanager` interactively for exactly:
+The SDK license was accepted only after Nick's explicit authorization. The
+official APK was downloaded over HTTPS, hashed, inspected, and installed with
+ADB. Firefox accepted the unsigned temporary extension through Mozilla's
+documented command:
 
-   ```text
-   platform-tools
-   emulator
-   system-images;android-35;default;arm64-v8a
-   ```
+```text
+bunx web-ext@10.6.0 run \
+  --target=firefox-android \
+  --android-device=emulator-5554 \
+  --firefox-apk=org.mozilla.firefox \
+  --source-dir=packages/studynav/dist-firefox-android
+```
 
-   Read the presented license identifier and accept only the licenses required
-   by these packages. Do not pipe an unconditional `yes` into all SDK licenses.
-3. Create `StudyNav_API_35` with `avdmanager`, using a compact phone hardware
-   profile and no custom SD card.
-4. Start the visible emulator with two cores, 2 GB RAM, no audio, and no
-   snapshot save. Wait for `adb shell getprop sys.boot_completed` to return
-   `1`, then confirm `adb devices` reports exactly the intended emulator.
-5. Download the APK from the Mozilla HTTPS archive above into a validated
-   task-temporary directory, record its SHA-256, inspect it with `apkanalyzer`,
-   and install it with `adb install`.
-6. In Firefox, enable remote debugging, open one ordinary tab, and use:
+The installed add-on reported StudyNav Mobile 1.6.1. Firefox displayed exactly
+the three required site-access entries (`jw.org`, `www.jw.org`, and
+`wol.jw.org`) and declared that the developer requires no data collection.
 
-   ```text
-   bunx web-ext@10.6.0 run \
-     --target=firefox-android \
-     --android-device=emulator-5554 \
-     --firefox-apk=org.mozilla.firefox \
-     --source-dir=packages/studynav/dist-firefox-android
-   ```
+## Runtime matrix result
 
-   Use the actual ADB serial if it differs. Do not sign or upload the add-on.
+All nine phone-safe functions passed on live public JW.org/WOL content:
 
-## Runtime matrix
+1. Six highlight colors, notes, comma/space tag chips, edit, delete, and locate.
+2. Save/open/remove place, including an exact Genesis 1:1-31 page record.
+3. Citation copy with public title and official URL.
+4. Local QR generation and exact official URL.
+5. Clean official publication link.
+6. Clean text copy without verse numbers, reference letters, or StudyNav UI.
+7. Precise link for one verse, consecutive verses, and a paragraph.
+8. Wrapped image descriptions below full images, not thumbnails.
+9. Compact language count beside JW.org's language chooser.
 
-Run on live public JW.org and WOL pages in both portrait and landscape. Capture
-a screenshot after each numbered result and retain filtered extension/Firefox
-logs without page text or private data.
+The same pass covered portrait and landscape, consecutive verse selection,
+master and individual feature teardown/restoration, large text, popup scrolling
+without clipping, offline access to a saved place, Firefox force-stop/restart,
+and touch-toolbar placement inside the reading column. Screenshots are retained
+under `raw/android/01-bible-portrait.png` through
+`raw/android/13-final-runtime-popup.png`.
 
-1. Highlight a short public fixture thought in each of the six colors.
-2. Add, edit, and delete a note; enter tags with comma/space and verify chips.
-3. Save, open, and remove a page/paragraph/verse place.
-4. Copy a citation and verify the pasted text contains the selected fixture
-   text and source, without StudyNav controls.
-5. Generate the local QR, copy/open it, and close the sheet.
-6. Open the clean publication link and confirm it stays on one of the three
-   exact allowed origins.
-7. Copy clean article/verse text and verify verse numbers, footnote markers,
-   and extension UI are omitted only where the product contract says so.
-8. Copy precise links for one verse, consecutive verses, and a paragraph; open
-   each result and confirm the intended target is selected.
-9. Verify an image description on a full article image and language count on a
-   JW.org article that supplies those metadata.
+## 1.6.0 to 1.6.1 migration result
 
-Then verify master-off teardown, individual feature-off teardown, rapid
-repeated selection without flicker, popup scrolling/no horizontal overflow,
-large text, reduced-height keyboard viewport, denied/regranted site access,
-offline access to saved local notes/places, Firefox restart, and an article
-with many seeded local records.
+Release commit `012700a` was built in an isolated temporary worktree and loaded
+as StudyNav Mobile 1.6.0 in the same Firefox profile. The fixture contained a
+purple annotation, note text, two tags, a Genesis saved place, and a disabled
+clean-link setting in legacy sync storage.
 
-## 1.6.0 to 1.6.1 emulator check
+After replacing it with release source `dd014fc`:
 
-1. Export release commit `012700a` into a task-temporary directory and build
-   its Firefox Android 1.6.0 target without modifying the current worktree.
-2. Load 1.6.0 temporarily with the same extension ID. Create one note with two
-   tags, one saved place, a non-default feature selection, and representative
-   supported local study records.
-3. Replace only the temporary extension source with the current 1.6.1 build
-   and trigger `web-ext` reload in the same Firefox profile.
-4. Confirm the manifest reports 1.6.1; all seeded records and values remain;
-   mobile settings exist in local storage; the legacy sync value remains
-   unchanged; new setting writes affect local storage only.
-5. Restart Firefox while the temporary development session remains active and
-   reconfirm the records. Record any temporary-addon limitation separately
-   rather than presenting it as AMO-signed upgrade proof.
+- Firefox reported version 1.6.1;
+- the highlight, note, both tags, and saved place remained and rendered;
+- the legacy sync value remained unchanged;
+- the normalized settings were copied to local storage;
+- a subsequent real `SET_FLAG` action changed only local storage;
+- the popup moved from `8 on` to `9 on`, and the clean-link action became
+  available.
 
-## Pass criteria and cleanup
+This proves the temporary-development-profile migration path. It does not claim
+AMO-signed upgrade behavior or provider approval.
 
-AC4 passes only when package/lint remain green, Firefox 142.0 accepts the
-temporary add-on, all nine critical flows pass on live JW.org/WOL pages, the
-upgrade/persistence check passes in the emulator profile, and captured logs
-contain no extension errors or unexpected network/permission behavior.
+## Firefox system-disable limitation
 
-After evidence is retained, stop the `web-ext` session and emulator. Keep the
-single AVD only if another approved Android pass is imminent; otherwise remove
-the task-created AVD and SDK image through their supported managers after
-previewing the exact targets. Never remove unrelated Android state.
+Firefox Android exposes these host permissions as required add-on permissions,
+not as individually revocable site toggles. Disabling the whole add-on stops
+its JavaScript before it can undo DOM changes already inserted into an open JW
+tab. After enabling the add-on again, refresh that tab once. StudyNav's own
+`Tools` switch does perform immediate clean teardown and restoration without a
+refresh. The observed pre-refresh state is retained as
+`raw/android/12-firefox-disable-before-refresh.png` and is not presented as a
+pass for immediate system-disable cleanup.
+
+## Cleanup receipt
+
+After retaining proof, the `web-ext` session and emulator were stopped. Both
+task-created AVDs (`StudyNav_API_35` and `StudyNav_API_36`) and the isolated
+1.6.0 worktree were removed. Temporary APK/build roots and the superseded source
+archive were moved to the macOS Trash, so they remain recoverable. The official
+Android SDK/OpenJDK installation was left intact; no unrelated Android or
+repository state was removed.

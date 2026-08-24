@@ -1,24 +1,25 @@
 # StudyNav Mobile 1.6.1 verdict
 
-## Verdict: OWNER GATE — Android SDK license
+## Verdict: PASS — local closed-beta candidate
 
-The release source at `a89c9fcf90167bfa2e4827c66f9b4f402f51e349`
+Release source `dd014fc674f56a2cf5092b5cc3e8bcd80d37f113`
 passes the complete repository regression, Safari packaging/build matrix,
-Safari iPhone/iPad simulator checks, shared mobile workflow/stress/migration
+Safari iPhone/iPad simulator checks, Firefox 142.0 on Android 16/API 36,
+all nine mobile functions, same-profile 1.6.0 to 1.6.1 migration, reliability
 checks, security/privacy review, and local Apple/Mozilla release-packet review.
 
-StudyNav Mobile 1.6.1 is not yet declared fully closed-beta-ready because AC4
-still lacks a real Firefox installation and workflow pass in Android Emulator.
-The package itself builds and lints cleanly. Finishing AC4 requires installing
-the official Android SDK and accepting its license, which is an explicit owner
-gate.
+The Android check used live public JW.org/WOL pages and confirmed portrait and
+landscape behavior, large text, offline saved data, Firefox restart, feature
+teardown/restoration, note/tag editing, precise verse ranges, image
+descriptions, language count, and local-only settings after migration.
 
-No physical iPhone was used. Nothing was signed for distribution, uploaded,
-submitted, or published. Public documentation must continue to say that the
-mobile packages are unavailable until later physical-device and provider gates
-are completed.
+One platform behavior is documented honestly: Firefox terminates extension
+scripts when the whole add-on is disabled, so an already-open JW tab needs one
+refresh after the add-on is enabled again. StudyNav's own `Tools` switch
+performs immediate teardown and restoration.
 
-Once Nick approves the Android system-tool/license step, the remaining work is
-bounded to one emulator, Firefox installation, package loading, the critical
-JW.org/WOL workflow matrix, fresh regression, proof update, and Issue #8
-closure/readiness handoff. If those checks pass, AC4 and AC10 can move to PASS.
+This verdict is local readiness, not public availability. No physical iPhone or
+Android device was used in this goal. Nothing was signed for distribution,
+uploaded to TestFlight/App Store/AMO, submitted, or published. Those physical
+device and provider actions remain separate owner gates, and public
+documentation must not offer the mobile packages until they pass.

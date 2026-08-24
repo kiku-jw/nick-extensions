@@ -1,27 +1,27 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-23",
+  "generatedAt": "2026-08-24",
   "goalThread": "01a00545-ec69-7cd0-91f8-efaeb48f3dbc",
   "owningIssue": "https://github.com/kiku-jw/nick-extensions/issues/8",
-  "releaseCommit": "a89c9fcf90167bfa2e4827c66f9b4f402f51e349",
-  "overallVerdict": "OWNER_GATE_ANDROID_SDK_LICENSE",
+  "releaseCommit": "dd014fc674f56a2cf5092b5cc3e8bcd80d37f113",
+  "overallVerdict": "PASS_LOCAL_CLOSED_BETA_CANDIDATE",
   "acceptance": {
     "AC1": "PASS",
     "AC2": "PASS",
     "AC3": "PASS_SIMULATOR_AND_PROVIDER_FAITHFUL",
-    "AC4": "OWNER_GATE",
-    "AC5": "PASS",
-    "AC6": "PASS_SHARED_RUNTIME_ANDROID_INSTALL_PENDING_AC4",
+    "AC4": "PASS_ANDROID_16_FIREFOX_142",
+    "AC5": "PASS_REAL_EMULATOR_PROFILE_MIGRATION",
+    "AC6": "PASS_WITH_DOCUMENTED_FIREFOX_SYSTEM_TOGGLE_REFRESH",
     "AC7": "PASS",
     "AC8": "PASS_LOCAL_NOT_SUBMITTED",
-    "AC9": "PASS_LOCAL_ANDROID_INSTALL_PENDING_AC4",
-    "AC10": "PARTIAL_PENDING_AC4"
+    "AC9": "PASS_LOCAL_NOT_SUBMITTED",
+    "AC10": "PASS_LOCAL_PACKET"
   },
   "verification": {
     "full": {
       "command": "bun run verify",
       "status": "PASS",
-      "projectTests": 121,
+      "projectTests": 127,
       "upstreamTests": 75,
       "browserScenarios": 13,
       "browserAssertions": 200,
@@ -44,26 +44,59 @@
         "udid": "EB71C16A-A5FC-4731-8817-9E7E58A164C3",
         "stateAtHandoff": "Shutdown"
       },
-      "physicalDeviceUsed": false
+      "physicalDeviceUsed": false,
+      "resourceTreeSha256": "8034b1d7ae7a72993448c29267054550c6efd1de7cbdf59d5efe21f1785a7623"
     },
     "firefox": {
       "package": "PASS",
       "lint": "PASS_ZERO_FINDINGS",
-      "androidEmulator": "NOT_RUN_OWNER_GATE"
+      "version": "142.0",
+      "packageId": "org.mozilla.firefox",
+      "apkSha256": "f5fe6a300cc5fc5286ef5efcd65daddc1166b1c74a6f5f7873381d48a01e2a9c",
+      "androidEmulator": {
+        "status": "PASS",
+        "os": "Android 16",
+        "api": 36,
+        "architecture": "arm64-v8a",
+        "avd": "StudyNav_API_36",
+        "allNineFeatures": "PASS",
+        "portraitLandscape": "PASS",
+        "largeText": "PASS",
+        "offlineLocalData": "PASS",
+        "forceStopRestart": "PASS",
+        "masterAndIndividualTeardown": "PASS",
+        "stateAtHandoff": "Deleted after evidence"
+      }
+    },
+    "migration": {
+      "fromCommit": "012700a33670785225c26aac035781dbd31edee2",
+      "toCommit": "dd014fc674f56a2cf5092b5cc3e8bcd80d37f113",
+      "sameFirefoxProfile": true,
+      "annotationPreserved": true,
+      "notePreserved": true,
+      "tagsPreserved": true,
+      "savedPlacePreserved": true,
+      "legacySyncUnchanged": true,
+      "settingsCopiedToLocal": true,
+      "subsequentWriteLocalOnly": true
     }
   },
   "artifacts": {
     "firefoxZip": {
       "file": "raw/artifacts/studynav-firefox-android-1.6.1.zip",
-      "sha256": "bf1a3cba0eddef56a10f2853258fec8b3c65a7cb1329d91e5beea38951d59f72"
+      "sha256": "cf8aea80e6b33d8d83ad0f8d14072950ddbaef0ec973807b03664f2a2f3b567c",
+      "normalizedContentReproducible": true,
+      "entries": 17
     },
     "safariExtensionZip": {
       "file": "raw/artifacts/studynav-safari-ios-extension-1.6.1.zip",
-      "sha256": "3328db196c18fb8d96f14f363f57042a3322c6ab6408ad29095694fae492adc9"
+      "sha256": "5c887733a28b197be491e46e1bd2d48020d75b38766ae3b1ecbbc02b729cf29b",
+      "normalizedContentReproducible": true,
+      "entries": 17
     },
     "sourceZip": {
-      "file": "raw/artifacts/studynav-mobile-1.6.1-source-a89c9fc.zip",
-      "sha256": "4435357734e3ca97545fc32d82cd94e94f935157bf16aaf8f7a42e64565784c4",
+      "file": "raw/artifacts/studynav-mobile-1.6.1-source-dd014fc.zip",
+      "sha256": "dc7d49e97c4abf1aed77aa5151afbab1340c3d5b48b8af9c439b2f30be15060e",
       "exactCommit": true,
       "byteReproducible": true
     }
@@ -81,23 +114,31 @@
     "telemetry": false,
     "thirdPartySearch": false,
     "mobileSettingsStorage": "local",
-    "legacySettingsMigration": "additive-copy-without-deletion"
+    "legacySettingsMigration": "additive-copy-without-deletion",
+    "firefoxDataCollectionRequired": "none"
   },
-  "ownerGate": {
-    "action": "Install official Android command-line tools and OpenJDK, then accept the Android SDK License Agreement",
-    "reason": "Required to create the Android Emulator and complete Firefox Android runtime verification",
-    "providerUploadIncluded": false,
-    "preparedRunbook": "android-emulator-runbook.md",
-    "plannedFirefox": {
-      "version": "142.0",
-      "package": "org.mozilla.firefox",
-      "source": "https://archive.mozilla.org/pub/fenix/releases/142.0/android/fenix-142.0-android-arm64-v8a/fenix-142.0.multi.android-arm64-v8a.apk"
-    },
-    "plannedAvd": {
-      "name": "StudyNav_API_35",
-      "image": "system-images;android-35;default;arm64-v8a",
-      "googleAccountRequired": false
-    }
+  "knownLimitations": [
+    "Firefox Android exposes the three host permissions as required permissions rather than separate site toggles.",
+    "After disabling and re-enabling the whole add-on, refresh an already-open JW tab once because Firefox terminates extension JavaScript before it can clean previously inserted DOM.",
+    "The temporary-development-profile migration is not AMO-signed update proof."
+  ],
+  "laterOwnerProviderGates": {
+    "physicalIphoneSmoke": "NOT_RUN_BY_CURRENT_GOAL",
+    "physicalAndroidSmoke": "NOT_RUN_BY_CURRENT_GOAL",
+    "testFlightOrAppStore": "NOT_UPLOADED_OR_SUBMITTED",
+    "amo": "NOT_SIGNED_UPLOADED_OR_SUBMITTED",
+    "publicMobileAvailability": false
+  },
+  "cleanup": {
+    "webExtStopped": true,
+    "emulatorStopped": true,
+    "taskAvdsDeleted": [
+      "StudyNav_API_35",
+      "StudyNav_API_36"
+    ],
+    "temporaryWorktreeRemoved": true,
+    "temporaryRootsMovedToTrash": true,
+    "androidSdkRetained": true
   },
   "unrelatedWorktreeState": {
     "path": "packages/inkshade/upstream",

@@ -1,23 +1,23 @@
 # StudyNav Mobile 1.6.1 evidence
 
-Evidence date: 2026-08-23
+Evidence date: 2026-08-24
 
-Release source: `a89c9fcf90167bfa2e4827c66f9b4f402f51e349`
+Release source: `dd014fc674f56a2cf5092b5cc3e8bcd80d37f113`
 
 ## Acceptance matrix
 
 | Criterion | Result | Fresh evidence |
 | --- | --- | --- |
-| AC1 — full regression | PASS | `bun run verify`: 121 project tests, 75 pinned InkShade upstream tests, 13 browser scenarios, 200 assertions, 0 failures, 0 skips, 0 page errors, 0 extension-console errors. |
-| AC2 — Safari build matrix | PASS | Apple packager accepted the extension. Unsigned Simulator builds passed for iPhone 17 and StudyNav iPad (A16); the final generic iOS Simulator verification also passed after the release package cleanup. Both simulators are shut down. |
-| AC3 — Safari workflows | PASS, simulator/provider-faithful | Safari Simulator enabled the extension and opened the Russian popup on a live JW.org Bible chapter on iPhone and iPad. The iPhone recognized a selected verse; iPad popover sizing was rechecked. The browser matrix covers all nine settings plus phone/tablet, portrait/landscape, light/dark, large text, reduced keyboard height, denial/regrant, restart, and the five 1.6.1 regressions. No physical-device claim. |
-| AC4 — Firefox Android | OWNER GATE | Package build and `web-ext lint --warnings-as-errors` pass with zero findings. Android Emulator installation/runtime checks have not run because the official Android SDK and its license are not installed/accepted. |
-| AC5 — upgrade/persistence | PASS | Deterministic tests and the mobile browser scenario preserve notes, tags, saved places, other supported study data, and normalized settings across 1.6.0 to 1.6.1. The original sync value remains unchanged while the mobile copy moves to local storage. |
-| AC6 — reliability | PASS for shared runtime; Android install pending under AC4 | Browser evidence covers repeated selections, long content, many records, restart, denied/regranted permission, offline local data, rotation/responsive bounds, reduced-height keyboard viewport, and teardown without stale controls. |
-| AC7 — security/privacy | PASS | Exact three HTTPS origins, `storage` only, no excluded handlers, remote code, telemetry, third-party search, source SVG, or network client in the mobile runtime. Privacy/no-data copy matches the implementation. |
+| AC1 — full regression | PASS | `bun run verify`: 127 project tests, 75 pinned InkShade upstream tests, 13 browser scenarios, 200 assertions, 0 failures, 0 skips, 0 page errors, 0 extension-console errors. |
+| AC2 — Safari build matrix | PASS | Apple packager accepted the extension. Unsigned Simulator builds passed for iPhone 17, StudyNav iPad (A16), and the final generic iOS Simulator verification. |
+| AC3 — Safari workflows | PASS, simulator/provider-faithful | Safari Simulator enabled StudyNav and opened the Russian popup over a live JW.org Bible chapter on iPhone and iPad. The shared browser matrix covers all nine functions, phone/tablet layouts, portrait/landscape, light/dark, large text, reduced keyboard height, denial/regrant, restart, and the five 1.6.1 Safari regressions. No physical-device claim. |
+| AC4 — Firefox Android | PASS | Firefox 142.0 accepted the temporary 1.6.1 add-on on Android 16/API 36. All nine live JW.org/WOL workflows, portrait/landscape, feature teardown, large text, offline local data, and restart passed. |
+| AC5 — upgrade/persistence | PASS | A real same-profile Firefox Android 1.6.0 → 1.6.1 replacement preserved the seeded highlight, note, two tags, saved place, and non-default setting. Settings were copied additively from sync to local; the legacy value remained unchanged and later writes changed local only. |
+| AC6 — reliability | PASS with documented Firefox system-toggle behavior | Automated and Android evidence cover repeated selections, long content, many records, restart, offline local data, rotation, responsive bounds, master/individual teardown, and no stale StudyNav UI after its own switch. Firefox kills extension JavaScript when the whole add-on is disabled, so an already-open tab needs one refresh after re-enabling. |
+| AC7 — security/privacy | PASS | Exact three HTTPS origins, `storage` only, no excluded handlers, remote code, telemetry, third-party search, source SVG, or general network client in the mobile runtime. Firefox reports no required data collection. |
 | AC8 — Apple configuration | PASS locally | Productivity category, version 1.6.1/build 1, universal iPhone/iPad family, iOS 15.4 floor, icons, EN/RU onboarding, privacy manifest, support/privacy URLs, and local review notes are present. Provider fields are not submitted. |
-| AC9 — Mozilla configuration | PASS locally; emulator pending under AC4 | Reproducible Firefox ZIP and exact-commit source ZIP, build instructions, Android compatibility, no-data declaration, permissions explanation, EN/RU copy, reviewer notes, and limits are ready. No AMO upload/signing occurred. |
-| AC10 — local beta packet | PARTIAL | Artifacts, hashes, screenshots/copy, checklists, links, and this proof bundle are present. The packet cannot receive an all-PASS verdict until AC4 has Android Emulator evidence. InkShade dirt remains untouched. |
+| AC9 — Mozilla configuration | PASS locally | Reproducible Firefox ZIP and exact-commit source ZIP, build instructions, Android compatibility, no-data declaration, permissions explanation, EN/RU copy, reviewer notes, and truthful limits are ready. No AMO upload/signing occurred. |
+| AC10 — local beta packet | PASS | Current Safari/Firefox packages, hashes, screenshots, EN/RU copy, review material, implementation notes, runbook/receipt, and this proof bundle are present. InkShade dirt remains untouched. |
 
 ## Commands and receipts
 
@@ -26,17 +26,18 @@ Release source: `a89c9fcf90167bfa2e4827c66f9b4f402f51e349`
 ```text
 bun run verify
 PASS
-121 project tests
+127 project tests
 75 pinned InkShade upstream tests
 13 browser scenarios
 200 browser assertions
 0 failures; 0 skips; 0 page errors; 0 extension-console errors
 ```
 
-The mobile scenario contributes 20 assertions and covers additive 1.6.0
-settings migration, local-only writes, all nine features, the five Safari
-regressions, persistence, permission teardown/reapply, offline local records,
-stress records, responsive variants, and WOL behavior.
+The mobile scenario contributes 20 top-level assertions. It covers additive
+1.6.0 settings migration, local-only writes, all nine functions, the five
+Safari regressions, note/tag/saved-place persistence, permission teardown and
+reapply, offline local records, stress records, responsive variants, mobile
+layering, touch toolbar placement, and WOL behavior.
 
 ### Safari packaging and builds
 
@@ -44,21 +45,23 @@ stress records, responsive variants, and WOL behavior.
 bun run verify:studynav:safari
 PASS — Apple conversion check and unsigned generic iOS Simulator build
 
-xcodebuild ... -destination 'platform=iOS Simulator,id=1C56B0CD-451C-44DD-8356-D32C5A618BB2' ...
-PASS — iPhone 17
+xcodebuild ... iPhone 17 ...
+PASS
 
-xcodebuild ... -destination 'platform=iOS Simulator,id=EB71C16A-A5FC-4731-8817-9E7E58A164C3' ...
-PASS — StudyNav iPad (A16)
+xcodebuild ... StudyNav iPad (A16) ...
+PASS
 ```
 
-Environment: macOS 26.5.1, Xcode 26.6. Simulator state at handoff:
-`Shutdown` for both destinations.
+Environment: macOS 26.5.1 and Xcode 26.6. Both simulator destinations were
+shut down after evidence. Safari preference captures under `raw/safari/` show
+denial, regrant, iPhone enablement, and iPad enablement. Store-safe screenshots
+remain under `packages/studynav/store/mobile/screenshots/`.
 
-Safari preference captures retained under `raw/safari/` show denial,
-regrant, iPhone enablement, and iPad enablement. Store-safe and evidence
-screenshots are committed under `packages/studynav/store/mobile/screenshots/`.
+The generated Safari extension tree and committed Xcode extension-resource tree
+have the same relative-content digest:
+`8034b1d7ae7a72993448c29267054550c6efd1de7cbdf59d5efe21f1785a7623`.
 
-### Firefox and reproducibility
+### Firefox Android runtime
 
 ```text
 bun run package:studynav:firefox-android
@@ -66,46 +69,85 @@ PASS
 
 bun run lint:studynav:firefox-android
 PASS — 0 errors, 0 notices, 0 warnings
+
+Firefox 142.0 / org.mozilla.firefox
+Android 16 / API 36 / ARM64
+StudyNav Mobile 1.6.1 temporary add-on
+PASS
 ```
 
-The Firefox package was generated twice. Its normalized entry list and every
-entry content hash matched between builds.
+The official Mozilla APK SHA-256 was
+`f5fe6a300cc5fc5286ef5efcd65daddc1166b1c74a6f5f7873381d48a01e2a9c`.
+Firefox's permission surface listed access only to `jw.org`, `www.jw.org`,
+and `wol.jw.org`, plus the no-data-collection declaration.
+
+Direct device evidence retained under `raw/android/` includes:
+
+- Bible portrait and fixed landscape toolbar placement;
+- large-text popup and offline/restart saved-place persistence;
+- exact Firefox permissions;
+- full-image descriptions and compact language count;
+- migrated 1.6.0 setting, note, and tag chips;
+- local-only setting mutation;
+- the honest system-disable-before-refresh limitation;
+- final 1.6.1 popup with all nine functions on.
+
+All six note colors, tag chip creation on comma/space, edit/delete/locate,
+saved places, citations, QR, clean official link, clean copy, one/range/paragraph
+precise links, image descriptions, and language count passed on live public
+JW.org/WOL content.
+
+### Real 1.6.0 to 1.6.1 migration
+
+Commit `012700a` supplied the exact 1.6.0 package. In the same Firefox profile,
+the test seeded a purple highlight, a note named `Migration 1.6.0 note`, tags
+`migration-160` and `android`, a Genesis saved place, and
+`officialOpen: false` in legacy sync storage.
+
+After installing `dd014fc` as 1.6.1, the annotation and saved place rendered,
+both tag chips remained, local flags matched the legacy value, and sync remained
+unchanged. A real `SET_FLAG officialOpen:true` message then changed local
+storage only and the reopened popup moved from eight to nine enabled functions.
+
+### Artifact reproducibility
+
+Firefox and Safari packages were each generated twice. The sorted entry lists
+and every entry-content hash matched between builds. The source archive was
+generated twice with `git archive` from exact release commit `dd014fc` and
+matched byte-for-byte.
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `studynav-firefox-android-1.6.1.zip` | `bf1a3cba0eddef56a10f2853258fec8b3c65a7cb1329d91e5beea38951d59f72` |
-| `studynav-safari-ios-extension-1.6.1.zip` | `3328db196c18fb8d96f14f363f57042a3322c6ab6408ad29095694fae492adc9` |
-| `studynav-mobile-1.6.1-source-a89c9fc.zip` | `4435357734e3ca97545fc32d82cd94e94f935157bf16aaf8f7a42e64565784c4` |
+| `studynav-firefox-android-1.6.1.zip` | `cf8aea80e6b33d8d83ad0f8d14072950ddbaef0ec973807b03664f2a2f3b567c` |
+| `studynav-safari-ios-extension-1.6.1.zip` | `5c887733a28b197be491e46e1bd2d48020d75b38766ae3b1ecbbc02b729cf29b` |
+| `studynav-mobile-1.6.1-source-dd014fc.zip` | `dc7d49e97c4abf1aed77aa5151afbab1340c3d5b48b8af9c439b2f30be15060e` |
 
-The source archive was generated twice with `git archive` from exact release
-commit `a89c9fc` and compared byte-for-byte. It contains no working-tree or
-runtime state. Generated Safari resource-tree SHA-256:
-`757aa82623d21490a2437da1564718b3fa4d143356745f8b7e6b9816df8b4f4e`.
-Committed Xcode extension resource-tree SHA-256:
-`ed3109de414d94c86dfeeb6e1217204d493ae9bfb3ddd738ad73cc83b0e59053`.
-The different tree hashes reflect the generated and committed trees being
-hashed with different path prefixes; Safari verification performs the required
-file-by-file resource equality check.
+The ignored local artifacts are retained under `raw/artifacts/`; the tracked
+proof records their exact hashes without committing the large binaries.
 
-### Public references
+## Security and privacy receipt
 
-Fresh direct checks returned HTTP 200 for:
+The active mobile manifests contain only the `storage` browser API permission
+and the three exact HTTPS origins. Static inspection and the final build smoke
+found no remote code, `eval`, telemetry, external image search, desktop media
+or download handlers, broad wildcard origin, or editable source icon in the
+mobile outputs. Personal study records and mobile settings stay in local
+extension storage. The 1.6.0 settings migration is additive and never deletes
+or rewrites the legacy sync value.
 
-- `https://github.com/kiku-jw/nick-extensions/issues`
-- `https://kiku-jw.github.io/nick-extensions/privacy/`
-- `https://kiku-jw.github.io/nick-extensions/ru/privacy/`
+## Known boundary and later gates
 
-These checks prove the support/privacy pages are reachable, not that a mobile
-Store listing exists.
+Firefox Android treats the three host permissions as required add-on
+permissions rather than individual site toggles. Disabling the entire add-on
+terminates its scripts before cleanup, so refresh an already-open JW tab once
+after re-enabling. StudyNav's own `Tools` switch tears down immediately.
 
-## Remaining gate
+No physical iPhone/Android, TestFlight, App Store, AMO signing/upload,
+provider agreement, credential, submission, or publication is claimed. Those
+remain separate owner/provider gates. Public documentation must continue to say
+that mobile packages are not publicly available until those gates pass.
 
-No Android SDK, `adb`, emulator, or Firefox Android runtime is currently
-installed. The next step would install official Android command-line tools and
-OpenJDK, accept the Android SDK License Agreement, create one modest emulator,
-install Firefox, load the package through Mozilla's supported development
-workflow, and run the critical JW.org/WOL scenarios. Agreement acceptance and
-system-tool installation require Nick's explicit approval. The exact bounded
-procedure and pass matrix are recorded in `android-emulator-runbook.md`; it
-uses Firefox 142.0 from Mozilla's official archive, an ARM64 image without
-Google Play, and no account or physical device.
+After proof retention, the temporary `web-ext` session, emulator, both
+task-created AVDs, and isolated 1.6.0 worktree were removed. Temporary build/APK
+roots were moved to Trash. The Android SDK/OpenJDK installation remains; no
+unrelated state was removed.
