@@ -3,6 +3,9 @@ import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const ROOT = resolve(import.meta.dir, '..');
+const ANDROID_BETA_URL =
+  'https://github.com/kiku-jw/nick-extensions/releases/download/studynav-mobile-v1.6.1-beta.1/StudyNav-Mobile-1.6.1-Firefox-Android.xpi';
+const ANDROID_BETA_SHA256 = '9d54e32552ea048773b09bcbac926d155f60ec4f7d3db4625b15f8731fbb8c5c';
 
 async function text(path) {
   return readFile(resolve(ROOT, path), 'utf8');
@@ -39,6 +42,8 @@ describe('StudyNav Mobile 1.6.1 provider-ready beta packet', () => {
     expect(packet).toContain('Support: <https://github.com/kiku-jw/nick-extensions/issues>');
     expect(packet).toContain('Privacy: <https://kiku-jw.github.io/nick-extensions/privacy/>');
     expect(packet).toContain('Mozilla-signed unlisted beta');
+    expect(compactPacket).toContain('Mozilla AMO Production Signing Service');
+    expect(packet).toContain(ANDROID_BETA_SHA256);
     expect(packet).toContain('TestFlight beta');
     expect(packet).toContain('Firefox 142');
     expect(packet).toContain('Android 16/API 36 Emulator');
@@ -47,6 +52,53 @@ describe('StudyNav Mobile 1.6.1 provider-ready beta packet', () => {
     expect(packet).not.toContain('screenshots/evidence/safari-iphone-popup-ru.png');
     expect(packet).not.toContain('screenshots/evidence/safari-ipad-popup-ru.png');
     expect(packet).not.toContain('requires installation of the official Android SDK');
+  });
+
+  test('publishes an honest bilingual Firefox Android install route', async () => {
+    const [english, russian, readme, packet] = await Promise.all([
+      text('site/index.html'),
+      text('site/ru/index.html'),
+      text('README.md'),
+      text('packages/studynav/store/mobile/RELEASE-CANDIDATE.md'),
+    ]);
+
+    for (const page of [english, russian]) {
+      expect(page).toContain(ANDROID_BETA_URL);
+      expect(page).toContain(ANDROID_BETA_SHA256);
+      expect(page).toContain('Firefox 142');
+      expect(page).toContain('StudyNav-Mobile-1.6.1-Firefox-Android.xpi');
+      expect(page).toContain('github.com/kiku-jw/nick-extensions/issues/10');
+    }
+
+    expect(english).toContain('Settings → About Firefox');
+    expect(english).toContain('Install Extension from File');
+    expect(english).toContain('five times');
+    expect(english).toContain('manual updates');
+    expect(english).toContain('physical phone is still the next test');
+
+    expect(russian).toContain('Настройки → О Firefox');
+    expect(russian).toContain('Установить расширение из файла');
+    expect(russian).toContain('пять раз');
+    expect(russian).toContain('обновление вручную');
+    expect(russian).toContain('физическом телефоне — следующий тест');
+
+    expect(readme).toContain('Настройки → О Firefox');
+    expect(readme).toContain('Установить расширение из файла');
+    expect(readme).toContain(ANDROID_BETA_SHA256);
+    const compactPacket = packet.replace(/\s+/g, ' ');
+    expect(compactPacket).toContain('AMO listed/public-catalog distribution remains disabled');
+    expect(compactPacket).toContain('physical Android install remains a separate proof gate');
+
+    for (const staleClaim of [
+      'Waiting for Mozilla signing',
+      'Ожидает подписи Mozilla',
+      'signed links will appear here',
+      'подписанная ссылка StudyNav, которая появится здесь',
+    ]) {
+      expect(english).not.toContain(staleClaim);
+      expect(russian).not.toContain(staleClaim);
+      expect(readme).not.toContain(staleClaim);
+    }
   });
 
   test('ships an Apple privacy manifest wired into the containing app', async () => {

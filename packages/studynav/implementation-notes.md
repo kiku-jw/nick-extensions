@@ -79,16 +79,20 @@ Automated acceptance requires:
 - Apple packager acceptance and an unsigned iOS Simulator build;
 - the existing full desktop verification to catch shared-code regressions.
 
-The mobile targets are not approved for Store publication or described as
-available. TestFlight/App Store, AMO signing/publication, and any Store metadata
-change require separate owner approval. A signed 1.6.0 developer build was
-installed on an iPhone 15 Pro and exercised against live JW.org, which exposed
-the multiline saved-place title, Safari clipboard/new-tab, localization
-placeholder, and selection-toolbar stability defects fixed in 1.6.1. The 1.6.1
-containing app is now verified in Safari on iPhone 17 and iPad (A16) simulators,
-including live Russian-page injection and the iPad popover sizing fix. A repeat
-physical-device pass and Firefox Android Emulator installation/workflow pass
-remain mandatory release gates.
+The Firefox Android target is now a Mozilla-signed, self-distributed 1.6.1
+prerelease. Its public XPI route, manual install steps, SHA-256, and physical
+test boundary are owned by the Pages mobile-beta section and Issue #10. The
+signed package content matches the verified candidate and adds only Mozilla
+signature records; Firefox 142 on Android 16 Emulator passed the full workflow.
+An install from the public asset on physical Android remains mandatory before
+claiming device proof, and self-distributed beta updates are manual. AMO listed
+distribution remains disabled. A signed 1.6.0 developer build was installed on
+an iPhone 15 Pro and exercised against live JW.org, which exposed the multiline
+saved-place title, Safari clipboard/new-tab, localization placeholder, and
+selection-toolbar stability defects fixed in 1.6.1. The 1.6.1 containing app is
+verified in Safari on iPhone 17 and iPad (A16) simulators, including live
+Russian-page injection and the iPad popover sizing fix. TestFlight/App Store
+and a repeat physical iPhone/iPad pass remain separate Apple gates.
 
 ## Local beta release packet
 

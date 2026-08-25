@@ -64,8 +64,10 @@ h3 { margin: 0 0 9px; font-size: 20px; }
 .trust-list li::before { content: "✓"; margin-right: 8px; color: var(--green); font-weight: 900; }
 
 .compatibility-notice { border-top: 1px solid #554429; border-bottom: 1px solid #554429; background: #211c16; }
+.compatibility-notice.available { border-color: #27513f; background: #14241f; }
 .compatibility-notice-inner { display: flex; align-items: center; justify-content: space-between; gap: 36px; padding-top: 28px; padding-bottom: 28px; }
 .compatibility-notice .eyebrow { margin-bottom: 7px; color: var(--amber); }
+.compatibility-notice.available .eyebrow { color: var(--green); }
 .compatibility-notice h2 { margin: 0 0 7px; font-size: clamp(23px, 2.4vw, 31px); }
 .compatibility-notice p:last-child { max-width: 820px; margin: 0; color: #d8cbb7; }
 .compatibility-notice a { flex: 0 0 auto; font-weight: 750; }
@@ -244,8 +246,15 @@ input:checked + .switch::after, .switch.on::after { transform: translateX(16px);
 .extension-card small { color: var(--green); }
 .install-download { width: 100%; }
 .install-note { margin: 28px 0 0; padding: 15px 17px; border: 1px solid #554429; border-radius: 12px; background: #2e261b; color: #ead7b6; }
+.install-note code { overflow-wrap: anywhere; font-size: 12px; }
 
 .privacy-grid, .research-grid, .mobile-platform-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.mobile-platform-grid .card { display: flex; align-items: flex-start; flex-direction: column; gap: 13px; }
+.mobile-platform-grid .card h3 { margin: 0; }
+.mobile-install-steps { margin: 1px 0 3px; padding-left: 22px; color: var(--muted); }
+.mobile-install-steps li + li { margin-top: 8px; }
+.mobile-download { width: 100%; margin-top: auto; text-align: center; }
+.mobile-build-note { display: block; width: 100%; color: var(--muted); font-size: 12px; text-align: center; }
 .mobile-boundary { margin-top: 28px; }
 .mobile-boundary p { margin: 10px 0 0; color: var(--muted); }
 .card { min-width: 0; padding: 24px; border: 1px solid var(--line); border-radius: 17px; background: var(--surface); }

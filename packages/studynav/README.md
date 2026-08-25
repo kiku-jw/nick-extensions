@@ -22,7 +22,7 @@ Pages rendered as JW.org `PageNotFound` are treated as unsupported, so StudyNav 
 
 Run `bun run build` at the repository root, then load `packages/studynav/dist` as an unpacked extension. Use `bun run verify` before relying on a new build. The public guide is at <https://kiku-jw.github.io/nick-extensions/>.
 
-## Mobile packages in development
+## Mobile packages and Android beta
 
 `bun run build:studynav` creates the desktop `dist/`, the Safari MV3 `dist-safari-ios/`, and the Firefox Android MV2 `dist-firefox-android/` from the same source. The old Edge Android target remains reproducible only for historical audits; it is not the current mobile path.
 
@@ -37,7 +37,7 @@ Both platform packages compile out verse audio, media clipping, player controls,
 
 The popup and injected panels use safe-area padding, 44–48 px touch targets, 16 px mobile inputs, and full-screen note/library layouts. Text selection exposes Copy and Link alongside the six highlight colors and Add note, so article actions do not depend on hover.
 
-Run `bun run package:studynav:firefox-android` for the unsigned AMO upload ZIP. Run `bun run verify:studynav:safari` to sync the committed Xcode project, validate the extension through Apple's packager, and build it for an unsigned iOS Simulator. A signed 1.6.0 developer build was installed on a physical iPhone 15 Pro and confirmed the core selection, note/tag, library, copy/link, range-link, and QR flows. The 1.6.1 containing app is verified in Safari on iPhone 17 and iPad (A16) simulators, including live Russian-page injection and bounded popup sizing. Neither mobile artifact is public: a repeat physical-device pass, Firefox Android Emulator verification, AMO signing/publication, TestFlight/App Store, and publication remain separate gates.
+Run `bun run package:studynav:firefox-android` for the unsigned AMO upload ZIP. Mozilla signed the submitted 1.6.1 package as an unlisted self-distributed beta; the public prerelease asset and user steps are owned by <https://kiku-jw.github.io/nick-extensions/#mobile-beta>. The signed XPI is verified against the submitted content, stable ID, permissions, and Mozilla production certificate. Firefox 142 on Android 16 Emulator passed the full mobile workflow, while installation from the public asset on a physical Android device remains a separate gate. Run `bun run verify:studynav:safari` to sync the committed Xcode project, validate the extension through Apple's packager, and build it for an unsigned iOS Simulator. A signed 1.6.0 developer build was installed on a physical iPhone 15 Pro and confirmed the core selection, note/tag, library, copy/link, range-link, and QR flows. The 1.6.1 containing app is verified in Safari on iPhone 17 and iPad (A16) simulators, including live Russian-page injection and bounded popup sizing; TestFlight/App Store and a repeat physical-device pass remain separate Apple gates.
 
 The local bilingual beta listing, reviewer checklist, exact permission explanation, reproducible source-archive command, and Apple/Mozilla release gates are collected in [`store/mobile/RELEASE-CANDIDATE.md`](store/mobile/RELEASE-CANDIDATE.md).
 

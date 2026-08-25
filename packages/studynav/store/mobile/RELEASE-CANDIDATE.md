@@ -1,9 +1,10 @@
 # StudyNav Mobile 1.6.1 — provider-ready beta packet
 
-This is the review packet for the Safari iPhone/iPad and Firefox Android beta
-candidates. It is a source artifact, not a Store submission or an install
-link. The mobile packages are not described as installable until their signed
-provider links are live and verified. General availability additionally
+This is the review and release packet for the Safari iPhone/iPad and Firefox
+Android beta candidates. The Firefox 1.6.1 package is now Mozilla-signed and
+published as a self-distributed prerelease; the exact user route is owned by
+the public Pages mobile-beta section. The Safari package remains a local
+candidate rather than a TestFlight submission. General availability still
 requires the promised workflows to pass on physical devices.
 
 ## Product boundary
@@ -68,10 +69,10 @@ shasum -a 256 \
   packages/studynav/studynav-mobile-1.6.1-source.zip
 ```
 
-The source ZIP is ignored by Git and is for reviewer upload only. The Firefox
-ZIP remains unsigned until Mozilla returns a signed file. Do not give either
-local ZIP to ordinary users as an installation route. Signing, upload,
-submission, and public distribution are separate owner actions.
+The source ZIP is ignored by Git and is for reviewer upload only. The generated
+Firefox ZIP is unsigned and must never be given to ordinary users. Mozilla's
+signed XPI is published separately as the prerelease installation artifact;
+source upload, AMO signing, and public distribution retain separate receipts.
 
 ## Local verification evidence
 
@@ -208,15 +209,25 @@ device testing, and App Store publication remain owner-controlled gates.
 - Submit the generated ZIP together with the reproducible source archive and
   the build commands above. The source archive must not contain private
   profiles, credentials, or generated machine state.
-- The first Android route is a Mozilla-signed unlisted beta. After signing,
-  verify the returned file and install URL before sharing either one.
-- AMO login, agreement acceptance, signing upload, review, and listed public
-  distribution are separate owner-controlled gates.
+- The first Android route is a Mozilla-signed unlisted beta. AMO add-on
+  `6b976149237d4fb687c1`, version `6437244`, file `4981423`, returned approved
+  `6b976149237d4fb687c1-1.6.1.xpi` on 2026-08-25.
+- The signed XPI is 91,960 bytes with SHA-256
+  `9d54e32552ea048773b09bcbac926d155f60ec4f7d3db4625b15f8731fbb8c5c`.
+  PKCS#7 verification names `studynav-mobile@kikuai.dev` and the Mozilla AMO
+  Production Signing Service. All candidate files match byte-for-byte; only
+  `META-INF` signature records were added.
+- Firefox for Android installs a self-distributed XPI from a saved file through
+  the menu unlocked by tapping the Firefox logo five times under About Firefox.
+  Web download alone does not install it, and this beta does not auto-update.
+- AMO listed/public-catalog distribution remains disabled. The public GitHub
+  prerelease is the approved beta file host; a physical Android install remains
+  a separate proof gate.
 
-## Known limits before beta release
+## Known limits after beta publication
 
-This packet does not claim a 1.6.1 physical-device pass, provider approval, or
-public mobile availability. iPhone and iPad simulator checks and Firefox 142
-on Android 16/API 36 Emulator are complete. A real signed-provider install,
-physical-device beta pass, provider review, and public availability remain
-separate gates.
+The signed Android file and public download route are release preconditions,
+not physical-device behavior proof. iPhone and iPad simulator checks and
+Firefox 142 on Android 16/API 36 Emulator are complete. A physical Android
+install from the public prerelease, an updated physical iPhone/iPad pass, and
+Apple TestFlight availability remain separate gates.

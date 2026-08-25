@@ -1,6 +1,6 @@
 # Local-first browser extensions
 
-Три расширения для Chrome, Edge, Brave и других Chromium-браузеров на компьютере. StudyNav 1.6.0 одобрен и доступен в Chrome Web Store. Общий мобильный код 1.6.1 собирается для Safari на iPhone/iPad и Firefox на Android: Safari-пакет прошёл проверку на симуляторах iPhone/iPad, а Firefox-пакет — полный прогон на Android 16 Emulator. Для обычной установки мобильные пакеты пока недоступны: Android требует подписи Mozilla, а iPhone/iPad — TestFlight. Код и сборка остаются под контролем владельца: без телеметрии и remote code. InkShade использует явно закреплённый MIT-лицензированный upstream source fork с отдельным брендом и квитанцией происхождения.
+Три расширения для Chrome, Edge, Brave и других Chromium-браузеров на компьютере. StudyNav 1.6.0 одобрен и доступен в Chrome Web Store. Mozilla подписала отдельную StudyNav Mobile 1.6.1 beta для Firefox 142+ на Android; её публичный XPI и инструкция находятся на странице руководства. Общий мобильный код прошёл полный прогон на Android 16 Emulator, но установка по публичной ссылке на физическом телефоне остаётся отдельной проверкой. Safari-пакет для iPhone/iPad проверен на симуляторах и всё ещё ожидает TestFlight. Код и сборка остаются под контролем владельца: без телеметрии и remote code. InkShade использует явно закреплённый MIT-лицензированный upstream source fork с отдельным брендом и квитанцией происхождения.
 
 ## Philosophy
 
@@ -15,11 +15,22 @@
 | `packages/clearshield` / ClearShield | **Ad & Tracker Blocker (ClearShield)** | DNR blocker: локальные списки, per-site allowlist, косметическая фильтрация, счётчик блокировок |
 | `packages/inkshade` / InkShade | **InkShade – Dark Mode for Every Site** | Store-oriented local-first fork of the Dark Reader v4.9.129 MV3 engine and bundled site fixes; distinct branding, no news/telemetry/premium/remote config |
 | `packages/studynav` / StudyNav | **StudyNav — Unofficial Study Tools** | Локальные подсветки/заметки/теги и сохранённые места, цитаты и QR, continue-watching, выбор одного или нескольких стихов подряд → один локальный WAV, copy/link и reading/media helpers |
-| `packages/studynav` / StudyNav Mobile | **StudyNav Mobile — Unofficial Study Tools** | Общий облегчённый профиль 1.6.1 для Safari на iPhone/iPad и Firefox на Android; симуляторы iPhone/iPad и Firefox 142 на Android 16 Emulator пройдены, подпись и ссылки TestFlight/AMO ещё впереди |
+| `packages/studynav` / StudyNav Mobile | **StudyNav Mobile — Unofficial Study Tools** | Общий облегчённый профиль 1.6.1 для Safari на iPhone/iPad и Firefox на Android; подписанная Android beta опубликована как GitHub prerelease, TestFlight для iPhone/iPad ещё впереди |
 
 StudyNav — **неофициальный** helper, не связан с JW.org / Watch Tower / JW PubMedia One / JW Web Add-on.
 
-Установка из Chrome Web Store: <https://chromewebstore.google.com/detail/bjgaghgbmghohpahonodejobgflpcbai>. Полное двуязычное руководство со скриншотами и видео: <https://kiku-jw.github.io/nick-extensions/>.
+Установка настольной версии из Chrome Web Store: <https://chromewebstore.google.com/detail/bjgaghgbmghohpahonodejobgflpcbai>. Полное двуязычное руководство со скриншотами, видео и Android beta: <https://kiku-jw.github.io/nick-extensions/>.
+
+## Установка StudyNav Mobile beta на Android
+
+Нужен Firefox 142 или новее. Chrome, Edge и Brave на Android этот пакет не устанавливают.
+
+1. Откройте <https://kiku-jw.github.io/nick-extensions/ru/#mobile-beta> в Firefox для Android и скачайте подписанный XPI.
+2. Откройте **Настройки → О Firefox** и быстро нажмите логотип Firefox пять раз.
+3. Вернитесь в Настройки и выберите **Установить расширение из файла**.
+4. Откройте `StudyNav-Mobile-1.6.1-Firefox-Android.xpi`, проверьте доступ и нажмите **Добавить**.
+
+Это самостоятельно распространяемая бета-версия, поэтому обновления устанавливаются вручную. Подписанный XPI имеет SHA-256 `9d54e32552ea048773b09bcbac926d155f60ec4f7d3db4625b15f8731fbb8c5c`.
 
 ## Build
 
@@ -56,7 +67,7 @@ Firefox Android ZIP для проверки и будущей отправки �
 bun run package:studynav:firefox-android
 ```
 
-Результат: `packages/studynav/studynav-firefox-android.zip`. До подписи или публикации через Mozilla Add-ons это не готовый способ установки для обычного пользователя.
+Результат: `packages/studynav/studynav-firefox-android.zip`. Это воспроизводимый **неподписанный** пакет для отправки в AMO, а не пользовательская установка. Пользователям предназначен только Mozilla-подписанный XPI из публичного prerelease.
 
 Safari‑приложение и расширение находятся в `packages/studynav/apple/StudyNav`. Команда ниже пересобирает веб‑часть, синхронизирует Xcode‑ресурсы, повторно проверяет их официальным упаковщиком Apple и выполняет unsigned Simulator build:
 
@@ -109,11 +120,11 @@ bun run package:studynav:chrome
 
 Автоматические проверки доказывают одинаковый runtime обоих пакетов, touch‑интерфейс, отсутствие настольных функций, Firefox lint без предупреждений, упаковку Apple и сборку для iOS Simulator. Safari 1.6.1 прошёл проверки на симуляторах iPhone и iPad. Firefox 142 на Android 16 Emulator прошёл все девять функций, поворот экрана, крупный текст, работу офлайн с сохранёнными данными, перезапуск и реальное обновление 1.6.0 → 1.6.1 без потери заметки, тегов и сохранённого места.
 
-Это локальная готовность бета-сборки, а не доступность для пользователей. Для Android выбран подписанный Mozilla Add-ons пакет Firefox; для iPhone/iPad — TestFlight. На странице руководства появятся кнопки установки только после того, как соответствующая ссылка магазина будет опубликована и проверена. Текущая 1.6.1 ещё не прошла повторный прогон на физическом iPhone, не подписана для распространения и не загружалась в Mozilla или Apple.
+Android beta 1 подписана производственной службой Mozilla и опубликована как публичный GitHub prerelease. Подпись, манифест, разрешения, SHA-256 и анонимное скачивание проверяются как отдельные релизные доказательства; полный runtime уже прошёл на Firefox 142 в Android 16 Emulator. Установка этого публичного XPI на физическом Android ещё не подтверждена, поэтому доступность файла не выдаётся за доказанную работу на телефоне. Для iPhone/iPad выбран TestFlight: текущая 1.6.1 ещё не прошла повторный физический прогон и не загружалась в Apple.
 
 ## Updates policy
 
-Unpacked builds update only when you rebuild and reload them. Store-installed builds update through their browser's extension-store channel after a reviewed release is published.
+Unpacked builds update only when you rebuild and reload them. Store-installed builds update through their browser's extension-store channel after a reviewed release is published. The self-distributed Firefox Android beta has no automatic update route; install each newer signed XPI manually after exporting a Study library backup.
 
 Current test contract and interpretation: `docs/SMOKE.md`.
 InkShade store/privacy contract: `docs/INKSHADE-STORE.md`.

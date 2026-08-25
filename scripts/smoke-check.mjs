@@ -503,14 +503,16 @@ for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
   );
   ok(/several consecutive verses|несколько стихов подряд/i.test(html), `${relativeHtml}: consecutive verse audio is explained`);
   const mobileBoundaryTokens = relativeHtml.includes('/ru/')
-    ? ['Установить из Chrome Web Store', 'Мобильная бета-версия готовится', 'Firefox на Android', 'TestFlight', 'Установить его обычным способом пока нельзя']
-    : ['Install from Chrome Web Store', 'Mobile beta is being prepared', 'Firefox on Android', 'TestFlight', 'It is not installable yet'];
+    ? ['Установить из Chrome Web Store', 'Подписанную Android-версию уже можно скачать', 'Firefox 142', 'TestFlight', 'Установить расширение из файла']
+    : ['Install from Chrome Web Store', 'The signed Android beta is ready to download', 'Firefox 142', 'TestFlight', 'Install Extension from File'];
   ok(
     mobileBoundaryTokens.every((token) => html.includes(token)) &&
       html.includes('id="mobile-beta"') &&
+      html.includes('StudyNav-Mobile-1.6.1-Firefox-Android.xpi') &&
+      html.includes('9d54e32552ea048773b09bcbac926d155f60ec4f7d3db4625b15f8731fbb8c5c') &&
       html.includes('https://github.com/kiku-jw/nick-extensions/issues/10') &&
       html.includes('privacy/'),
-    `${relativeHtml}: states the verified desktop/mobile-beta boundary and links privacy`,
+    `${relativeHtml}: states the verified desktop/Android-beta boundary and links privacy`,
   );
   ok(
     html.includes('https://chromewebstore.google.com/detail/bjgaghgbmghohpahonodejobgflpcbai') &&
