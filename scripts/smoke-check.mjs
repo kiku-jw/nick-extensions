@@ -486,7 +486,7 @@ for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
   const expectedDuration = relativeHtml.includes('/ru/') ? '4:35' : '4:17';
   ok(html.includes(`23 ${relativeHtml.includes('/ru/') ? 'главы' : 'chapters'} · ${expectedDuration}`),
     `${relativeHtml}: final narrated tutorial duration is visible`);
-  ok(/1\.6\.0/.test(html), `${relativeHtml}: current release is visible`);
+  ok(/1\.6\.1/.test(html), `${relativeHtml}: current release is visible`);
   const releaseGuideTokens = relativeHtml.includes('/ru/')
     ? ['Нажмите на цветное выделение', 'Запятая или Enter', 'StudyNav · видео', 'браузер обновляет его автоматически']
     : ['Click the colored highlight', 'Comma or Enter', 'StudyNav video', 'browser updates it automatically'];
@@ -495,7 +495,7 @@ for (const relativeHtml of ['site/index.html', 'site/ru/index.html']) {
       html.includes('assets/screenshots/19-note-rail.png') &&
       html.includes('assets/screenshots/20-media-tools-menu.png') &&
       releaseGuideTokens.every((token) => html.includes(token)),
-    `${relativeHtml}: explains the StudyNav 1.6.0 note, media, and safe-update workflows`,
+    `${relativeHtml}: explains the StudyNav 1.6.1 note, media, and safe-update workflows`,
   );
   ok(
     html.includes('demo-note-tags') && html.includes('demo-note-actions'),
