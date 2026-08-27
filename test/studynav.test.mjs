@@ -477,7 +477,7 @@ describe('StudyNav feature planning', () => {
     expect(plan.teardown.continueWatching).toBe(true);
   });
 
-  test('keeps the shared paragraph toolbar for Mark and scopes continue watching to media', () => {
+  test('keeps selection actions available for article annotations and scopes continue watching to media', () => {
     const articlePlan = deriveFeaturePlan({
       ...DEFAULT_FLAGS,
       copyText: false,

@@ -1430,6 +1430,7 @@ async function getStudyNavState(page) {
     return {
       dataset: document.documentElement.dataset.studynav || null,
       palettePresent: !!document.getElementById('studynav-palette'),
+      toolRoots: document.querySelectorAll('[data-sn-tools="1"]').length,
       paraTools: document.querySelectorAll('.studynav-para-tools').length,
       paragraphButtons: Array.from(document.querySelectorAll('.studynav-para-tools button'))
         .map((button) => button.textContent?.trim() || ''),
@@ -2744,15 +2745,15 @@ async function runStudyNavScenario(executablePath, port) {
       getComputedStyle(document.querySelector('#article-table td')).borderTopStyle !== 'solid');
     await installCopyCapture(jwPage);
 
-    await jwPage.hover('#p1');
-    await jwPage.locator('#p1 > .studynav-para-tools button', { hasText: 'Copy' }).click();
+    await selectFixtureText(jwPage, '#p1', 'A useful thought is easier to revisit when it stays beside the text.');
+    await jwPage.locator('#studynav-selection-tools button', { hasText: 'Copy' }).click();
     const copiedParagraph = await waitForCopiedText(
       jwPage,
       (text) => text === 'A useful thought is easier to revisit when it stays beside the text.',
       'StudyNav paragraph copy did not reach the browser clipboard boundary',
     );
-    await jwPage.hover('#p1');
-    await jwPage.locator('#p1 > .studynav-para-tools button', { hasText: 'Link' }).click();
+    await selectFixtureText(jwPage, '#p1', 'A useful thought is easier to revisit when it stays beside the text.');
+    await jwPage.locator('#studynav-selection-tools button', { hasText: 'Link' }).click();
     const copiedLink = await waitForCopiedText(
       jwPage,
       (text) => text.endsWith('#p1'),
@@ -2767,13 +2768,14 @@ async function runStudyNavScenario(executablePath, port) {
       paragraph.textContent = 'StudyNav can create a precise link for this paragraph.';
       document.getElementById('article')?.append(collision, paragraph);
     });
-    await jwPage.waitForFunction(() => {
-      const paragraph = document.querySelector('p[data-pid="Generated PID"]');
-      return Array.from(paragraph?.querySelectorAll('.studynav-para-tools button') || [])
-        .some((button) => button.textContent?.trim() === 'Link');
-    });
-    await jwPage.hover('p[data-pid="Generated PID"]');
-    await jwPage.locator('p[data-pid="Generated PID"] .studynav-para-tools button', { hasText: 'Link' }).click();
+    await jwPage.waitForFunction(() =>
+      document.querySelector('p[data-pid="Generated PID"]')?.getAttribute('data-sn-tools') === '1');
+    await selectFixtureText(
+      jwPage,
+      'p[data-pid="Generated PID"]',
+      'StudyNav can create a precise link for this paragraph.',
+    );
+    await jwPage.locator('#studynav-selection-tools button', { hasText: 'Link' }).click();
     const generatedLink = await waitForCopiedText(
       jwPage,
       (text) => text.endsWith('#studynav-pid-generated-pid-2'),
@@ -2782,9 +2784,7 @@ async function runStudyNavScenario(executablePath, port) {
     await setStudyNavFlags(worker, { ...DEFAULT_STUDYNAV_FLAGS, parLink: false });
     await jwPage.waitForFunction(() => {
       const paragraph = document.querySelector('p[data-pid="Generated PID"]');
-      return paragraph && !paragraph.id && !paragraph.hasAttribute('data-sn-owned-anchor') &&
-        !Array.from(paragraph.querySelectorAll('.studynav-para-tools button'))
-          .some((button) => button.textContent?.trim() === 'Link');
+      return paragraph && !paragraph.id && !paragraph.hasAttribute('data-sn-owned-anchor');
     });
     const generatedAnchorRemoved = await jwPage.evaluate(() => {
       const paragraph = document.querySelector('p[data-pid="Generated PID"]');
@@ -3263,9 +3263,28 @@ async function runStudyNavScenario(executablePath, port) {
       Array.from(document.querySelectorAll('.studynav-para-tools')).every((toolbar) =>
         Array.from(toolbar.querySelectorAll('button')).every((button) => button.textContent?.trim() !== 'Copy')),
     );
-    const copyOffButtons = await jwPage.locator('#p1 > .studynav-para-tools button').allTextContents();
+    await selectFixtureText(jwPage, '#p1', 'A useful thought');
+    const copyOffButtons = await jwPage.locator('#studynav-selection-tools button').allTextContents();
+    await jwPage.evaluate(() => {
+      window.getSelection()?.removeAllRanges();
+      document.dispatchEvent(new Event('selectionchange'));
+    });
     await popup.evaluate(() => document.querySelector('[data-id="copyText"]').click());
-    await jwPage.waitForFunction(() => !!Array.from(document.querySelectorAll('#p1 > .studynav-para-tools button')).find((button) => button.textContent?.trim() === 'Copy'));
+    await waitForWorkerState(
+      worker,
+      async () => (await chrome.storage.sync.get('flags')).flags,
+      (flags) => flags.copyText === true,
+      'StudyNav popup did not restore Copy Text',
+    );
+    await jwPage.waitForFunction(() => Array.from(document.querySelectorAll('.studynav-para-tools button'))
+      .some((button) => button.textContent?.trim() === 'Copy'));
+    await selectFixtureText(jwPage, '#p1', 'A useful thought');
+    await jwPage.waitForFunction(() => !!Array.from(document.querySelectorAll('#studynav-selection-tools button'))
+      .find((button) => button.textContent?.trim() === 'Copy'));
+    await jwPage.evaluate(() => {
+      window.getSelection()?.removeAllRanges();
+      document.dispatchEvent(new Event('selectionchange'));
+    });
 
     await popup.evaluate(() => document.querySelector('[data-id="verseAudio"]').click());
     const verseAudioOffFlags = await waitForWorkerState(
@@ -3286,7 +3305,11 @@ async function runStudyNavScenario(executablePath, port) {
       makeAssertion('StudyNav stays off ordinary host', ordinaryState.dataset == null && ordinaryState.palettePresent === false, ordinaryState),
       makeAssertion('StudyNav activates on mapped jw host', jwState.dataset === '1', jwState),
       makeAssertion('StudyNav injects palette shell', jwState.palettePresent === true, jwState),
-      makeAssertion('StudyNav injects paragraph tools', jwState.paraTools >= 2, jwState),
+      makeAssertion(
+        'StudyNav initializes reading actions without adding controls inside ordinary paragraphs',
+        jwState.toolRoots >= 5 && jwState.paraTools === 3,
+        jwState,
+      ),
       makeAssertion('StudyNav injects alt text blocks', jwState.altBlocks >= 1, jwState),
       makeAssertion(
         'StudyNav image descriptions stay idempotent and ignore images without alt text or captions',
@@ -3523,8 +3546,8 @@ async function runStudyNavScenario(executablePath, port) {
       ),
       makeAssertion(
         'StudyNav popup individual feature toggle removes only the requested control',
-        copyOffFlags.copyText === false && copyOffButtons.length === 2 &&
-          copyOffButtons.includes('Mark') && copyOffButtons.includes('Link'),
+        copyOffFlags.copyText === false && !copyOffButtons.includes('Copy') &&
+          copyOffButtons.includes('Add note') && copyOffButtons.includes('Link'),
         { copyOffFlags, copyOffButtons },
       ),
       makeAssertion(
@@ -3623,10 +3646,11 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
     );
     await page.waitForFunction(() =>
       document.documentElement.dataset.studynav === '1' &&
-      document.querySelectorAll('.studynav-para-tools').length >= 5);
+      document.querySelectorAll('[data-sn-tools="1"]').length >= 5 &&
+      document.querySelectorAll('#p1 > [data-studynav-owned]').length === 0);
     await installCopyCapture(page);
     await page.hover('#p1');
-    await captureScreenshot(page, '16-paragraph-tools.png');
+    await captureScreenshot(page, '16-unobstructed-paragraph.png');
     await captureScreenshot(page, '01-jw-default.png');
 
     const officialShapeBefore = await page.evaluate(() => ({
@@ -3701,9 +3725,8 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       'StudyNav did not save a note opened from a highlight click',
     );
 
-    const markButton = page.locator('#p2 > .studynav-para-tools button', { hasText: 'Mark' });
-    await page.hover('#p2');
-    await markButton.click();
+    await selectFixtureText(page, '#p2', 'A precise link returns to the same place without searching again.');
+    await page.locator('#studynav-selection-tools button', { hasText: 'Add note' }).click();
     await page.waitForSelector('#studynav-note-editor');
     await captureScreenshot(page, '03-note-editor.png');
     const editorColors = await page.locator('#studynav-note-editor input[name="color"]').evaluateAll((inputs) =>
@@ -3712,8 +3735,8 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
     await page.keyboard.press('Escape');
     await page.waitForFunction(() => !document.getElementById('studynav-note-editor'));
 
-    await page.hover('#p2');
-    await markButton.click();
+    await selectFixtureText(page, '#p2', 'A precise link returns to the same place without searching again.');
+    await page.locator('#studynav-selection-tools button', { hasText: 'Add note' }).click();
     await page.fill('#studynav-note-text', 'Private family note');
     const storageRerenderProbeReady = await page.evaluate(() => {
       const editor = document.getElementById('studynav-note-editor');
@@ -3861,7 +3884,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
     const reloadState = await page.evaluate(() => ({
       highlightColors: ['yellow', 'green', 'blue', 'pink'].filter((color) =>
         (CSS.highlights?.get(`studynav-${color}`)?.size || 0) > 0),
-      markButtons: Array.from(document.querySelectorAll('.studynav-para-tools button'))
+      verseMarkButtons: Array.from(document.querySelectorAll('.verse > .studynav-para-tools button'))
         .filter((button) => button.textContent?.trim() === 'Mark').length,
       officialChildren: Array.from(document.getElementById('p1')?.childNodes || [])
         .filter((node) => !(node instanceof Element) || !node.hasAttribute('data-studynav-owned')).length,
@@ -4740,7 +4763,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
     await setStudyNavFlags(worker, DEFAULT_STUDYNAV_FLAGS);
     await page.waitForFunction(() =>
       document.documentElement.dataset.studynav === '1' &&
-      document.querySelectorAll('.studynav-para-tools').length >= 5);
+      document.querySelectorAll('[data-sn-tools="1"]').length >= 5);
     const masterRestoredState = await getStudyNavState(page);
 
     const wolPage = await openPage(
@@ -4751,7 +4774,8 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
     );
     await wolPage.waitForFunction(() =>
       document.documentElement.dataset.studynav === '1' &&
-      document.querySelectorAll('.studynav-para-tools').length === 2);
+      document.querySelectorAll('[data-sn-tools="1"]').length === 2 &&
+      document.querySelectorAll('.studynav-para-tools').length === 0);
     const wolMediaState = await wolPage.evaluate(() => {
       const bar = document.getElementById('studynav-media-bar');
       const summary = bar?.querySelector('summary');
@@ -5011,7 +5035,7 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
       ),
       makeAssertion(
         'StudyNav restores four highlight registries after a full page reload',
-        reloadState.highlightColors.length === 4 && reloadState.markButtons >= 5 && reloadState.officialChildren === 1,
+        reloadState.highlightColors.length === 4 && reloadState.verseMarkButtons === 3 && reloadState.officialChildren === 1,
         reloadState,
       ),
       makeAssertion(
@@ -5198,6 +5222,239 @@ async function runStudyNavStudySuiteScenario(executablePath, port) {
   return scenario;
 }
 
+async function runStudyNavSelectionRegressionScenario(executablePath, port) {
+  const scenario = createScenario('studynav-selection-regression', ['StudyNav']);
+  await withContext(
+    { executablePath, extensions: ['StudyNav'], locale: 'ru', deviceScaleFactor: 2 },
+    async (context, launchMeta) => {
+      scenario.launchMode = launchMeta.launchMode;
+      await waitFor(() => context.serviceWorkers().length > 0, 15_000, 'Russian StudyNav worker did not start');
+      const worker = context.serviceWorkers()[0];
+      scenario.serviceWorkers = await collectServiceWorkers(context);
+      await setStudyNavFlags(worker, DEFAULT_STUDYNAV_FLAGS);
+      await routeStudyNavFixtures(context);
+
+      const page = await openPage(
+        context,
+        scenario,
+        'studynav-selection-regression',
+        httpsUrl(HOSTS.jw, STUDYNAV_FIXTURE_PATH),
+      );
+      await page.waitForFunction(() =>
+        document.documentElement.dataset.studynav === '1' &&
+        document.getElementById('p1')?.dataset.snTools === '1');
+      await installCopyCapture(page);
+
+      await page.hover('#p1');
+      const hoverState = await page.evaluate(() => {
+        const paragraph = document.getElementById('p1');
+        const sourceRects = [];
+        const walker = document.createTreeWalker(paragraph, NodeFilter.SHOW_TEXT, {
+          acceptNode(node) {
+            return node.parentElement?.closest('[data-studynav-owned], .studynav-para-tools')
+              ? NodeFilter.FILTER_REJECT
+              : NodeFilter.FILTER_ACCEPT;
+          },
+        });
+        let node;
+        while ((node = walker.nextNode())) {
+          const range = document.createRange();
+          range.selectNodeContents(node);
+          sourceRects.push(...Array.from(range.getClientRects()).map((rect) => ({
+            left: rect.left,
+            top: rect.top,
+            right: rect.right,
+            bottom: rect.bottom,
+          })));
+        }
+        const visibleButtons = Array.from(paragraph?.querySelectorAll(':scope > [data-studynav-owned] button') || [])
+          .filter((button) => {
+            const style = getComputedStyle(button);
+            const rect = button.getBoundingClientRect();
+            return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
+          });
+        const overlapCount = visibleButtons.filter((button) => {
+          const rect = button.getBoundingClientRect();
+          return sourceRects.some((source) =>
+            rect.left < source.right && rect.right > source.left && rect.top < source.bottom && rect.bottom > source.top);
+        }).length;
+        const textNode = paragraph?.firstChild;
+        let dragStart = null;
+        let dragEnd = null;
+        if (textNode?.nodeType === Node.TEXT_NODE && textNode.data.length > 1) {
+          const firstRange = document.createRange();
+          firstRange.setStart(textNode, 0);
+          firstRange.setEnd(textNode, 1);
+          const lastRange = document.createRange();
+          lastRange.setStart(textNode, textNode.data.length - 1);
+          lastRange.setEnd(textNode, textNode.data.length);
+          const firstRect = firstRange.getBoundingClientRect();
+          const lastRect = lastRange.getBoundingClientRect();
+          dragEnd = { x: firstRect.left + 1, y: firstRect.top + firstRect.height / 2 };
+          dragStart = { x: lastRect.right - 1, y: lastRect.top + lastRect.height / 2 };
+          for (const button of visibleButtons) {
+            const buttonRect = button.getBoundingClientRect();
+            const source = sourceRects.find((candidate) =>
+              buttonRect.left < candidate.right && buttonRect.right > candidate.left &&
+              buttonRect.top < candidate.bottom && buttonRect.bottom > candidate.top);
+            if (!source) continue;
+            dragStart = {
+              x: (Math.max(buttonRect.left, source.left) + Math.min(buttonRect.right, source.right)) / 2,
+              y: (Math.max(buttonRect.top, source.top) + Math.min(buttonRect.bottom, source.bottom)) / 2,
+            };
+            break;
+          }
+        }
+        return {
+          ownedChildren: paragraph?.querySelectorAll(':scope > [data-studynav-owned]').length || 0,
+          visibleButtons: visibleButtons.length,
+          overlapCount,
+          sourceText: paragraph?.textContent?.trim() || '',
+          dragStart,
+          dragEnd,
+        };
+      });
+
+      if (hoverState.dragStart && hoverState.dragEnd) {
+        await page.mouse.move(hoverState.dragStart.x, hoverState.dragStart.y);
+        await page.mouse.down();
+        await page.mouse.move(hoverState.dragEnd.x, hoverState.dragEnd.y, { steps: 12 });
+        await page.mouse.up();
+      }
+      await page.waitForTimeout(180);
+      const nativeSelectionState = await page.evaluate(() => ({
+        selected: window.getSelection()?.toString().trim() || '',
+        toolbarOpen: !!document.getElementById('studynav-selection-tools'),
+        toast: document.getElementById('studynav-toast')?.textContent?.trim() || '',
+      }));
+
+      await page.evaluate(() => {
+        window.getSelection()?.removeAllRanges();
+        document.dispatchEvent(new Event('selectionchange'));
+        const toast = document.getElementById('studynav-toast');
+        if (toast) toast.textContent = '';
+        const paragraph = document.getElementById('p1');
+        if (!paragraph) return;
+        const range = document.createRange();
+        range.setStart(paragraph, 0);
+        range.setEnd(paragraph, paragraph.childNodes.length);
+        const selection = window.getSelection();
+        selection?.addRange(range);
+        document.dispatchEvent(new Event('selectionchange'));
+      });
+      await page.waitForTimeout(180);
+      const elementBoundaryState = await page.evaluate(() => {
+        const tools = document.getElementById('studynav-selection-tools');
+        const toolbarRect = tools?.getBoundingClientRect();
+        const selection = window.getSelection();
+        const range = selection?.rangeCount === 1 ? selection.getRangeAt(0) : null;
+        const selectionRects = range ? Array.from(range.getClientRects()) : [];
+        const overlapsSelection = !!toolbarRect && selectionRects.some((rect) =>
+          toolbarRect.left < rect.right && toolbarRect.right > rect.left &&
+          toolbarRect.top < rect.bottom && toolbarRect.bottom > rect.top);
+        return {
+          toolbarOpen: !!tools,
+          buttons: Array.from(tools?.querySelectorAll('button') || []).map((button) => button.textContent?.trim() || ''),
+          selected: selection?.toString().trim() || '',
+          toast: document.getElementById('studynav-toast')?.textContent?.trim() || '',
+          placement: tools?.dataset.placement || null,
+          overlapsSelection,
+        };
+      });
+      let copiedText = '';
+      if (elementBoundaryState.toolbarOpen) {
+        await page.locator('#studynav-selection-tools button', { hasText: 'Копировать' }).click();
+        copiedText = await waitForCopiedText(
+          page,
+          (text) => text === 'A useful thought is easier to revisit when it stays beside the text.',
+          'StudyNav did not retain the element-boundary selection for Copy',
+        );
+      }
+
+      await page.evaluate(() => {
+        const paragraph = document.createElement('p');
+        paragraph.id = 'p-selection-limit';
+        paragraph.dataset.pid = 'p-selection-limit';
+        paragraph.textContent = 'x'.repeat(10_001);
+        document.getElementById('article')?.appendChild(paragraph);
+      });
+      await page.waitForFunction(() => document.getElementById('p-selection-limit')?.dataset.snTools === '1');
+      await page.evaluate(() => {
+        const toast = document.getElementById('studynav-toast');
+        if (toast) toast.textContent = '';
+        const text = document.getElementById('p-selection-limit')?.firstChild;
+        if (!text) return;
+        const range = document.createRange();
+        range.setStart(text, 0);
+        range.setEnd(text, text.textContent?.length || 0);
+        const selection = window.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        document.dispatchEvent(new Event('selectionchange'));
+      });
+      await page.waitForTimeout(180);
+      const overLimitState = await page.evaluate(() => ({
+        toolbarOpen: !!document.getElementById('studynav-selection-tools'),
+        toast: document.getElementById('studynav-toast')?.textContent?.trim() || '',
+      }));
+      await page.evaluate(() => {
+        window.getSelection()?.removeAllRanges();
+        document.dispatchEvent(new Event('selectionchange'));
+      });
+      await page.waitForTimeout(100);
+      const emptySelectionState = await page.evaluate(() => ({
+        toolbarOpen: !!document.getElementById('studynav-selection-tools'),
+        selected: window.getSelection()?.toString() || '',
+      }));
+
+      scenario.assertions.push(
+        makeAssertion(
+          'StudyNav hover adds no controls inside or over ordinary reading text',
+          hoverState.ownedChildren === 0 && hoverState.visibleButtons === 0 &&
+            hoverState.overlapCount === 0 &&
+            hoverState.sourceText === 'A useful thought is easier to revisit when it stays beside the text.',
+          hoverState,
+        ),
+        makeAssertion(
+          'StudyNav preserves native pointer selection across the former hover-control area',
+          nativeSelectionState.selected.length >= 4 && nativeSelectionState.toolbarOpen === true &&
+            !/10\s*000/.test(nativeSelectionState.toast),
+          nativeSelectionState,
+        ),
+        makeAssertion(
+          'StudyNav accepts element-boundary selections and keeps actions away from selected text',
+          elementBoundaryState.toolbarOpen === true &&
+            ['Добавить заметку', 'Копировать', 'Ссылка'].every((label) => elementBoundaryState.buttons.includes(label)) &&
+            elementBoundaryState.selected === 'A useful thought is easier to revisit when it stays beside the text.' &&
+            !/10\s*000/.test(elementBoundaryState.toast) &&
+            ['top', 'bottom'].includes(elementBoundaryState.placement) &&
+            elementBoundaryState.overlapsSelection === false &&
+            copiedText === 'A useful thought is easier to revisit when it stays beside the text.',
+          { elementBoundaryState, copiedText },
+        ),
+        makeAssertion(
+          'StudyNav reports the 10,000-character limit only for an over-limit selection',
+          overLimitState.toolbarOpen === false && /10\s*000/.test(overLimitState.toast),
+          overLimitState,
+        ),
+        makeAssertion(
+          'StudyNav opens no action surface for an empty selection',
+          emptySelectionState.toolbarOpen === false && emptySelectionState.selected === '',
+          emptySelectionState,
+        ),
+        makeAssertion('StudyNav selection regression page emits no uncaught errors', scenario.pageErrors.length === 0, scenario.pageErrors),
+        makeAssertion(
+          'StudyNav selection regression emits no extension console errors',
+          scenario.consoleErrors.filter((entry) =>
+            String(entry.location?.url || '').startsWith('chrome-extension://')).length === 0,
+          scenario.consoleErrors,
+        ),
+      );
+    },
+  );
+  return scenario;
+}
+
 async function runStudyNavMobileScenario(executablePath, port) {
   const scenario = createScenario('studynav-mobile', ['StudyNavMobile']);
   await withContext(
@@ -5225,7 +5482,7 @@ async function runStudyNavMobileScenario(executablePath, port) {
       await page.reload({ waitUntil: 'load' });
       await page.waitForFunction(() =>
         document.documentElement.dataset.studynav === '1' &&
-        document.querySelectorAll('.studynav-para-tools').length >= 5);
+        document.querySelectorAll('[data-sn-tools="1"]').length >= 5);
       await installCopyCapture(page);
       const initialFlagStorageState = await waitForWorkerState(
         worker,
@@ -5267,9 +5524,7 @@ async function runStudyNavMobileScenario(executablePath, port) {
       const mobilePageState = await page.evaluate(() => ({
         overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
         dynamicCss: document.getElementById('studynav-dynamic-style')?.textContent || '',
-        paragraphHoverToolsHidden: getComputedStyle(
-          document.querySelector('#p1 > .studynav-para-tools'),
-        ).display === 'none',
+        paragraphHoverToolsAbsent: !document.querySelector('#p1 > .studynav-para-tools'),
       }));
 
       await page.locator('#v1001001 .jsHighlightOnly').click();
@@ -5656,7 +5911,7 @@ async function runStudyNavMobileScenario(executablePath, port) {
       await page.reload({ waitUntil: 'load' });
       await page.waitForFunction(() =>
         document.documentElement.dataset.studynav === '1' &&
-        document.querySelectorAll('.studynav-para-tools').length >= 5);
+        document.querySelectorAll('[data-sn-tools="1"]').length >= 5);
       const pageReloadData = await waitForWorkerState(
         worker,
         async () => (await chrome.storage.local.get('studynavStudyDataV2')).studynavStudyDataV2,
@@ -5673,6 +5928,7 @@ async function runStudyNavMobileScenario(executablePath, port) {
           dataset: document.documentElement.dataset.studynav,
           noteRailCount: document.querySelectorAll('#studynav-note-rail').length,
           noteTextVisible: rail?.textContent?.includes('Review this thought on the phone.') || false,
+          toolRootCount: document.querySelectorAll('[data-sn-tools="1"]').length,
           paraToolCount: document.querySelectorAll('.studynav-para-tools').length,
           overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
         };
@@ -5796,7 +6052,8 @@ async function runStudyNavMobileScenario(executablePath, port) {
       await wolPage.reload({ waitUntil: 'load' });
       await wolPage.waitForFunction(() =>
         document.documentElement.dataset.studynav === '1' &&
-        document.querySelectorAll('.studynav-para-tools').length >= 2);
+        document.querySelectorAll('[data-sn-tools="1"]').length >= 2 &&
+        document.querySelectorAll('.studynav-para-tools').length === 0);
       await selectFixtureText(wolPage, '#p2', 'local notes');
       const wolState = await wolPage.evaluate(() => ({
         selectionTools: !!document.getElementById('studynav-selection-tools'),
@@ -5837,7 +6094,7 @@ async function runStudyNavMobileScenario(executablePath, port) {
             initialState.mediaClipPanelPresent === false && initialState.transcriptPresent === false &&
             !mobilePageState.dynamicCss.includes('#regionHeader') &&
             !mobilePageState.dynamicCss.includes('.video-js') &&
-            mobilePageState.paragraphHoverToolsHidden === true && mobilePageState.overflow === false &&
+            mobilePageState.paragraphHoverToolsAbsent === true && mobilePageState.overflow === false &&
             json(activeMobileFlags) === json(expectedMobileFlags),
           { initialState, mobilePageState, activeMobileFlags, initialFlagStorageState },
         ),
@@ -5963,7 +6220,8 @@ async function runStudyNavMobileScenario(executablePath, port) {
             pageReloadFlags?.copyText === true && pageReloadFlags?.annotations === true &&
             pageReloadFlags?.verseAudio === false && pageReloadFlags?.imgGet === false &&
             pageReloadState.dataset === '1' && pageReloadState.noteRailCount === 1 &&
-            pageReloadState.noteTextVisible === true && pageReloadState.paraToolCount >= 5 &&
+            pageReloadState.noteTextVisible === true && pageReloadState.toolRootCount >= 5 &&
+            pageReloadState.paraToolCount === 3 &&
             pageReloadState.overflow === false,
           { pageReloadData, pageReloadFlags, pageReloadState },
         ),
@@ -5983,7 +6241,7 @@ async function runStudyNavMobileScenario(executablePath, port) {
           longRecordState.extraCount === 32 && stressUiState.noteRailCount === 1 &&
             stressUiState.noteCardCount === longRecordState.annotationCount &&
             stressUiState.uniqueCardIds === stressUiState.noteCardCount &&
-            stressUiState.p1ToolbarCount === 1 && stressUiState.p2ToolbarCount === 1 &&
+            stressUiState.p1ToolbarCount === 0 && stressUiState.p2ToolbarCount === 0 &&
             longPageState.ownedOverflowers.length === 0,
           { longRecordState, stressUiState, longPageState },
         ),
@@ -5992,7 +6250,7 @@ async function runStudyNavMobileScenario(executablePath, port) {
           stressTeardownState.dataset === 'off' && stressTeardownState.ownedCount === 0 &&
             stressReapplyState.dataset === '1' && stressReapplyState.noteRailCount === 1 &&
             stressReapplyState.noteCardCount === longRecordState.annotationCount &&
-            stressReapplyState.p1ToolbarCount === 1 && stressReapplyState.p2ToolbarCount === 1,
+            stressReapplyState.p1ToolbarCount === 0 && stressReapplyState.p2ToolbarCount === 0,
           { stressTeardownState, stressReapplyState },
         ),
         makeAssertion(
@@ -6043,19 +6301,24 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
       );
       await page.waitForFunction(() =>
         document.documentElement.dataset.studynav === '1' &&
-        document.querySelectorAll('.studynav-para-tools').length >= 5);
+        document.querySelectorAll('[data-sn-tools="1"]').length >= 5);
       await page.locator('#v1001003 .jsHighlightOnly').click();
       await page.waitForFunction(() =>
         !!document.querySelector('#v1001003 .studynav-verse-audio'));
-      await page.hover('#p1');
+      await selectFixtureText(page, '#p1', 'A useful thought');
       const contentLocaleState = await page.evaluate(() => ({
-        paragraphButtons: Array.from(document.querySelectorAll('#p1 > .studynav-para-tools button'))
-          .map((button) => button.textContent?.trim()),
-        toolbarAria: document.querySelector('#p1 > .studynav-para-tools')?.getAttribute('aria-label'),
+        selectionButtons: Array.from(document.querySelectorAll('#studynav-selection-tools button'))
+          .map((button) => button.textContent?.trim()).filter(Boolean),
+        toolbarAria: document.getElementById('studynav-selection-tools')?.getAttribute('aria-label'),
+        paragraphOwnedControls: document.querySelectorAll('#p1 > [data-studynav-owned]').length,
         audioText: document.querySelector('#v1001003 .studynav-verse-audio')?.textContent?.trim(),
         audioTitle: document.querySelector('#v1001003 .studynav-verse-audio')?.getAttribute('title'),
       }));
-      await captureScreenshot(page, 'ru-article-tools.png');
+      await captureScreenshot(page, 'ru-selection-tools.png');
+      await page.evaluate(() => {
+        window.getSelection()?.removeAllRanges();
+        document.dispatchEvent(new Event('selectionchange'));
+      });
       await openStudyNavMediaMenu(page);
       const mediaLocaleState = await page.evaluate(() => ({
         heading: document.querySelector('.studynav-media-menu > strong')?.textContent?.trim(),
@@ -6084,8 +6347,8 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
       await page.locator('#v1001003 .studynav-verse-range-control').click();
       await page.locator('#v1001003 .jsHighlightOnly').click();
 
-      await page.hover('#p1');
-      await page.locator('#p1 > .studynav-para-tools button').first().evaluate((button) => button.click());
+      await selectFixtureText(page, '#p1', 'A useful thought');
+      await page.locator('#studynav-selection-tools button', { hasText: 'Добавить заметку' }).click();
       await page.waitForSelector('#studynav-note-editor');
       const editorLocaleState = await page.evaluate(() => ({
         title: document.getElementById('studynav-editor-title')?.textContent?.trim(),
@@ -6182,8 +6445,9 @@ async function runStudyNavRussianLocaleScenario(executablePath, port) {
         ),
         makeAssertion(
           'StudyNav localizes injected article, verse, editor, panel, QR, error, and accessibility UI to Russian',
-          contentLocaleState.paragraphButtons.join('|') === 'Отметить|Копировать|Ссылка' &&
-            contentLocaleState.toolbarAria === 'Инструменты изучения' &&
+          contentLocaleState.selectionButtons.join('|') === 'Добавить заметку|Копировать|Ссылка' &&
+            contentLocaleState.toolbarAria === 'Действия с выбранным текстом' &&
+            contentLocaleState.paragraphOwnedControls === 0 &&
             contentLocaleState.audioText === 'Скачать аудио' &&
             contentLocaleState.audioTitle === 'Скачать аудио только этого стиха' &&
             mediaLocaleState.heading === 'Инструменты видео' &&
@@ -6404,6 +6668,7 @@ async function runStudyNavLiveSmokeScenario(executablePath) {
             const dynamicCss = document.getElementById('studynav-dynamic-style')?.textContent || '';
             return {
               dataset: document.documentElement.dataset.studynav || null,
+              toolRoots: document.querySelectorAll('[data-sn-tools="1"]').length,
               paraTools: document.querySelectorAll('.studynav-para-tools').length,
               documentClientWidth: document.documentElement.clientWidth,
               documentScrollWidth: document.documentElement.scrollWidth,
@@ -6457,7 +6722,7 @@ async function runStudyNavLiveSmokeScenario(executablePath) {
           makeAssertion(
             'Live supported article receives StudyNav helpers',
             supportedState.palettePresent === true &&
-              supportedState.paraTools >= 1 &&
+              supportedState.toolRoots >= 1 &&
               supportedState.stylePresent === true &&
               (supportedState.languageSelectOptions === 0 ||
                 supportedState.langBadge === String(supportedState.languageSelectOptions)),
@@ -6468,7 +6733,7 @@ async function runStudyNavLiveSmokeScenario(executablePath) {
           scenario.assertions.push(makeAssertion(
             'Live Ukrainian WOL keeps audio tools out of the title and makes the reading column visibly wider',
             wolState.before.dataset === '1' && wolState.after.dataset === '1' &&
-              wolState.after.paraTools >= 1 &&
+              wolState.after.toolRoots >= 1 &&
               wolState.after.documentScrollWidth <= wolState.after.documentClientWidth &&
               wolState.after.articleRect?.left >= 0 &&
               wolState.after.articleRect?.right <= wolState.after.documentClientWidth &&
@@ -6943,6 +7208,7 @@ async function main() {
     if (scenarioRequested('inkshade-only')) report.scenarios.push(await runInkShadeForkScenario(executable.executablePath, fixture.port));
     if (scenarioRequested('studynav-only')) report.scenarios.push(await runStudyNavScenario(executable.executablePath, fixture.port));
     if (scenarioRequested('studynav-study-suite')) report.scenarios.push(await runStudyNavStudySuiteScenario(executable.executablePath, fixture.port));
+    if (scenarioRequested('studynav-selection-regression')) report.scenarios.push(await runStudyNavSelectionRegressionScenario(executable.executablePath, fixture.port));
     if (scenarioRequested('studynav-mobile')) report.scenarios.push(await runStudyNavMobileScenario(executable.executablePath, fixture.port));
     if (scenarioRequested('studynav-russian-locale')) report.scenarios.push(await runStudyNavRussianLocaleScenario(executable.executablePath, fixture.port));
     if (scenarioRequested('combined')) report.scenarios.push(await runCombinedScenario(executable.executablePath, fixture.port));

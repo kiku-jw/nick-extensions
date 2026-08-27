@@ -1,9 +1,5 @@
 /* Mobile touch overrides. Kept separate so desktop pages do not change. */
 @media (pointer: coarse), (max-width: 600px) {
-  .studynav-para:not(.verse) > .studynav-para-tools {
-    display: none !important;
-  }
-
   .studynav-para-tools {
     max-width: calc(100vw - 16px);
     flex-wrap: wrap;

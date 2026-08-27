@@ -11,8 +11,6 @@
 .studynav-para-tools {
   position: absolute; right: 0; top: 0; display: none; gap: 4px; z-index: 5;
 }
-.studynav-para:not(.verse):hover > .studynav-para-tools,
-.studynav-para:not(.verse):focus-within > .studynav-para-tools,
 .verse.studynav-verse-toolbar-anchor > .studynav-para-tools { display: inline-flex; }
 .verse.studynav-verse-selected:not(.jwac-textHighlight) {
   border-radius: 4px;
@@ -382,10 +380,6 @@
 
 /* Mobile touch overrides. Kept separate so desktop pages do not change. */
 @media (pointer: coarse), (max-width: 600px) {
-  .studynav-para:not(.verse) > .studynav-para-tools {
-    display: none !important;
-  }
-
   .studynav-para-tools {
     max-width: calc(100vw - 16px);
     flex-wrap: wrap;

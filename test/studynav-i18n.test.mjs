@@ -111,7 +111,7 @@ describe('StudyNav localization contract', () => {
 
   test('localizes manifest identity and command metadata through Chrome i18n', async () => {
     const manifest = await json('packages/studynav/manifest.json');
-    expect(manifest.version).toBe('1.6.1');
+    expect(manifest.version).toBe('1.6.2');
     expect(manifest.default_locale).toBe('en');
     expect(manifest.name).toBe('__MSG_extension_name__');
     expect(manifest.short_name).toBe('__MSG_extension_short_name__');

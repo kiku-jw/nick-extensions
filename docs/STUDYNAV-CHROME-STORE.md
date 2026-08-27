@@ -21,6 +21,14 @@ changes.
 - Independent product: not produced, maintained, supported, or endorsed by
   Jehovah's Witnesses.
 
+Next desktop candidate: **1.6.2**, not yet uploaded or submitted. It removes
+paragraph actions that appeared on hover over reading text. The same highlight,
+note, Copy, and Link actions now appear only after a deliberate text selection;
+the selection action bar stays at the opposite viewport edge. Element-boundary
+selections are normalized against clean source text, so a valid short selection
+no longer receives the 10,000-character error. Issue:
+`https://github.com/kiku-jw/nick-extensions/issues/11`.
+
 ## Current release state
 
 Record these independently; never infer a later state from an earlier one:

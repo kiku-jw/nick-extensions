@@ -83,10 +83,34 @@ export function cleanTextSnapshot(element: HTMLElement): CleanTextSnapshot | nul
 }
 
 function boundaryOffset(snapshot: CleanTextSnapshot, container: Node, offset: number): number | null {
-  if (container.nodeType !== Node.TEXT_NODE) return null;
-  const segment = snapshot.segments.find((item) => item.node === container);
-  if (!segment || offset < 0 || offset > segment.node.data.length) return null;
-  return segment.start + offset;
+  if (container !== snapshot.element && !snapshot.element.contains(container)) return null;
+  if (container.nodeType === Node.TEXT_NODE) {
+    const segment = snapshot.segments.find((item) => item.node === container);
+    if (segment && offset >= 0 && offset <= segment.node.data.length) {
+      return segment.start + offset;
+    }
+  }
+  const prefix = snapshot.element.ownerDocument.createRange();
+  try {
+    prefix.setStart(snapshot.element, 0);
+    prefix.setEnd(container, offset);
+    const fragment = prefix.cloneContents();
+    const walker = fragment.ownerDocument.createTreeWalker(fragment, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        return node.parentElement?.closest(EXCLUDED_TEXT_SELECTOR)
+          ? NodeFilter.FILTER_REJECT
+          : NodeFilter.FILTER_ACCEPT;
+      },
+    });
+    let length = 0;
+    let node: Node | null;
+    while ((node = walker.nextNode())) length += node.nodeValue?.length || 0;
+    return length;
+  } catch {
+    return null;
+  } finally {
+    prefix.detach?.();
+  }
 }
 
 export function offsetsForRange(

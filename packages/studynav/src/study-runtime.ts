@@ -21,6 +21,7 @@ import {
 } from './study-data';
 import {
   cleanTextSnapshot,
+  offsetsForRange,
   resolveAnnotationInDom,
   selectorForRange,
   selectorForWholeElement,
@@ -272,7 +273,12 @@ function selectionError(): string {
     return t('select_one_paragraph');
   }
   if (startRoot && startRoot === endRoot) {
-    return t('select_character_count', MAX_TEXT_LENGTH.toLocaleString());
+    const snapshot = cleanTextSnapshot(startRoot);
+    const offsets = snapshot ? offsetsForRange(snapshot, range) : null;
+    if (offsets && offsets.end - offsets.start > MAX_TEXT_LENGTH) {
+      return t('select_character_count', MAX_TEXT_LENGTH.toLocaleString());
+    }
+    return t('selection_cannot_save');
   }
   return '';
 }
@@ -306,10 +312,25 @@ function positionSelectionTools(tools: HTMLElement, range: Range) {
   const anchor = rect.width || rect.height ? rect : fallback;
   if (!anchor) return;
   const width = tools.offsetWidth || 260;
-  const left = Math.max(8, Math.min(window.innerWidth - width - 8, anchor.left + anchor.width / 2 - width / 2));
-  const top = Math.max(8, anchor.top - (tools.offsetHeight || 44) - 8);
-  tools.style.left = `${left}px`;
+  const height = tools.offsetHeight || 44;
+  const viewport = window.visualViewport;
+  const viewportLeft = viewport?.offsetLeft || 0;
+  const viewportTop = viewport?.offsetTop || 0;
+  const viewportWidth = viewport?.width || window.innerWidth;
+  const viewportHeight = viewport?.height || window.innerHeight;
+  const left = anchor.left + anchor.width / 2 - width / 2;
+  const boundedLeft = Math.max(
+    viewportLeft + 8,
+    Math.min(viewportLeft + viewportWidth - width - 8, left),
+  );
+  const topDock = viewportTop + 8;
+  const bottomDock = viewportTop + viewportHeight - height - 8;
+  const viewportMiddle = viewportTop + viewportHeight / 2;
+  const selectionMiddle = anchor.top + anchor.height / 2;
+  const top = selectionMiddle < viewportMiddle ? bottomDock : topDock;
+  tools.style.left = `${boundedLeft}px`;
   tools.style.top = `${top}px`;
+  tools.dataset.placement = selectionMiddle < viewportMiddle ? 'bottom' : 'top';
 }
 
 async function commitPendingReattach(candidate: SelectionCandidate) {

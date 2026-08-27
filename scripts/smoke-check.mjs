@@ -197,7 +197,7 @@ for (const name of pkgs) {
     const studyStorageSource = readFileSync(join(root, 'packages/studynav/src/study-storage.ts'), 'utf8');
     const featureIds = [...featureDefaultsSource.matchAll(/\{ id: '([^']+)'/g)].map((match) => match[1]);
     const hosts = manifest.host_permissions || [];
-    ok(manifest.version === '1.6.1', `${name}: expected 1.6.1 release version`);
+    ok(manifest.version === '1.6.2', `${name}: expected 1.6.2 desktop candidate version`);
     ok(
       JSON.stringify(hosts) === JSON.stringify([
         'https://jw.org/*',

@@ -1056,12 +1056,14 @@ function runCopyAndLinks(articleRoots: HTMLElement[], flags: FeatureFlags) {
     if (existing) existing.remove();
     el.dataset.snTools = '1';
     el.classList.add('studynav-para');
+    const verse = parseBibleVerseId(el.id);
+    if (!verse) return;
     const bar = document.createElement('span');
     bar.className = 'studynav-para-tools';
     bar.setAttribute('data-studynav-owned', '1');
     bar.setAttribute('aria-label', t('study_tools_aria'));
 
-    STUDYNAV_DESKTOP_ONLY: if (!MOBILE_BUILD && flags.verseAudio && parseBibleVerseId(el.id)) {
+    STUDYNAV_DESKTOP_ONLY: if (!MOBILE_BUILD && flags.verseAudio) {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'studynav-verse-audio';
@@ -1077,7 +1079,7 @@ function runCopyAndLinks(articleRoots: HTMLElement[], flags: FeatureFlags) {
       bar.appendChild(button);
     }
 
-    if (((!MOBILE_BUILD && flags.verseAudio) || flags.copyText || flags.parLink) && parseBibleVerseId(el.id)) {
+    if ((!MOBILE_BUILD && flags.verseAudio) || flags.copyText || flags.parLink) {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'studynav-verse-range-control';
@@ -1109,7 +1111,7 @@ function runCopyAndLinks(articleRoots: HTMLElement[], flags: FeatureFlags) {
       button.type = 'button';
       button.textContent = t('mark');
       button.title = t('mark_title');
-      if (parseBibleVerseId(el.id)) button.dataset.singleVerseOnly = '1';
+      button.dataset.singleVerseOnly = '1';
       button.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
