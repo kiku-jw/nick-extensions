@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="InkShade creates adaptive dark themes locally while preserving layouts, media, controls, and already-dark sites.">
+  <meta name="theme-color" content="#5b3f9f">
+  <title>InkShade — adaptive dark mode for websites</title>
+  <link rel="canonical" href="https://kiku-jw.github.io/nick-extensions/inkshade/">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+  <header class="site-header"><nav class="nav" aria-label="Primary navigation"><a class="brand" href="./"><img src="icon.svg" width="36" height="36" alt=""><span>InkShade</span></a><div class="nav-links"><a href="privacy/">Privacy</a><a href="https://github.com/kiku-jw/nick-extensions">Source</a><a href="https://github.com/kiku-jw/nick-extensions/issues">Support</a></div></nav></header>
+  <main id="content" tabindex="-1">
+    <section class="section"><div class="container"><div class="section-head"><p class="eyebrow">Version 2.0.0 · Manifest V3</p><h1>Dark mode that adapts to the page.</h1><p>InkShade transforms website colors locally while preserving layouts, media, forms, CSS variables, dynamic content, and Shadow DOM. Its rendered-palette detector avoids applying another theme when a page is already genuinely dark.</p></div>
+      <div class="privacy-grid">
+        <article class="card"><h2>Full-page rendering</h2><p>A pinned dynamic theme engine handles ordinary pages, complex stylesheets, frames, and content added after load instead of flattening every site with one blanket stylesheet.</p></article>
+        <article class="card"><h2>Native-dark awareness</h2><p>InkShade evaluates the rendered viewport and a bounded sample of long documents. A dark hero alone does not hide a light page, while confirmed native-dark pages stay untouched.</p></article>
+        <article class="card"><h2>Local by design</h2><p>No account, advertising, telemetry, news feed, premium activation, or remote configuration. Preferences and site rules remain in browser extension storage unless you explicitly export them.</p></article>
+        <article class="card"><h2>Controls that stay yours</h2><p>Adjust brightness, contrast, sepia, fonts, automation, and per-site behavior. Disable another dark-mode extension on the same page to avoid competing theme engines.</p></article>
+      </div>
+      <p class="install-note"><strong>Independent project:</strong> InkShade is built from a reviewed, pinned revision of the MIT-licensed Dark Reader engine. InkShade has its own identity and is not affiliated with or endorsed by Dark Reader Ltd. Website compatibility varies, so fixes remain narrow and reviewable rather than claiming perfection on every site.</p>
+      <p><a class="button" href="privacy/">Read the privacy policy</a> <a class="button secondary" href="https://github.com/kiku-jw/nick-extensions">Inspect the source</a></p>
+    </div></section>
+  </main>
+  <footer class="site-footer"><div class="container footer-grid"><p><strong>InkShade — local adaptive dark mode.</strong></p><p><a href="privacy/">Privacy</a> · <a href="https://github.com/kiku-jw/nick-extensions/issues">Support</a> · <a href="https://github.com/kiku-jw/nick-extensions">Source</a></p></div></footer>
+</body>
+</html>

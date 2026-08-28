@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">InkShade</title>
+  <circle cx="64" cy="64" r="58" fill="#5b3f9f"/>
+  <path d="M35 52 94 63 92 78 33 67Z" fill="#fff"/>
+</svg>

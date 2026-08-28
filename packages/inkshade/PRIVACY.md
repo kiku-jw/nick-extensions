@@ -1,6 +1,6 @@
 # InkShade privacy policy
 
-Last updated: 2026-08-14
+Last updated: 2026-08-28
 
 InkShade changes website colors locally in the browser. It does not collect,
 sell, transmit, or use personal data for advertising, analytics, profiling, or
@@ -42,7 +42,17 @@ The exact revision and license are recorded in `UPSTREAM.json` and
 `THIRD_PARTY_NOTICES.txt`. InkShade is independently developed and is not
 affiliated with or endorsed by Dark Reader Ltd.
 
+## Chrome Web Store Limited Use
+
+InkShade uses website content and extension settings only to provide the
+adaptive dark-theme features described in the extension and its Store listing.
+It does not transfer this information to the publisher, sell it, use it for
+advertising or credit decisions, or allow people to read it. InkShade's use of
+information complies with the Chrome Web Store User Data Policy, including the
+Limited Use requirements.
+
 ## Contact
 
-Privacy questions can be submitted through the KikuAI project contact surface
-at https://kikuai.dev.
+Privacy questions can be submitted through the public support issue page at
+https://github.com/kiku-jw/nick-extensions/issues. Do not include browsing
+details, credentials, or other private information in a public issue.

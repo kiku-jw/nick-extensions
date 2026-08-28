@@ -52,6 +52,13 @@ function nonEmpty(file) {
   return existsSync(file) && statSync(file).size > 0;
 }
 
+function pngDimensions(file) {
+  if (!nonEmpty(file)) return null;
+  const bytes = readFileSync(file);
+  const isPng = bytes.length >= 24 && bytes.subarray(1, 4).toString('ascii') === 'PNG';
+  return isPng ? { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) } : null;
+}
+
 function resolveManifestString(value, manifest, dist) {
   const match = /^__MSG_([A-Za-z0-9_]+)__$/.exec(String(value || ''));
   if (!match) return value;
@@ -555,6 +562,45 @@ for (const relativeHtml of ['site/privacy/index.html', 'site/ru/privacy/index.ht
   for (const reference of localRefs) {
     ok(existsSync(join(htmlDir, reference)), `${relativeHtml}: local asset ${reference}`);
   }
+}
+
+console.log('\n== public InkShade release surfaces ==');
+for (const relativeHtml of ['site/inkshade/index.html', 'site/inkshade/privacy/index.html']) {
+  const htmlPath = join(root, relativeHtml);
+  const html = readFileSync(htmlPath, 'utf8');
+  const htmlDir = dirname(htmlPath);
+  ok(/InkShade/.test(html), `${relativeHtml}: clear InkShade identity`);
+  ok(/KikuAI Lab|github\.com\/kiku-jw\/nick-extensions/.test(html), `${relativeHtml}: publisher or source boundary`);
+  const localRefs = [...html.matchAll(/(?:src|href)="([^"#]+)"/g)]
+    .map((match) => match[1])
+    .filter((value) => !/^(?:https?:|mailto:|data:)/.test(value));
+  for (const reference of localRefs) {
+    ok(existsSync(join(htmlDir, reference)), `${relativeHtml}: local asset ${reference}`);
+  }
+}
+const inkshadePrivacy = readFileSync(join(root, 'site/inkshade/privacy/index.html'), 'utf8');
+ok(
+  /does not collect/.test(inkshadePrivacy) &&
+    /website content is processed in browser memory/.test(inkshadePrivacy) &&
+    /Chrome Web Store Limited Use/.test(inkshadePrivacy) &&
+    /no remote executable code/.test(inkshadePrivacy),
+  'InkShade public privacy page covers collection, local processing, Limited Use, and remote-code boundaries',
+);
+const inkshadePromo = join(root, 'packages/inkshade/store/chrome/promo-440x280.png');
+ok(
+  JSON.stringify(pngDimensions(inkshadePromo)) === JSON.stringify({ width: 440, height: 280 }),
+  'InkShade Store promo tile is exactly 440x280 PNG',
+);
+for (const screenshot of [
+  '01-adaptive-theme.png',
+  '02-long-page-detection.png',
+  '03-site-compatibility.png',
+]) {
+  const screenshotPath = join(root, 'packages/inkshade/store/chrome/screenshots/en', screenshot);
+  ok(
+    JSON.stringify(pngDimensions(screenshotPath)) === JSON.stringify({ width: 1280, height: 800 }),
+    `InkShade Store screenshot ${screenshot} is exactly 1280x800 PNG`,
+  );
 }
 
 for (const language of ['en', 'ru']) {

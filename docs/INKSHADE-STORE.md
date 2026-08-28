@@ -52,10 +52,34 @@ The final ZIP must have `manifest.json` at its root and contain only `en`, `ru`,
 and `uk` locales. Audit it for upstream brand assets, marketing endpoints,
 remote config, `eval`, `new Function`, `update_url`, and external messaging.
 
-## Publication blocker
+## Store release surfaces
 
-Publish `packages/inkshade/PRIVACY.md` at a stable public URL before submitting
-the extension. `https://kikuai.dev/privacy` currently returns 404 and must not
-be used. Store screenshots, promotional images, support URL, developer account
-enrollment, and the actual upload remain separate owner-approved publication
-steps.
+- Product page: `https://kiku-jw.github.io/nick-extensions/inkshade/`
+- Privacy policy: `https://kiku-jw.github.io/nick-extensions/inkshade/privacy/`
+- Support: `https://github.com/kiku-jw/nick-extensions/issues`
+- Long descriptions: the `@store_listing` blocks in
+  `packages/inkshade/upstream/src/_locales/store/store.{en,ru,uk}.config`,
+  captured in the reviewed downstream patch.
+- Required promo tile:
+  `packages/inkshade/store/chrome/promo-440x280.png`.
+- Reviewed English screenshots:
+  `packages/inkshade/store/chrome/screenshots/en/`.
+
+The product and privacy pages are live contracts owned by `packages/inkshade`.
+Update them in the same release whenever InkShade's purpose, permissions, data
+handling, publisher, or support surface changes. The Store images are immutable
+release assets; replace them only with screenshots from a freshly verified
+build.
+
+## Publication gate
+
+Before submitting version 2.0.0:
+
+1. Run the release gate above and rebuild `packages/inkshade/inkshade-store.zip`.
+2. Verify the ZIP hash, integrity, root manifest, locale set, and permissions.
+3. Push the public pages and confirm both URLs return HTTP 200 from GitHub Pages.
+4. Upload the exact verified ZIP, fill the Store Listing, Privacy, and
+   Distribution tabs, then read every saved field back before submission.
+5. Submit for review only after the dashboard has no incomplete-field warning.
+   Submission proves an external review request, not approval or public
+   availability.
